@@ -9,7 +9,7 @@ Lists all cases for a given Chronicle instance. Supports powerful filtering, sor
 
 **Usage:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py cases list [options]
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py cases list [options]
 ```
 
 **Options:**
@@ -19,7 +19,7 @@ python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py ca
 
 **Examples:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py cases list --project-id "my-project" --customer-id "abc" --region "us" --filter "Status='OPENED'"
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py cases list --project-id "my-project" --customer-id "abc" --region "us" --filter "Status='OPENED'"
 ```
 
 ## Tool 2: get_case
@@ -27,7 +27,7 @@ Retrieves all details for a specific case by its numeric ID.
 
 **Usage:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py cases get --case-id <CASE_ID> [options]
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py cases get --case-id <CASE_ID> [options]
 ```
 
 **Options:**
@@ -35,7 +35,7 @@ python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py ca
 
 **Examples:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py cases get --project-id "my-project" --customer-id "abc" --region "us" --case-id "1" --expand "tasks"
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py cases get --project-id "my-project" --customer-id "abc" --region "us" --case-id "1" --expand "tasks"
 ```
 
 ## Tool 3: list_case_comments (comments)
@@ -43,7 +43,7 @@ Lists all case comments for a given case in Google SecOps. Use this to review ac
 
 **Usage:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py cases comments --case-id <CASE_ID> [options]
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py cases comments --case-id <CASE_ID> [options]
 ```
 
 **Options:**
@@ -54,7 +54,7 @@ python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py ca
 
 **Examples:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py cases comments --project-id "my-project" --customer-id "abc" --region "us" --case-id "123" --order-by "create_time desc"
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py cases comments --project-id "my-project" --customer-id "abc" --region "us" --case-id "123" --order-by "create_time desc"
 ```
 
 ## Tool 4: update_case
@@ -62,7 +62,7 @@ Updates the fields of a specific case, such as changing priority, assigning it t
 
 **Usage:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py cases update --case-id <CASE_ID> [options]
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py cases update --case-id <CASE_ID> [options]
 ```
 
 **Options:**
@@ -79,7 +79,7 @@ python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py ca
 
 **Examples:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py cases update --project-id "my-project" --customer-id "abc" --region "us" --case-id "1" --priority "PRIORITY_CRITICAL" --stage "Investigation" --assignee "analyst@example.com"
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py cases update --project-id "my-project" --customer-id "abc" --region "us" --case-id "1" --priority "PRIORITY_CRITICAL" --stage "Investigation" --assignee "analyst@example.com"
 ```
 
 ## Tool 5: get_case_alert (alert)
@@ -87,7 +87,7 @@ Retrieves a single security alert associated with a specific case.
 
 **Usage:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py cases alert --case-id <CASE_ID> --alert-id <ALERT_ID> [options]
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py cases alert --case-id <CASE_ID> --alert-id <ALERT_ID> [options]
 ```
 
 **Options:**
@@ -97,7 +97,7 @@ python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py ca
 
 **Examples:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py cases alert --project-id "my-project" --customer-id "abc" --region "us" --case-id "123" --alert-id "456" --expand "involvedRelations"
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py cases alert --project-id "my-project" --customer-id "abc" --region "us" --case-id "123" --alert-id "456" --expand "involvedRelations"
 ```
 
 ## Tool 6: list_case_alerts (alerts)
@@ -105,7 +105,7 @@ Lists all security alerts associated with a specific case. Supports filtering by
 
 **Usage:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py cases alerts --case-id <CASE_ID> [options]
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py cases alerts --case-id <CASE_ID> [options]
 ```
 
 **Options:**
@@ -116,7 +116,7 @@ python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py ca
 
 **Examples:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py cases alerts --project-id "my-project" --customer-id "abc" --region "us" --case-id "1" --filter "Status='OPEN'"
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py cases alerts --project-id "my-project" --customer-id "abc" --region "us" --case-id "1" --filter "Status='OPEN'"
 ```
 
 ## Tool 7: update_case_alert (update-alert)
@@ -124,7 +124,7 @@ Updates a security alert associated with a specific case, such as changing its s
 
 **Usage:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py cases update-alert --case-id <CASE_ID> --alert-id <ALERT_ID> [options]
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py cases update-alert --case-id <CASE_ID> --alert-id <ALERT_ID> [options]
 ```
 
 **Options:**
@@ -137,7 +137,7 @@ python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py ca
 
 **Examples:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py cases update-alert --project-id "my-project" --customer-id "abc" --region "us" --case-id "123" --alert-id "456" --status "CLOSE" --close-reason "FALSE_POSITIVE" --close-comment "Matched known safe IP"
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py cases update-alert --project-id "my-project" --customer-id "abc" --region "us" --case-id "123" --alert-id "456" --status "CLOSE" --close-reason "FALSE_POSITIVE" --close-comment "Matched known safe IP"
 ```
 
 ## Tool 8: create_case_comment (add-comment)
@@ -145,7 +145,7 @@ Adds a new comment or note to a specific case.
 
 **Usage:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py cases add-comment --case-id <CASE_ID> --comment "<COMMENT_TEXT>"
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py cases add-comment --case-id <CASE_ID> --comment "<COMMENT_TEXT>"
 ```
 
 **Options:**
@@ -154,7 +154,7 @@ python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py ca
 
 **Examples:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py cases add-comment --project-id "my-project" --customer-id "abc" --region "us" --case-id "1" --comment "Investigated the source IP, it belongs to our internal vulnerability scanner. Closing alert."
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py cases add-comment --project-id "my-project" --customer-id "abc" --region "us" --case-id "1" --comment "Investigated the source IP, it belongs to our internal vulnerability scanner. Closing alert."
 ```
 
 ## Tool 9: execute_bulk_close_case (bulk-close)
@@ -162,7 +162,7 @@ Closes multiple cases simultaneously and adds a unified closure reason, root cau
 
 **Usage:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py cases bulk-close --cases-ids <CASE_IDS> --close-reason <REASON> [options]
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py cases bulk-close --cases-ids <CASE_IDS> --close-reason <REASON> [options]
 ```
 
 **Options:**
@@ -173,7 +173,7 @@ python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py ca
 
 **Examples:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py cases bulk-close --project-id "my-project" --customer-id "abc" --region "us" --cases-ids "123,124,125" --close-reason "NOT_MALICIOUS" --root-cause "Authorized Pen Test" --close-comment "Traffic correlated with known red team exercise."
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py cases bulk-close --project-id "my-project" --customer-id "abc" --region "us" --cases-ids "123,124,125" --close-reason "NOT_MALICIOUS" --root-cause "Authorized Pen Test" --close-comment "Traffic correlated with known red team exercise."
 ```
 
 ## Tool 10: get_connector_event (connector-event)
@@ -181,7 +181,7 @@ Retrieves the raw JSON data of a specific connector event attached to an alert. 
 
 **Usage:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py cases connector-event --case-id <CASE_ID> --alert-id <ALERT_ID> --event-id <EVENT_ID> [options]
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py cases connector-event --case-id <CASE_ID> --alert-id <ALERT_ID> --event-id <EVENT_ID> [options]
 ```
 
 **Options:**
@@ -192,7 +192,7 @@ python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py ca
 
 **Examples:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py cases connector-event --project-id "my-project" --customer-id "abc" --region "us" --case-id "123" --alert-id "456" --event-id "789" --expand-data
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py cases connector-event --project-id "my-project" --customer-id "abc" --region "us" --case-id "123" --alert-id "456" --event-id "789" --expand-data
 ```
 
 ## Tool 11: list_connector_events (connector-events)
@@ -200,7 +200,7 @@ Lists all connector events associated with a specific case alert.
 
 **Usage:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py cases connector-events --case-id <CASE_ID> --alert-id <ALERT_ID> [options]
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py cases connector-events --case-id <CASE_ID> --alert-id <ALERT_ID> [options]
 ```
 
 **Options:**
@@ -213,5 +213,5 @@ python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py ca
 
 **Examples:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py cases connector-events --project-id "my-project" --customer-id "abc" --region "us" --case-id "123" --alert-id "456" --page-size "10" --expand-data
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py cases connector-events --project-id "my-project" --customer-id "abc" --region "us" --case-id "123" --alert-id "456" --page-size "10" --expand-data
 ```

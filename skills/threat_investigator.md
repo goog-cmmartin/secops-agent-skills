@@ -9,7 +9,7 @@ Provides a comprehensive summary of an entity's activity based on historical log
 
 **Usage:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py threat-hunting summarize-entity --query <UDM_QUERY> --start-time <ISO8601> --end-time <ISO8601>
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py threat-hunting summarize-entity --query <UDM_QUERY> --start-time <ISO8601> --end-time <ISO8601>
 ```
 
 **Options:**
@@ -25,7 +25,7 @@ python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py th
 
 **Examples:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py threat-hunting summarize-entity --project-id "my-project" --customer-id "abc" --region "us" --query 'principal.ip = "192.168.1.5"' --start-time "2024-03-01T00:00:00Z" --end-time "2024-03-02T00:00:00Z"
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py threat-hunting summarize-entity --project-id "my-project" --customer-id "abc" --region "us" --query 'principal.ip = "192.168.1.5"' --start-time "2024-03-01T00:00:00Z" --end-time "2024-03-02T00:00:00Z"
 ```
 
 ## Tool 2: get_involved_entity (involved-entity)
@@ -33,7 +33,7 @@ Retrieves the details of a specific entity involved in a case alert. You can use
 
 **Usage:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py threat-hunting involved-entity --case-id <CASE_ID> --alert-id <ALERT_ID> --entity-id <ENTITY_ID>
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py threat-hunting involved-entity --case-id <CASE_ID> --alert-id <ALERT_ID> --entity-id <ENTITY_ID>
 ```
 
 **Options:**
@@ -43,7 +43,7 @@ python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py th
 
 **Examples:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py threat-hunting involved-entity --project-id "my-project" --customer-id "abc" --region "us" --case-id "123" --alert-id "456" --entity-id "entity_abc123"
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py threat-hunting involved-entity --project-id "my-project" --customer-id "abc" --region "us" --case-id "123" --alert-id "456" --entity-id "entity_abc123"
 ```
 
 ## Tool 3: list_involved_entities (involved-entities)
@@ -51,7 +51,7 @@ Lists all entities involved in a specific case alert. This is often the first st
 
 **Usage:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py threat-hunting involved-entities --case-id <CASE_ID> --alert-id <ALERT_ID> [options]
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py threat-hunting involved-entities --case-id <CASE_ID> --alert-id <ALERT_ID> [options]
 ```
 
 **Options:**
@@ -63,7 +63,7 @@ python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py th
 
 **Examples:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py threat-hunting involved-entities --project-id "my-project" --customer-id "abc" --region "us" --case-id "123" --alert-id "456"
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py threat-hunting involved-entities --project-id "my-project" --customer-id "abc" --region "us" --case-id "123" --alert-id "456"
 ```
 
 ## Tool 4: search_entity (search-entity)
@@ -71,7 +71,7 @@ Searches for entities globally within the SOAR platform across all cases based o
 
 **Usage:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py threat-hunting search-entity --indicator <INDICATOR> [options]
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py threat-hunting search-entity --indicator <INDICATOR> [options]
 ```
 
 **Options:**
@@ -80,7 +80,7 @@ python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py th
 
 **Examples:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py threat-hunting search-entity --project-id "my-project" --customer-id "abc" --region "us" --indicator "192.168.1.100"
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py threat-hunting search-entity --project-id "my-project" --customer-id "abc" --region "us" --indicator "192.168.1.100"
 ```
 
 ## Tool 5: udm_search (udm-search)
@@ -88,7 +88,7 @@ Executes a raw Universal Data Model (UDM) search across all ingested SIEM logs w
 
 **Usage:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py threat-hunting udm-search --query <UDM_QUERY> --start-time <ISO8601> --end-time <ISO8601> [options]
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py threat-hunting udm-search --query <UDM_QUERY> --start-time <ISO8601> --end-time <ISO8601> [options]
 ```
 
 **Options:**
@@ -99,7 +99,7 @@ python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py th
 
 **Examples:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py threat-hunting udm-search --project-id "my-project" --customer-id "abc" --region "us" --query 'target.hostname = "malicious.com"' --start-time "2024-03-01T00:00:00Z" --end-time "2024-03-02T00:00:00Z" --max-events 50
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py threat-hunting udm-search --project-id "my-project" --customer-id "abc" --region "us" --query 'target.hostname = "malicious.com"' --start-time "2024-03-01T00:00:00Z" --end-time "2024-03-02T00:00:00Z" --max-events 50
 ```
 
 ## Tool 6: translate_udm_query (translate-udm)
@@ -107,7 +107,7 @@ Translates a natural language description into a valid UDM query syntax that you
 
 **Usage:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py threat-hunting translate-udm --text "<NATURAL_LANGUAGE_QUERY>"
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py threat-hunting translate-udm --text "<NATURAL_LANGUAGE_QUERY>"
 ```
 
 **Options:**
@@ -115,7 +115,7 @@ python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py th
 
 **Examples:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py threat-hunting translate-udm --project-id "my-project" --customer-id "abc" --region "us" --text "find all failed logins for user jsmith in the last 24 hours"
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py threat-hunting translate-udm --project-id "my-project" --customer-id "abc" --region "us" --text "find all failed logins for user jsmith in the last 24 hours"
 ```
 
 ## Tool 7: get_ioc_match (get-ioc-match)
@@ -123,7 +123,7 @@ Retrieves Indicators of Compromise (IoCs) matches from configured threat intelli
 
 **Usage:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py threat-hunting get-ioc-match --start-time <ISO8601> --end-time <ISO8601> [options]
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py threat-hunting get-ioc-match --start-time <ISO8601> --end-time <ISO8601> [options]
 ```
 
 **Options:**
@@ -133,7 +133,7 @@ python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py th
 
 **Examples:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py threat-hunting get-ioc-match --project-id "my-project" --customer-id "abc" --region "us" --start-time "2024-03-01T00:00:00Z" --end-time "2024-03-02T00:00:00Z"
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py threat-hunting get-ioc-match --project-id "my-project" --customer-id "abc" --region "us" --start-time "2024-03-01T00:00:00Z" --end-time "2024-03-02T00:00:00Z"
 ```
 
 ## Tool 8: list_security_alerts (list-alerts)
@@ -141,7 +141,7 @@ Retrieves a global list of security alerts directly from the SIEM engine across 
 
 **Usage:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py threat-hunting list-alerts --start-time <ISO8601> --end-time <ISO8601> [options]
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py threat-hunting list-alerts --start-time <ISO8601> --end-time <ISO8601> [options]
 ```
 
 **Options:**
@@ -152,7 +152,7 @@ python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py th
 
 **Examples:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py threat-hunting list-alerts --project-id "my-project" --customer-id "abc" --region "us" --start-time "2024-03-01T00:00:00Z" --end-time "2024-03-02T00:00:00Z" --max-alerts 20
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py threat-hunting list-alerts --project-id "my-project" --customer-id "abc" --region "us" --start-time "2024-03-01T00:00:00Z" --end-time "2024-03-02T00:00:00Z" --max-alerts 20
 ```
 
 ## Tool 9: get_security_alert (get-alert)
@@ -160,7 +160,7 @@ Retrieves detailed context about a specific security alert directly from the SIE
 
 **Usage:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py threat-hunting get-alert --alert-id <ALERT_ID> [options]
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py threat-hunting get-alert --alert-id <ALERT_ID> [options]
 ```
 
 **Options:**
@@ -169,7 +169,7 @@ python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py th
 
 **Examples:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py threat-hunting get-alert --project-id "my-project" --customer-id "abc" --region "us" --alert-id "de_12345" --include-detections
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py threat-hunting get-alert --project-id "my-project" --customer-id "abc" --region "us" --alert-id "de_12345" --include-detections
 ```
 
 ## Tool 10: update_security_alert (update-alert)
@@ -177,7 +177,7 @@ Modifies specific fields of an existing security alert directly in the SIEM engi
 
 **Usage:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py threat-hunting update-alert --alert-id <ALERT_ID> [options]
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py threat-hunting update-alert --alert-id <ALERT_ID> [options]
 ```
 
 **Options:**
@@ -193,7 +193,7 @@ python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py th
 
 **Examples:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py threat-hunting update-alert --project-id "my-project" --customer-id "abc" --region "us" --alert-id "de_12345" --status "CLOSED" --verdict "false_positive" --comment "Determined to be an authorized vulnerability scan"
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py threat-hunting update-alert --project-id "my-project" --customer-id "abc" --region "us" --alert-id "de_12345" --status "CLOSED" --verdict "false_positive" --comment "Determined to be an authorized vulnerability scan"
 ```
 
 ## Tool 11: get_alert_latest_investigation (get-alert-latest-investigation)
@@ -201,7 +201,7 @@ Retrieves the most recent AI/Triage Agent investigation summary and details for 
 
 **Usage:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py threat-hunting get-alert-latest-investigation --alert-id <ALERT_ID>
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py threat-hunting get-alert-latest-investigation --alert-id <ALERT_ID>
 ```
 
 **Options:**
@@ -209,7 +209,7 @@ python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py th
 
 **Examples:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py threat-hunting get-alert-latest-investigation --project-id "my-project" --customer-id "abc" --region "us" --alert-id "de_12345"
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py threat-hunting get-alert-latest-investigation --project-id "my-project" --customer-id "abc" --region "us" --alert-id "de_12345"
 ```
 
 ## Tool 12: get_investigation_by_id (get-investigation)
@@ -217,7 +217,7 @@ Retrieves a single, complete agent-generated investigation report by its full re
 
 **Usage:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py threat-hunting get-investigation --investigation-id <INVESTIGATION_ID>
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py threat-hunting get-investigation --investigation-id <INVESTIGATION_ID>
 ```
 
 **Options:**
@@ -225,7 +225,7 @@ python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py th
 
 **Examples:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py threat-hunting get-investigation --project-id "my-project" --customer-id "abc" --region "us" --investigation-id "agent_alert123_investigation456"
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py threat-hunting get-investigation --project-id "my-project" --customer-id "abc" --region "us" --investigation-id "agent_alert123_investigation456"
 ```
 
 ## Tool 13: trigger_investigation (trigger-investigation)
@@ -233,7 +233,7 @@ Manually starts a new SecOps Triage Agent investigation for a specific alert. Us
 
 **Usage:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py threat-hunting trigger-investigation --alert-id <ALERT_ID>
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py threat-hunting trigger-investigation --alert-id <ALERT_ID>
 ```
 
 **Options:**
@@ -241,7 +241,7 @@ python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py th
 
 **Examples:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py threat-hunting trigger-investigation --project-id "my-project" --customer-id "abc" --region "us" --alert-id "de_12345"
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py threat-hunting trigger-investigation --project-id "my-project" --customer-id "abc" --region "us" --alert-id "de_12345"
 ```
 
 ## Tool 14: get_agent_settings (get-agent-settings)
@@ -249,7 +249,7 @@ Retrieves the current configuration settings for the SecOps Investigation Agent 
 
 **Usage:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py threat-hunting get-agent-settings
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py threat-hunting get-agent-settings
 ```
 
 **Options:**
@@ -259,5 +259,5 @@ python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py th
 
 **Examples:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py threat-hunting get-agent-settings --project-id "my-project" --customer-id "abc" --region "us"
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py threat-hunting get-agent-settings --project-id "my-project" --customer-id "abc" --region "us"
 ```

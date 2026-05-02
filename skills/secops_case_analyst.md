@@ -9,7 +9,7 @@ Lists all execution instances of playbooks for a given case and alert group. Ret
 
 **Usage:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py playbooks list-instances --case-id <CASE_ID> --alert-group-id <ALERT_GROUP_IDENTIFIER>
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py playbooks list-instances --case-id <CASE_ID> --alert-group-id <ALERT_GROUP_IDENTIFIER>
 ```
 
 **Options:**
@@ -18,7 +18,7 @@ python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py pl
 
 **Examples:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py playbooks list-instances --project-id "my-project" --customer-id "abc" --region "us" --case-id "123" --alert-group-id "alert-group-xyz-789"
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py playbooks list-instances --project-id "my-project" --customer-id "abc" --region "us" --case-id "123" --alert-group-id "alert-group-xyz-789"
 ```
 
 ## Tool 2: list_playbooks (list)
@@ -26,7 +26,7 @@ Retrieves a list of all configured playbooks within the system. Useful to discov
 
 **Usage:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py playbooks list --playbook-types <TYPES>
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py playbooks list --playbook-types <TYPES>
 ```
 
 **Options:**
@@ -34,7 +34,7 @@ python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py pl
 
 **Examples:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py playbooks list --project-id "my-project" --customer-id "abc" --region "us" --playbook-types "REGULAR,NESTED"
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py playbooks list --project-id "my-project" --customer-id "abc" --region "us" --playbook-types "REGULAR,NESTED"
 ```
 
 ## Tool 3: fetch_alert_data (fetch-alert-data)
@@ -42,7 +42,7 @@ Retrieves a comprehensive profile of a specific SIEM alert, aggregating metadata
 
 **Usage:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py playbooks fetch-alert-data --siem-alert-id <SIEM_ALERT_ID>
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py playbooks fetch-alert-data --siem-alert-id <SIEM_ALERT_ID>
 ```
 
 **Options:**
@@ -50,7 +50,7 @@ python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py pl
 
 **Examples:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py playbooks fetch-alert-data --project-id "my-project" --customer-id "abc" --region "us" --siem-alert-id "de_12345678"
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py playbooks fetch-alert-data --project-id "my-project" --customer-id "abc" --region "us" --siem-alert-id "de_12345678"
 ```
 
 ## Tool 4: fetch_enrichment_actions (fetch-enrichment-actions)
@@ -58,7 +58,7 @@ Retrieves a curated list of SOAR integration actions available for enriching a s
 
 **Usage:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py playbooks fetch-enrichment-actions --siem-alert-id <SIEM_ALERT_ID>
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py playbooks fetch-enrichment-actions --siem-alert-id <SIEM_ALERT_ID>
 ```
 
 **Options:**
@@ -66,7 +66,7 @@ python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py pl
 
 **Examples:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py playbooks fetch-enrichment-actions --project-id "my-project" --customer-id "abc" --region "us" --siem-alert-id "de_12345678"
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py playbooks fetch-enrichment-actions --project-id "my-project" --customer-id "abc" --region "us" --siem-alert-id "de_12345678"
 ```
 
 ## Tool 5: execute_actions (execute-actions)
@@ -76,7 +76,7 @@ Executes one or more enrichment actions on a specific SIEM alert. This is used a
 
 **Usage:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py playbooks execute-actions --siem-alert-id <SIEM_ALERT_ID> --actions '<JSON_ARRAY>'
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py playbooks execute-actions --siem-alert-id <SIEM_ALERT_ID> --actions '<JSON_ARRAY>'
 ```
 
 **Options:**
@@ -100,5 +100,5 @@ python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py pl
 
 **Examples:**
 ```bash
-python3 /home/admin_cmmartin_altostrat_com/google-secops-skills/src/secops.py playbooks execute-actions --project-id "my-project" --customer-id "abc" --region "us" --siem-alert-id "de_12345678" --actions '[{"integration": "VirusTotal", "integrationInstance": "inst_123", "displayName": "Get IP Report", "targetEntities": ["entity_abc123"], "parameters": {"ip": "1.2.3.4"}}]'
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py playbooks execute-actions --project-id "my-project" --customer-id "abc" --region "us" --siem-alert-id "de_12345678" --actions '[{"integration": "VirusTotal", "integrationInstance": "inst_123", "displayName": "Get IP Report", "targetEntities": ["entity_abc123"], "parameters": {"ip": "1.2.3.4"}}]'
 ```
