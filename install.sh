@@ -5,7 +5,7 @@ echo "===================================================="
 echo " Installing Google SecOps Agent Skills for OpenCode "
 echo "===================================================="
 
-REPO_DIR=$(pwd)
+REPO_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
 echo "[1/4] Setting up Python virtual environment..."
 python3 -m venv venv
