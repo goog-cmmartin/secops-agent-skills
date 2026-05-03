@@ -100,3 +100,6 @@ def execute_playbooks_command(args):
             "actions": actions_list
         }
         return call_mcp_tool(args.project_id, args.region, "execute_actions", arguments)
+
+    else:
+        raise RuntimeError(f"Unhandled command '{args.playbook_command}'")

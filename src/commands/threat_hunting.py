@@ -292,3 +292,6 @@ def execute_threat_hunting_command(args):
         }
             
         return call_mcp_tool(args.project_id, args.region, "get_involved_entity", arguments)
+
+    else:
+        raise RuntimeError(f"Unhandled command '{args.th_command}'")

@@ -271,3 +271,6 @@ def execute_cases_command(args):
         if getattr(args, 'expand', None): arguments["expand"] = args.expand
         
         return call_mcp_tool(args.project_id, args.region, "get_case_alert", arguments)
+
+    else:
+        raise RuntimeError(f"Unhandled command '{args.case_command}'")

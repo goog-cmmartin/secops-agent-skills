@@ -124,3 +124,6 @@ def execute_detection_engineering_command(args):
         if getattr(args, 'page_size', None): arguments["pageSize"] = args.page_size
         if getattr(args, 'page_token', None): arguments["pageToken"] = args.page_token
         return call_mcp_tool(args.project_id, args.region, "list_rule_detections", arguments)
+
+    else:
+        raise RuntimeError(f"Unhandled command '{args.det_command}'")

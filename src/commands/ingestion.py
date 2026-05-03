@@ -392,3 +392,5 @@ def execute_ingestion_command(args):
         if getattr(args, 'order_by', None): arguments["orderBy"] = args.order_by
         return call_mcp_tool(args.project_id, args.region, "list_integration_instances", arguments)
 
+    else:
+        raise RuntimeError(f"Unhandled command '{args.ingest_command}'")

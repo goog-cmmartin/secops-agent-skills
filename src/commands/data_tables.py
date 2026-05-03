@@ -120,3 +120,6 @@ def execute_data_tables_command(args):
             sys.exit(1)
             
         return call_mcp_tool(args.project_id, args.region, "add_rows_to_data_table", arguments)
+
+    else:
+        raise RuntimeError(f"Unhandled command '{args.dt_command}'")
