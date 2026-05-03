@@ -32,7 +32,11 @@ cp -r skills/* ~/.config/opencode/skills/
 echo ""
 echo "[4/4] Configuring skills with absolute paths..."
 # Replace the placeholder with the actual absolute path to the repository
-find ~/.config/opencode/skills/secops-* -type f -name "SKILL.md" -exec sed -i "s|<PATH_TO_SECOPS_SKILLS>|$REPO_DIR|g" {} +
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    find ~/.config/opencode/skills/secops-* -type f -name "SKILL.md" -exec sed -i '' "s|<PATH_TO_SECOPS_SKILLS>|$REPO_DIR|g" {} +
+else
+    find ~/.config/opencode/skills/secops-* -type f -name "SKILL.md" -exec sed -i "s|<PATH_TO_SECOPS_SKILLS>|$REPO_DIR|g" {} +
+fi
 
 echo "===================================================="
 echo " Installation Complete! "
