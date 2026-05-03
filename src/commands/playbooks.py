@@ -87,9 +87,8 @@ def execute_playbooks_command(args):
     elif args.playbook_command == "execute-actions":
         try:
             actions_list = json.loads(args.actions)
-        except json.JSONDecodeError:
-            print("Error: --actions must be a valid JSON array.", file=sys.stderr)
-            sys.exit(1)
+        except json.JSONDecodeError as e:
+            raise RuntimeError("Error: --actions must be a valid JSON array.") from e
 
         arguments = {
             "projectId": args.project_id,

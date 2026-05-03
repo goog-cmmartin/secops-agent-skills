@@ -64,9 +64,8 @@ def execute_data_tables_command(args):
         try:
             columns = json.loads(args.column_info)
             arguments["columnInfo"] = columns
-        except json.JSONDecodeError:
-            print("Error: --column-info must be a valid JSON array", file=sys.stderr)
-            sys.exit(1)
+        except json.JSONDecodeError as e:
+            raise RuntimeError("Error: --column-info must be a valid JSON array") from e
             
         return call_mcp_tool(args.project_id, args.region, "create_data_table", arguments)
 
@@ -114,9 +113,8 @@ def execute_data_tables_command(args):
         try:
             rows = json.loads(args.rows)
             arguments["rows"] = rows
-        except json.JSONDecodeError:
-            print("Error: --rows must be a valid JSON array", file=sys.stderr)
-            sys.exit(1)
+        except json.JSONDecodeError as e:
+            raise RuntimeError("Error: --rows must be a valid JSON array") from e
             
         return call_mcp_tool(args.project_id, args.region, "add_rows_to_data_table", arguments)
 

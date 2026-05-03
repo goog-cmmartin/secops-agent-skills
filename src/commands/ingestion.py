@@ -181,8 +181,7 @@ def execute_ingestion_command(args):
                 raise ValueError("--logs must be a JSON array of strings")
             arguments["logs"] = logs
         except (json.JSONDecodeError, ValueError) as e:
-            print(f"Error parsing --logs: {e}", file=sys.stderr)
-            sys.exit(1)
+            raise RuntimeError(f"Error parsing --logs: {e}") from e
             
         return call_mcp_tool(args.project_id, args.region, "import_logs", arguments)
 
@@ -264,8 +263,7 @@ def execute_ingestion_command(args):
                 raise ValueError("--sample-logs must be a JSON array of strings")
             arguments["sampleLogs"] = sample_logs
         except (json.JSONDecodeError, ValueError) as e:
-            print(f"Error parsing --sample-logs: {e}", file=sys.stderr)
-            sys.exit(1)
+            raise RuntimeError(f"Error parsing --sample-logs: {e}") from e
             
         return call_mcp_tool(args.project_id, args.region, "run_parser", arguments)
 
@@ -305,9 +303,8 @@ def execute_ingestion_command(args):
         try:
             feed_obj = json.loads(args.feed_json)
             arguments["feed"] = feed_obj
-        except json.JSONDecodeError:
-            print("Error: --feed-json must be a valid JSON object", file=sys.stderr)
-            sys.exit(1)
+        except json.JSONDecodeError as e:
+            raise RuntimeError("Error: --feed-json must be a valid JSON object") from e
             
         return call_mcp_tool(args.project_id, args.region, "create_feed", arguments)
 
@@ -322,9 +319,8 @@ def execute_ingestion_command(args):
         try:
             feed_obj = json.loads(args.feed_json)
             arguments["feed"] = feed_obj
-        except json.JSONDecodeError:
-            print("Error: --feed-json must be a valid JSON object", file=sys.stderr)
-            sys.exit(1)
+        except json.JSONDecodeError as e:
+            raise RuntimeError("Error: --feed-json must be a valid JSON object") from e
             
         return call_mcp_tool(args.project_id, args.region, "update_feed", arguments)
 
