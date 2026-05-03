@@ -1,5 +1,4 @@
 import requests
-import sys
 from .auth import get_auth_headers
 
 def call_mcp_tool(project_id, region, tool_name, arguments):
@@ -23,7 +22,7 @@ def call_mcp_tool(project_id, region, tool_name, arguments):
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
-        print(f"API request failed: {e}", file=sys.stderr)
+        error_msg = f"API request failed: {e}"
         if hasattr(e, 'response') and e.response is not None:
-            print(f"Response content: {e.response.text}", file=sys.stderr)
-        sys.exit(1)
+            error_msg += f"\nResponse content: {e.response.text}"
+        raise RuntimeError(error_msg) from e

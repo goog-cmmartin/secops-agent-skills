@@ -1,6 +1,5 @@
 import google.auth
 from google.auth.transport.requests import Request
-import sys
 
 def get_auth_headers(project_id):
     """Fetches ADC credentials and builds the authentication headers."""
@@ -16,5 +15,4 @@ def get_auth_headers(project_id):
             "Accept": "application/json"
         }
     except Exception as e:
-        print(f"Error fetching credentials: {e}", file=sys.stderr)
-        sys.exit(1)
+        raise RuntimeError(f"Error fetching credentials: {e}") from e

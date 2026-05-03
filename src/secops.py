@@ -43,26 +43,30 @@ def main():
             sys.exit(1)
 
     # Route execution to the correct domain handler
-    if args.domain == "cases":
-        result = execute_cases_command(args)
-        print(json.dumps(result, indent=2))
-    elif args.domain == "data-tables":
-        result = execute_data_tables_command(args)
-        print(json.dumps(result, indent=2))
-    elif args.domain == "threat-hunting":
-        result = execute_threat_hunting_command(args)
-        print(json.dumps(result, indent=2))
-    elif args.domain == "ingestion":
-        result = execute_ingestion_command(args)
-        print(json.dumps(result, indent=2))
-    elif args.domain == "playbooks":
-        result = execute_playbooks_command(args)
-        print(json.dumps(result, indent=2))
-    elif args.domain == "detection":
-        result = execute_detection_engineering_command(args)
-        print(json.dumps(result, indent=2))
-    else:
-        parser.print_help()
+    try:
+        if args.domain == "cases":
+            result = execute_cases_command(args)
+            print(json.dumps(result, indent=2))
+        elif args.domain == "data-tables":
+            result = execute_data_tables_command(args)
+            print(json.dumps(result, indent=2))
+        elif args.domain == "threat-hunting":
+            result = execute_threat_hunting_command(args)
+            print(json.dumps(result, indent=2))
+        elif args.domain == "ingestion":
+            result = execute_ingestion_command(args)
+            print(json.dumps(result, indent=2))
+        elif args.domain == "playbooks":
+            result = execute_playbooks_command(args)
+            print(json.dumps(result, indent=2))
+        elif args.domain == "detection":
+            result = execute_detection_engineering_command(args)
+            print(json.dumps(result, indent=2))
+        else:
+            parser.print_help()
+            sys.exit(1)
+    except RuntimeError as e:
+        print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
 
 if __name__ == "__main__":
