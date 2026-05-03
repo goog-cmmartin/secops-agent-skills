@@ -298,7 +298,7 @@ python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py ingestion list-log-types [options]
 python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py ingestion list-log-types --project-id "my-project" --customer-id "abc" --region "us"
 ```
 
-## Tool 7: create_feed (create-feed)
+## Tool 18: create_feed (create-feed)
 Creates a brand new data feed pipeline.
 
 **Usage:**
@@ -314,7 +314,7 @@ python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py ingestion create-feed --feed-json 
 python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py ingestion create-feed --project-id "my-project" --customer-id "abc" --region "us" --feed-json '{"displayName":"New S3 Feed","details":{"logType":"AWS_CLOUDTRAIL","feedSourceType":"AMAZON_S3","s3Settings":{...}}}'
 ```
 
-## Tool 8: update_feed (update-feed)
+## Tool 19: update_feed (update-feed)
 Updates specific fields of an existing data feed configuration.
 
 **Usage:**
