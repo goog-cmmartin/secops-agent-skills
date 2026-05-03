@@ -145,6 +145,25 @@ def execute_cases_command(args):
         
         return call_mcp_tool(args.project_id, args.region, "get_case", arguments)
 
+    elif args.case_command == "update":
+        arguments = {
+            "projectId": args.project_id,
+            "customerId": args.customer_id,
+            "region": args.region,
+            "caseId": args.case_id
+        }
+        if getattr(args, 'display_name', None): arguments["displayName"] = args.display_name
+        if getattr(args, 'stage', None): arguments["stage"] = args.stage
+        if getattr(args, 'priority', None): arguments["priority"] = args.priority
+        if getattr(args, 'assignee', None): arguments["assignee"] = args.assignee
+        if getattr(args, 'description', None): arguments["description"] = args.description
+        if getattr(args, 'type', None): arguments["type"] = args.type
+        if getattr(args, 'environment', None): arguments["environment"] = args.environment
+        if getattr(args, 'important', False): arguments["important"] = True
+        if getattr(args, 'incident', False): arguments["incident"] = True
+        
+        return call_mcp_tool(args.project_id, args.region, "update_case", arguments)
+
     elif args.case_command == "comments":
         arguments = {
             "projectId": args.project_id,
