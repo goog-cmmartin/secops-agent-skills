@@ -7,7 +7,10 @@ def get_auth_headers(project_id):
         credentials, _ = google.auth.default(
             scopes=["https://www.googleapis.com/auth/cloud-platform"]
         )
-        credentials.refresh(Request())
+        
+        if not credentials.valid:
+            credentials.refresh(Request())
+            
         return {
             "Authorization": f"Bearer {credentials.token}",
             "x-goog-user-project": project_id,
