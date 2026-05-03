@@ -2,17 +2,26 @@
 
 A modular, version-controlled CLI tool designed to act as a "Skill Pack" for AI Agents interacting with Google SecOps (Chronicle) via the MCP API.
 
-## Setup
-1. Create a virtual environment: `python3 -m venv venv`
-2. Install dependencies: `pip install -r requirements.txt`
-3. Ensure you have active Google Application Default Credentials: `gcloud auth application-default login`
-4. Set up your environment variables by copying `.env.example` to `.env` and filling in your details:
+## Installation for OpenCode
+
+To install this skill pack into your local OpenCode environment, simply run the installation script. This will automatically generate the Python virtual environment, install dependencies, and register the skills with OpenCode.
+
+```bash
+cd google-secops-skills
+./install.sh
+```
+
+**Post-Installation:**
+1. Ensure you have active Google Application Default Credentials: 
    ```bash
-   cp .env.example .env
+   gcloud auth application-default login
    ```
-   *(This allows you to omit `--project-id`, `--customer-id`, and `--region` from all commands!)*
+2. Edit the `.env` file that was generated in the repository root with your specific Google SecOps details:
+   ```ini
+   SECOPS_PROJECT_ID=your-gcp-project-id
+   SECOPS_CUSTOMER_ID=your-chronicle-customer-uuid
+   SECOPS_REGION=us
+   ```
 
 ## Agent Usage
-If you are an AI Agent, read `<PATH_TO_SECOPS_SKILLS>/skills/SECOPS_INDEX.md` to discover how to route user requests to the correct persona and tools.
-
-**Note to Agent:** Replace `<PATH_TO_SECOPS_SKILLS>` with the absolute path to this repository root (e.g., use `pwd` to discover it) before executing any python commands or reading the skill files.
+Once installed, OpenCode will automatically discover the `secops-router` skill. You can simply ask OpenCode: *"What can you do with Google SecOps?"* or ask it directly to perform a task like *"List my highest priority cases in Chronicle."*
