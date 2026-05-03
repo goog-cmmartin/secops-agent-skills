@@ -5,7 +5,9 @@ import os
 
 try:
     from dotenv import load_dotenv
-    load_dotenv()
+    # Use the script's location to find .env reliably regardless of CWD
+    _env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '.env')
+    load_dotenv(dotenv_path=_env_path)
 except ImportError:
     pass
 
