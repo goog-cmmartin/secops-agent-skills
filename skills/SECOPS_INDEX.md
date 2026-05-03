@@ -2,7 +2,18 @@
 
 This project provides a local CLI (`secops.py`) to interact with Google SecOps (Chronicle) via the MCP API.
 
-**Note to Agent:** Replace `<PATH_TO_SECOPS_SKILLS>` with the absolute path to this repository root (e.g., use `pwd` to discover it) before executing any python commands or reading the files below.
+### 🤖 CRITICAL INSTRUCTIONS FOR AI AGENTS
+
+1. **Path Resolution:** Replace `<PATH_TO_SECOPS_SKILLS>` with the absolute path to this repository root (e.g., use `pwd` to discover it) before executing any commands or reading the files below.
+2. **Python Environment:** This project requires external dependencies. **Do not use the global `python3` command.** You MUST use the virtual environment's Python binary: `<PATH_TO_SECOPS_SKILLS>/venv/bin/python`.
+3. **First-Time Setup:** If the `venv` directory does not exist, you must create it and install dependencies first:
+   ```bash
+   cd <PATH_TO_SECOPS_SKILLS>
+   python3 -m venv venv
+   venv/bin/python -m pip install -r requirements.txt
+   ```
+
+### 🧭 Routing
 
 When requested to perform a SecOps task, use the `read` tool to look at the corresponding persona file below to learn the correct commands and schema.
 

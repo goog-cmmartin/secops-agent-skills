@@ -9,7 +9,7 @@ Creates a new Data Table in Chronicle to store contextual or enrichment data.
 
 **Usage:**
 ```bash
-python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py data-tables create --name <NAME> --column-info <JSON_SCHEMA> [options]
+<PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/src/secops.py data-tables create --name <NAME> --column-info <JSON_SCHEMA> [options]
 ```
 
 **Options:**
@@ -27,7 +27,7 @@ python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py data-tables create --name <NAME> -
 
 **Examples:**
 ```bash
-python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py data-tables create --project-id "my-project" --customer-id "abc" --region "us" --name "known_bad_ips" --description "List of malicious IPs" --column-info '[{"columnIndex": 0, "originalColumn": "ip", "keyColumn": true, "repeatedValues": false, "columnType": "STRING"}]'
+<PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/src/secops.py data-tables create --project-id "my-project" --customer-id "abc" --region "us" --name "known_bad_ips" --description "List of malicious IPs" --column-info '[{"columnIndex": 0, "originalColumn": "ip", "keyColumn": true, "repeatedValues": false, "columnType": "STRING"}]'
 ```
 
 ## Tool 2: add_rows_to_data_table (add-rows)
@@ -35,7 +35,7 @@ Adds new data rows to an existing data table. This is used to continuously updat
 
 **Usage:**
 ```bash
-python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py data-tables add-rows --table-name <TABLE_NAME> --rows <JSON_SCHEMA>
+<PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/src/secops.py data-tables add-rows --table-name <TABLE_NAME> --rows <JSON_SCHEMA>
 ```
 
 **Options:**
@@ -52,7 +52,7 @@ python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py data-tables add-rows --table-name 
 
 **Examples:**
 ```bash
-python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py data-tables add-rows --project-id "my-project" --customer-id "abc" --region "us" --table-name "known_bad_ips" --rows '[{"values": ["10.10.10.10"]}, {"values": ["10.10.10.11"]}]'
+<PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/src/secops.py data-tables add-rows --project-id "my-project" --customer-id "abc" --region "us" --table-name "known_bad_ips" --rows '[{"values": ["10.10.10.10"]}, {"values": ["10.10.10.11"]}]'
 ```
 
 ## Tool 3: list_data_tables (list)
@@ -60,7 +60,7 @@ Retrieves a paginated list of all data tables configured in the SecOps instance.
 
 **Usage:**
 ```bash
-python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py data-tables list [options]
+<PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/src/secops.py data-tables list [options]
 ```
 
 **Options:**
@@ -68,7 +68,7 @@ python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py data-tables list [options]
 
 **Examples:**
 ```bash
-python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py data-tables list --project-id "my-project" --customer-id "abc" --region "us"
+<PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/src/secops.py data-tables list --project-id "my-project" --customer-id "abc" --region "us"
 ```
 
 ## Tool 4: list_data_table_rows (list-rows)
@@ -76,7 +76,7 @@ Lists the data rows currently stored within a specific data table. Very useful t
 
 **Usage:**
 ```bash
-python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py data-tables list-rows --table-name <TABLE_NAME> [options]
+<PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/src/secops.py data-tables list-rows --table-name <TABLE_NAME> [options]
 ```
 
 **Options:**
@@ -86,7 +86,7 @@ python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py data-tables list-rows --table-name
 
 **Examples:**
 ```bash
-python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py data-tables list-rows --project-id "my-project" --customer-id "abc" --region "us" --table-name "known_bad_ips" --filter "192.168"
+<PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/src/secops.py data-tables list-rows --project-id "my-project" --customer-id "abc" --region "us" --table-name "known_bad_ips" --filter "192.168"
 ```
 
 ## Tool 5: delete_data_table_row (delete-row)
@@ -94,7 +94,7 @@ Deletes a specific row from a data table by its unique `rowId`. You typically fi
 
 **Usage:**
 ```bash
-python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py data-tables delete-row --table-name <TABLE_NAME> --row-id <ROW_ID>
+<PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/src/secops.py data-tables delete-row --table-name <TABLE_NAME> --row-id <ROW_ID>
 ```
 
 **Options:**
@@ -103,7 +103,7 @@ python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py data-tables delete-row --table-nam
 
 **Examples:**
 ```bash
-python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py data-tables delete-row --project-id "my-project" --customer-id "abc" --region "us" --table-name "known_bad_ips" --row-id "row_12345abc"
+<PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/src/secops.py data-tables delete-row --project-id "my-project" --customer-id "abc" --region "us" --table-name "known_bad_ips" --row-id "row_12345abc"
 ```
 
 ## Tool 6: list_rules (list-rules)
@@ -111,7 +111,7 @@ Retrieves a paginated list of YARA-L detection rules configured within the Chron
 
 **Usage:**
 ```bash
-python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py detection list-rules [options]
+<PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/src/secops.py detection list-rules [options]
 ```
 
 **Options:**
@@ -120,7 +120,7 @@ python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py detection list-rules [options]
 
 **Examples:**
 ```bash
-python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py detection list-rules --project-id "my-project" --customer-id "abc" --region "us"
+<PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/src/secops.py detection list-rules --project-id "my-project" --customer-id "abc" --region "us"
 ```
 
 ## Tool 7: list_rule_errors (list-rule-errors)
@@ -128,7 +128,7 @@ Lists execution and compilation errors for a specific YARA-L rule. This is criti
 
 **Usage:**
 ```bash
-python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py detection list-rule-errors --rule-id <RULE_ID> [options]
+<PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/src/secops.py detection list-rule-errors --rule-id <RULE_ID> [options]
 ```
 
 **Options:**
@@ -137,7 +137,7 @@ python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py detection list-rule-errors --rule-
 
 **Examples:**
 ```bash
-python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py detection list-rule-errors --project-id "my-project" --customer-id "abc" --region "us" --rule-id "ru_12345678-1234-1234-1234-1234567890ab"
+<PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/src/secops.py detection list-rule-errors --project-id "my-project" --customer-id "abc" --region "us" --rule-id "ru_12345678-1234-1234-1234-1234567890ab"
 ```
 
 ## Tool 8: create_rule (create-rule)
@@ -145,7 +145,7 @@ Creates a brand new YARA-L detection rule from a raw text payload.
 
 **Usage:**
 ```bash
-python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py detection create-rule --rule "<YARA_L_TEXT>"
+<PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/src/secops.py detection create-rule --rule "<YARA_L_TEXT>"
 ```
 
 **Options:**
@@ -153,7 +153,7 @@ python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py detection create-rule --rule "<YAR
 
 **Examples:**
 ```bash
-python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py detection create-rule --rule 'rule test_rule { meta: description = "Test" events: $e.metadata.event_type = "USER_LOGIN" condition: $e }'
+<PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/src/secops.py detection create-rule --rule 'rule test_rule { meta: description = "Test" events: $e.metadata.event_type = "USER_LOGIN" condition: $e }'
 ```
 
 ## Tool 9: get_rule (get-rule)
@@ -161,7 +161,7 @@ Get the definition and metadata of a specific Chronicle SIEM detection rule. Ret
 
 **Usage:**
 ```bash
-python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py detection get-rule --rule-id <RULE_ID> [options]
+<PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/src/secops.py detection get-rule --rule-id <RULE_ID> [options]
 ```
 
 **Options:**
@@ -170,8 +170,8 @@ python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py detection get-rule --rule-id <RULE
 
 **Examples:**
 ```bash
-python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py detection get-rule --project-id "my-project" --customer-id "abc" --region "us" --rule-id "ru_12345678-1234-1234-1234-1234567890ab"
-python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py detection get-rule --project-id "my-project" --customer-id "abc" --region "us" --rule-id "ru_12345678-1234-1234-1234-1234567890ab@v_abcdef_123456" --view "BASIC"
+<PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/src/secops.py detection get-rule --project-id "my-project" --customer-id "abc" --region "us" --rule-id "ru_12345678-1234-1234-1234-1234567890ab"
+<PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/src/secops.py detection get-rule --project-id "my-project" --customer-id "abc" --region "us" --rule-id "ru_12345678-1234-1234-1234-1234567890ab@v_abcdef_123456" --view "BASIC"
 ```
 
 ## Tool 10: validate_rule (validate-rule)
@@ -179,7 +179,7 @@ Validate YARA-L 2.0 rule text syntax and compilation in Chronicle SIEM without c
 
 **Usage:**
 ```bash
-python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py detection validate-rule --rule "<YARA_L_TEXT>"
+<PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/src/secops.py detection validate-rule --rule "<YARA_L_TEXT>"
 ```
 
 **Options:**
@@ -187,7 +187,7 @@ python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py detection validate-rule --rule "<Y
 
 **Examples:**
 ```bash
-python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py detection validate-rule --project-id "my-project" --customer-id "abc" --region "us" --rule 'rule test_rule { meta: description = "Test" events: $e.metadata.event_type = "USER_LOGIN" condition: $e }'
+<PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/src/secops.py detection validate-rule --project-id "my-project" --customer-id "abc" --region "us" --rule 'rule test_rule { meta: description = "Test" events: $e.metadata.event_type = "USER_LOGIN" condition: $e }'
 ```
 
 ## Tool 11: list_rule_detections (list-rule-detections)
@@ -195,7 +195,7 @@ Retrieves historical detections generated by a specific Chronicle SIEM rule. Use
 
 **Usage:**
 ```bash
-python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py detection list-rule-detections --rule-id <RULE_ID> [options]
+<PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/src/secops.py detection list-rule-detections --rule-id <RULE_ID> [options]
 ```
 
 **Options:**
@@ -209,6 +209,6 @@ python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py detection list-rule-detections --r
 
 **Examples:**
 ```bash
-python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py detection list-rule-detections --project-id "my-project" --customer-id "abc" --region "us" --rule-id "ru_12345678-1234-1234-1234-1234567890ab" --page-size 10
-python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py detection list-rule-detections --project-id "my-project" --customer-id "abc" --region "us" --rule-id "ru_12345678-1234-1234-1234-1234567890ab@v_abcdef_123456" --alert-state "ALERTING" --start-time "2025-10-01T00:00:00Z" --end-time "2025-10-02T00:00:00Z"
+<PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/src/secops.py detection list-rule-detections --project-id "my-project" --customer-id "abc" --region "us" --rule-id "ru_12345678-1234-1234-1234-1234567890ab" --page-size 10
+<PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/src/secops.py detection list-rule-detections --project-id "my-project" --customer-id "abc" --region "us" --rule-id "ru_12345678-1234-1234-1234-1234567890ab@v_abcdef_123456" --alert-state "ALERTING" --start-time "2025-10-01T00:00:00Z" --end-time "2025-10-02T00:00:00Z"
 ```
