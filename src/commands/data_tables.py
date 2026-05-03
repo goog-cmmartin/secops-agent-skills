@@ -1,6 +1,5 @@
 import os
 import json
-import sys
 from core.mcp_client import call_mcp_tool
 
 def setup_data_tables_parser(subparsers):
