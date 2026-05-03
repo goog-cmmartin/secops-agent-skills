@@ -152,6 +152,10 @@ python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py detection create-rule --rule "<YAR
 - `--rule`: Required. The complete plain text of the YARA-L rule.
 
 **Examples:**
+```bash
+python3 <PATH_TO_SECOPS_SKILLS>/src/secops.py detection create-rule --rule 'rule test_rule { meta: description = "Test" events: $e.metadata.event_type = "USER_LOGIN" condition: $e }'
+```
+
 ## Tool 9: get_rule (get-rule)
 Get the definition and metadata of a specific Chronicle SIEM detection rule. Retrieves the full details of a rule, including its YARA-L code, metadata, revision history, and deployment status.
 
