@@ -269,13 +269,6 @@ def execute_ingestion_command(args):
             sys.exit(1)
             
         return call_mcp_tool(args.project_id, args.region, "run_parser", arguments)
-        arguments = {
-            "projectId": args.project_id,
-            "customerId": args.customer_id,
-            "region": args.region,
-            "feedId": args.feed_id
-        }
-        return call_mcp_tool(args.project_id, args.region, "get_feed", arguments)
 
     elif args.ingest_command == "get-feed":
         arguments = {
@@ -354,16 +347,6 @@ def execute_ingestion_command(args):
             "parserId": args.parser_id
         }
         return call_mcp_tool(args.project_id, args.region, "get_parser", arguments)
-        arguments = {
-            "projectId": args.project_id,
-            "customerId": args.customer_id,
-            "region": args.region,
-            "integrationId": args.integration_id
-        }
-        if getattr(args, 'page_size', None): arguments["pageSize"] = args.page_size
-        if getattr(args, 'filter', None): arguments["filter"] = args.filter
-        if getattr(args, 'order_by', None): arguments["orderBy"] = args.order_by
-        return call_mcp_tool(args.project_id, args.region, "list_integration_instances", arguments)
 
     elif args.ingest_command == "list-integration-actions":
         arguments = {
@@ -396,3 +379,16 @@ def execute_ingestion_command(args):
             "feedId": args.feed_id
         }
         return call_mcp_tool(args.project_id, args.region, "generate_feed_secret", arguments)
+
+    elif args.ingest_command == "list-integration-instances":
+        arguments = {
+            "projectId": args.project_id,
+            "customerId": args.customer_id,
+            "region": args.region,
+            "integrationId": args.integration_id
+        }
+        if getattr(args, 'page_size', None): arguments["pageSize"] = args.page_size
+        if getattr(args, 'filter', None): arguments["filter"] = args.filter
+        if getattr(args, 'order_by', None): arguments["orderBy"] = args.order_by
+        return call_mcp_tool(args.project_id, args.region, "list_integration_instances", arguments)
+

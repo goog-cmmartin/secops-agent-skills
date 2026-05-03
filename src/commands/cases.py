@@ -208,14 +208,6 @@ def execute_cases_command(args):
         if getattr(args, 'expand_data', False): arguments["expandEventJsonData"] = True
         
         return call_mcp_tool(args.project_id, args.region, "list_connector_events", arguments)
-        arguments = {
-            "projectId": args.project_id,
-            "customerId": args.customer_id,
-            "region": args.region,
-            "caseId": args.case_id,
-            "comment": args.comment
-        }
-        return call_mcp_tool(args.project_id, args.region, "create_case_comment", arguments)
 
     elif args.case_command == "update-alert":
         arguments = {
