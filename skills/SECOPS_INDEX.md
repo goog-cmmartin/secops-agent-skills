@@ -2,6 +2,8 @@
 
 This project provides a local CLI (`secops.py`) to interact with Google SecOps (Chronicle) via the MCP API.
 
+**Note to Agent:** Replace `<PATH_TO_SECOPS_SKILLS>` with the absolute path to this repository root (e.g., use `pwd` to discover it) before executing any python commands or reading the files below.
+
 When requested to perform a SecOps task, use the `read` tool to look at the corresponding persona file below to learn the correct commands and schema.
 
 - **Case Management & Triage:** (Reading, updating, and managing security cases, viewing alerts)

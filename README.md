@@ -13,4 +13,6 @@ A modular, version-controlled CLI tool designed to act as a "Skill Pack" for AI 
    *(This allows you to omit `--project-id`, `--customer-id`, and `--region` from all commands!)*
 
 ## Agent Usage
-If you are an AI Agent, read `skills/SECOPS_INDEX.md` to discover how to route user requests to the correct persona and tools.
+If you are an AI Agent, read `<PATH_TO_SECOPS_SKILLS>/skills/SECOPS_INDEX.md` to discover how to route user requests to the correct persona and tools.
+
+**Note to Agent:** Replace `<PATH_TO_SECOPS_SKILLS>` with the absolute path to this repository root (e.g., use `pwd` to discover it) before executing any python commands or reading the skill files.
