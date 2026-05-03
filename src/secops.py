@@ -30,12 +30,17 @@ def main():
     
     args = parser.parse_args()
     
-    # Validate required credentials across all commands
-    if not getattr(args, 'project_id', None) or not getattr(args, 'customer_id', None) or not getattr(args, 'region', None):
-        print("Error: Missing required configuration.", file=sys.stderr)
-        print("Please provide --project-id, --customer-id, and --region as CLI arguments,", file=sys.stderr)
-        print("or set SECOPS_PROJECT_ID, SECOPS_CUSTOMER_ID, and SECOPS_REGION in your .env file.", file=sys.stderr)
-        sys.exit(1)
+    # Validate required credentials for commands that define them
+    has_project = hasattr(args, 'project_id')
+    has_customer = hasattr(args, 'customer_id')
+    has_region = hasattr(args, 'region')
+    
+    if has_project or has_customer or has_region:
+        if not getattr(args, 'project_id', None) or not getattr(args, 'customer_id', None) or not getattr(args, 'region', None):
+            print("Error: Missing required configuration.", file=sys.stderr)
+            print("Please provide --project-id, --customer-id, and --region as CLI arguments,", file=sys.stderr)
+            print("or set SECOPS_PROJECT_ID, SECOPS_CUSTOMER_ID, and SECOPS_REGION in your .env file.", file=sys.stderr)
+            sys.exit(1)
 
     # Route execution to the correct domain handler
     if args.domain == "cases":
