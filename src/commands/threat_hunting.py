@@ -278,6 +278,7 @@ def execute_threat_hunting_command(args):
         if getattr(args, 'order_by', None): arguments["orderBy"] = args.order_by
             
         return call_mcp_tool(args.project_id, args.region, "list_involved_entities", arguments)
+
     elif args.th_command == "involved-entity":
         arguments = {
             "projectId": args.project_id,
