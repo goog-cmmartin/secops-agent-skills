@@ -268,3 +268,25 @@ This tool is essential for determining if a threat scenario, represented by synt
 ```bash
 <PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/src/secops.py detection evaluate-rule-coverage --udms-json '[ "{\"metadata\": {\"event_timestamp\": \"2023-10-27T10:00:00Z\"}, \"principal\": {\"user\": {\"userid\": \"bob\"}}}" ]'
 ```
+
+## Tool 15: generate_rules (generate-rules)
+Generates one or more YARA-L (YL2) rules based on a provided Threat Detection Opportunity (TDO).
+
+Creates draft detection rules and initial metadata (name, description, MITRE ATT&CK mapping) from a structured threat description. This tool is essential for closing coverage gaps when an emerging threat is identified but not adequately detected by existing rules.
+
+**Workflow Integration:**
+- This tool is typically called AFTER `generate_threat_detection_opportunity` and if a subsequent coverage analysis identifies a gap.
+- Generated rules are intended to be reviewed by a detection engineer before deployment via `create_rule`.
+
+**Usage:**
+```bash
+<PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/src/secops.py detection generate-rules --threat "<JSON_TDO_OBJECT>"
+```
+
+**Options:**
+- `--threat`: Required. A valid JSON object representing the Threat Detection Opportunity.
+
+**Examples:**
+```bash
+<PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/src/secops.py detection generate-rules --threat '{"summary": "Detects execution of encoded PowerShell.", "mitreInfo": {"tactics": ["Execution"], "techniques": ["Command and Scripting Interpreter: PowerShell"]}}'
+```

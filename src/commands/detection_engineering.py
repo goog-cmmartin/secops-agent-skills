@@ -80,6 +80,13 @@ def setup_detection_engineering_parser(subparsers):
     eval_coverage_parser.add_argument("--region", default=os.environ.get("SECOPS_REGION"), help="Chronicle region")
     eval_coverage_parser.add_argument("--udms-json", required=True, help="JSON array of UDM event strings")
 
+    # generate_rules
+    gen_rules_parser = det_subparsers.add_parser("generate-rules", help="Generates YARA-L rules from a Threat Detection Opportunity")
+    gen_rules_parser.add_argument("--project-id", default=os.environ.get("SECOPS_PROJECT_ID"), help="GCP project ID")
+    gen_rules_parser.add_argument("--customer-id", default=os.environ.get("SECOPS_CUSTOMER_ID"), help="Chronicle customer ID")
+    gen_rules_parser.add_argument("--region", default=os.environ.get("SECOPS_REGION"), help="Chronicle region")
+    gen_rules_parser.add_argument("--threat", required=True, help="Threat Detection Opportunity JSON object")
+
 def execute_detection_engineering_command(args):
     """Routes the command to the appropriate MCP tool call."""
     if args.det_command == "list-rules":
@@ -178,6 +185,20 @@ def execute_detection_engineering_command(args):
             "udmsJson": udms_list
         }
         return call_mcp_tool(args.project_id, args.region, "evaluate_rule_coverage", arguments)
+
+    elif args.det_command == "generate-rules":
+        try:
+            threat_obj = json.loads(args.threat)
+        except json.JSONDecodeError as e:
+            raise RuntimeError(f"Error parsing --threat: {e}") from e
+
+        arguments = {
+            "projectId": args.project_id,
+            "customerId": args.customer_id,
+            "region": args.region,
+            "threatDetectionOpportunity": threat_obj
+        }
+        return call_mcp_tool(args.project_id, args.region, "generate_rules", arguments)
 
     else:
         raise RuntimeError(f"Unhandled command '{args.det_command}'")
