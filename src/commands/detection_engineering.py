@@ -1,4 +1,6 @@
 import os
+import json
+import sys
 from core.mcp_client import call_mcp_tool
 
 def setup_detection_engineering_parser(subparsers):
@@ -70,6 +72,13 @@ def setup_detection_engineering_parser(subparsers):
     gen_events_parser.add_argument("--customer-id", default=os.environ.get("SECOPS_CUSTOMER_ID"), help="Chronicle customer ID")
     gen_events_parser.add_argument("--region", default=os.environ.get("SECOPS_REGION"), help="Chronicle region")
     gen_events_parser.add_argument("--threat", required=True, help="Threat Detection Opportunity context to generate logs for")
+
+    # evaluate_rule_coverage
+    eval_coverage_parser = det_subparsers.add_parser("evaluate-rule-coverage", help="Evaluates rule coverage for synthetic UDM events")
+    eval_coverage_parser.add_argument("--project-id", default=os.environ.get("SECOPS_PROJECT_ID"), help="GCP project ID")
+    eval_coverage_parser.add_argument("--customer-id", default=os.environ.get("SECOPS_CUSTOMER_ID"), help="Chronicle customer ID")
+    eval_coverage_parser.add_argument("--region", default=os.environ.get("SECOPS_REGION"), help="Chronicle region")
+    eval_coverage_parser.add_argument("--udms-json", required=True, help="JSON array of UDM event strings")
 
 def execute_detection_engineering_command(args):
     """Routes the command to the appropriate MCP tool call."""
@@ -153,6 +162,22 @@ def execute_detection_engineering_command(args):
             "threat": args.threat
         }
         return call_mcp_tool(args.project_id, args.region, "generate_synthetic_events", arguments)
+
+    elif args.det_command == "evaluate-rule-coverage":
+        try:
+            udms_list = json.loads(args.udms_json)
+            if not isinstance(udms_list, list):
+                raise ValueError("--udms-json must be a JSON array of strings")
+        except (json.JSONDecodeError, ValueError) as e:
+            raise RuntimeError(f"Error parsing --udms-json: {e}") from e
+
+        arguments = {
+            "projectId": args.project_id,
+            "customerId": args.customer_id,
+            "region": args.region,
+            "udmsJson": udms_list
+        }
+        return call_mcp_tool(args.project_id, args.region, "evaluate_rule_coverage", arguments)
 
     else:
         raise RuntimeError(f"Unhandled command '{args.det_command}'")
