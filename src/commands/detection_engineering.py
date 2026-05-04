@@ -57,6 +57,13 @@ def setup_detection_engineering_parser(subparsers):
     get_rule_parser.add_argument("--rule-id", required=True, help="The rule ID")
     get_rule_parser.add_argument("--view", help="The view to use (BASIC, FULL, REVISION_METADATA_ONLY, CONFIG_ONLY, TRENDS)")
 
+    # generate_threat_detection_opportunity
+    gen_tdo_parser = det_subparsers.add_parser("generate-tdo", help="Generates a Threat Detection Opportunity for a given threat")
+    gen_tdo_parser.add_argument("--project-id", default=os.environ.get("SECOPS_PROJECT_ID"), help="GCP project ID")
+    gen_tdo_parser.add_argument("--customer-id", default=os.environ.get("SECOPS_CUSTOMER_ID"), help="Chronicle customer ID")
+    gen_tdo_parser.add_argument("--region", default=os.environ.get("SECOPS_REGION"), help="Chronicle region")
+    gen_tdo_parser.add_argument("--threat", required=True, help="Description or details of the threat")
+
 def execute_detection_engineering_command(args):
     """Routes the command to the appropriate MCP tool call."""
     if args.det_command == "list-rules":
@@ -121,6 +128,15 @@ def execute_detection_engineering_command(args):
         if getattr(args, 'page_size', None): arguments["pageSize"] = args.page_size
         if getattr(args, 'page_token', None): arguments["pageToken"] = args.page_token
         return call_mcp_tool(args.project_id, args.region, "list_rule_detections", arguments)
+
+    elif args.det_command == "generate-tdo":
+        arguments = {
+            "projectId": args.project_id,
+            "customerId": args.customer_id,
+            "region": args.region,
+            "threat": args.threat
+        }
+        return call_mcp_tool(args.project_id, args.region, "generate_threat_detection_opportunity", arguments)
 
     else:
         raise RuntimeError(f"Unhandled command '{args.det_command}'")
