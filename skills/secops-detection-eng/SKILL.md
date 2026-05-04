@@ -240,15 +240,15 @@ This tool is critical for testing detection logic when real-world malicious logs
 
 **Usage:**
 ```bash
-<PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/src/secops.py detection generate-events --threat "<THREAT_CONTEXT>"
+<PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/src/secops.py detection generate-events --tdo "<JSON_TDO_OBJECT>"
 ```
 
 **Options:**
-- `--threat`: Required. The threat description, TDO JSON structure, or specific procedure details to model logs for.
+- `--tdo`: Required. The full TDO JSON object as returned by generate-tdo. Must be a valid JSON object, not a plain string.
 
 **Examples:**
 ```bash
-<PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/src/secops.py detection generate-events --threat "Attacker spawned powershell.exe from an office document with a base64 encoded payload"
+<PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/src/secops.py detection generate-events --tdo '{"summary": "Attacker spawned powershell.exe", "mitreInfo": {"tactics": ["Execution"]}}'
 ```
 
 ## Tool 14: evaluate_rule_coverage (evaluate-rule-coverage)

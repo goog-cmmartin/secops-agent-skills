@@ -71,7 +71,7 @@ def setup_detection_engineering_parser(subparsers):
     gen_events_parser.add_argument("--project-id", default=os.environ.get("SECOPS_PROJECT_ID"), help="GCP project ID")
     gen_events_parser.add_argument("--customer-id", default=os.environ.get("SECOPS_CUSTOMER_ID"), help="Chronicle customer ID")
     gen_events_parser.add_argument("--region", default=os.environ.get("SECOPS_REGION"), help="Chronicle region")
-    gen_events_parser.add_argument("--threat", required=True, help="Threat Detection Opportunity context to generate logs for")
+    gen_events_parser.add_argument("--tdo", required=True, help="The full TDO JSON object as returned by generate-tdo. Must be a valid JSON object, not a plain string.")
 
     # evaluate_rule_coverage
     eval_coverage_parser = det_subparsers.add_parser("evaluate-rule-coverage", help="Evaluates rule coverage for synthetic UDM events")
@@ -162,11 +162,16 @@ def execute_detection_engineering_command(args):
         return call_mcp_tool(args.project_id, args.region, "generate_threat_detection_opportunity", arguments)
 
     elif args.det_command == "generate-events":
+        try:
+            tdo_obj = json.loads(args.tdo)
+        except json.JSONDecodeError as e:
+            raise RuntimeError(f"Error parsing --tdo: {e}") from e
+
         arguments = {
             "projectId": args.project_id,
             "customerId": args.customer_id,
             "region": args.region,
-            "threat": args.threat
+            "threatDetectionOpportunity": tdo_obj
         }
         return call_mcp_tool(args.project_id, args.region, "generate_synthetic_events", arguments)
 
