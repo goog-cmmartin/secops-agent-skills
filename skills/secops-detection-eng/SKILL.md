@@ -232,3 +232,21 @@ Generates a Threat Detection Opportunity (TDO) for a given threat, which can be 
 ```bash
 <PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/src/secops.py detection generate-tdo --threat "APT29 phishing campaign targeting diplomats"
 ```
+
+## Tool 13: generate_synthetic_events (generate-events)
+Generates synthetic UDM events tailored to a specified Threat Detection Opportunity. 
+
+This tool is critical for testing detection logic when real-world malicious logs are unavailable. It uses an LLM to simulate the exact log telemetry (e.g. processes spawning, network connections, file creations) an attacker would generate when performing the actions described in the threat context.
+
+**Usage:**
+```bash
+<PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/src/secops.py detection generate-events --threat "<THREAT_CONTEXT>"
+```
+
+**Options:**
+- `--threat`: Required. The threat description, TDO JSON structure, or specific procedure details to model logs for.
+
+**Examples:**
+```bash
+<PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/src/secops.py detection generate-events --threat "Attacker spawned powershell.exe from an office document with a base64 encoded payload"
+```
