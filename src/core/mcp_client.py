@@ -1,4 +1,5 @@
 import requests
+import uuid
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception
 from .auth import get_auth_headers
 
@@ -32,7 +33,7 @@ def call_mcp_tool(project_id, region, tool_name, arguments):
             "arguments": arguments
         },
         "jsonrpc": "2.0",
-        "id": 1
+        "id": str(uuid.uuid4())
     }
     
     mcp_endpoint = f"https://{region}-chronicle.googleapis.com/mcp"
