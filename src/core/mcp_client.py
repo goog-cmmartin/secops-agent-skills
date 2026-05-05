@@ -20,7 +20,12 @@ def call_mcp_tool(project_id, region, tool_name, arguments):
     try:
         response = requests.post(mcp_endpoint, headers=headers, json=payload)
         response.raise_for_status()
-        return response.json()
+        
+        result = response.json()
+        if "error" in result:
+            raise RuntimeError(f"MCP API Error: {result['error']}")
+            
+        return result
     except requests.exceptions.RequestException as e:
         error_msg = f"API request failed: {e}"
         if hasattr(e, 'response') and e.response is not None:
