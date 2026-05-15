@@ -1,5 +1,6 @@
 import requests
 import uuid
+import json
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception
 from .auth import get_auth_headers
 
@@ -18,7 +19,7 @@ def _is_transient_error(exception):
     reraise=True
 )
 def _make_request(mcp_endpoint, headers, payload):
-    response = requests.post(mcp_endpoint, headers=headers, json=payload)
+    response = requests.post(mcp_endpoint, headers=headers, json=payload, stream=True)
     response.raise_for_status()
     return response
 
@@ -41,7 +42,13 @@ def call_mcp_tool(project_id, region, tool_name, arguments):
     try:
         response = _make_request(mcp_endpoint, headers, payload)
         
-        result = response.json()
+        raw_buffer = []
+        for chunk in response.iter_content(chunk_size=None, decode_unicode=True):
+            if chunk:
+                raw_buffer.append(chunk)
+        complete_text = "".join(raw_buffer)
+        
+        result = json.loads(complete_text)
         if "error" in result:
             raise RuntimeError(f"MCP API Error: {result['error']}")
             

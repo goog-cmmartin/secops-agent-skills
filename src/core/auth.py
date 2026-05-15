@@ -15,7 +15,7 @@ def get_auth_headers(project_id):
             "Authorization": f"Bearer {credentials.token}",
             "x-goog-user-project": project_id,
             "Content-Type": "application/json",
-            "Accept": "application/json"
+            "Accept": "application/json, text/event-stream"
         }
     except Exception as e:
         raise RuntimeError(f"Error fetching credentials: {e}") from e
