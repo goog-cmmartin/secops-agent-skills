@@ -1,0 +1,398 @@
+syntax = "proto3";
+
+package chronicle.api;
+
+import "google/api/annotations.proto";
+
+message AddChartRequest {}
+message AddChartResponse {}
+message BatchGetRequest {}
+message BatchGetResponse {}
+message CancelRequest {}
+message CancelResponse {}
+message ComputeFindingsRefinementActivityRequest {}
+message ComputeFindingsRefinementActivityResponse {}
+message ConnectorValidRemoteAgentsRequest {}
+message ConnectorValidRemoteAgentsResponse {}
+message CreateRequest {}
+message CreateResponse {}
+message DeleteRequest {}
+message DeleteResponse {}
+message FetchServiceAccountForCustomerRequest {}
+message FetchServiceAccountForCustomerResponse {}
+message GetRequest {}
+message GetResponse {}
+message ImportStatsEventsRequest {}
+message ImportStatsEventsResponse {}
+message ListRequest {}
+message ListResponse {}
+
+service ProjectsLocationsInstancesNativedashboardsService_v1beta {
+  // Add chart in a dashboard. create POST /v1beta/{parent}/nativeDashboards Create a dashboard. delete DELETE /v1beta/{name} Delete a dashboard. duplicate POST /v1beta/{name}:duplicate Duplicate a dashboard. duplicateChart POST /v1beta/{name}:duplicateChart Duplicate chart in a dashboard. editChart POST /v1beta/{name}:editChart Edit chart in a dashboard. export POST /v1beta/{parent}/nativeDashboards:export Exports the dashboards. get GET /v1beta/{name} Get a dashboard. import POST /v1beta/{parent}/nativeDashboards:import Imports the dashboards. list GET /v1beta/{parent}/nativeDashboards List all dashboards. patch PATCH /v1beta/{nativeDashboard.name} Update a dashboard. removeChart POST /v1beta/{name}:removeChart Remove chart from a dashboard.
+  rpc AddChart(AddChartRequest) returns (AddChartResponse) {
+    option (google.api.http) = {
+      post: "/v1beta/{name}:addChart"
+    };
+  }
+}
+
+service ProjectsLocationsInstancesOntologyrecordsVisualfamiliesService_v1beta {
+  // Creates a new custom VisualFamily. delete DELETE /v1beta/{name} Deletes a specific custom VisualFamily. export POST /v1beta/{parent}/visualFamilies:export Exports selected visual families as a ZIP file. get GET /v1beta/{name} Gets a single VisualFamily by its resource name. import POST /v1beta/{parent}/visualFamilies:import Imports multiple visual families from a ZIP file. list GET /v1beta/{parent}/visualFamilies Lists all VisualFamily resources associated with a specific ontology record. patch PATCH /v1beta/{visualFamily.name} Updates an existing VisualFamily.
+  rpc Create(CreateRequest) returns (CreateResponse) {
+    option (google.api.http) = {
+      post: "/v1beta/{parent}/visualFamilies"
+    };
+  }
+}
+
+service ProjectsLocationsInstancesOperationsService_v1beta {
+  // Starts asynchronous cancellation on a long-running operation. delete DELETE /v1beta/{name} Deletes a long-running operation. get GET /v1beta/{name} Gets the latest state of a long-running operation. list GET /v1beta/{name}/operations Lists operations that match the specified filter in the request.
+  rpc Cancel(CancelRequest) returns (CancelResponse) {
+    option (google.api.http) = {
+      post: "/v1beta/{name}:cancel"
+    };
+  }
+}
+
+service ProjectsLocationsInstancesPropertyschemadefinitionsService_v1beta {
+  // Creates a new PropertySchemaDefinition. delete DELETE /v1beta/{name} Deletes a PropertySchemaDefinition. get GET /v1beta/{name} Gets a single PropertySchemaDefinition. list GET /v1beta/{parent}/propertySchemaDefinitions Lists PropertySchemaDefinitions. patch PATCH /v1beta/{propertySchemaDefinition.name} Updates an existing PropertySchemaDefinition.
+  rpc Create(CreateRequest) returns (CreateResponse) {
+    option (google.api.http) = {
+      post: "/v1beta/{parent}/propertySchemaDefinitions"
+    };
+  }
+}
+
+service ProjectsLocationsInstancesReferencelistsService_v1beta {
+  // Creates a new reference list. get GET /v1beta/{name} Gets a single reference list. list GET /v1beta/{parent}/referenceLists Lists a collection of reference lists. patch PATCH /v1beta/{referenceList.name} Updates an existing reference list.
+  rpc Create(CreateRequest) returns (CreateResponse) {
+    option (google.api.http) = {
+      post: "/v1beta/{parent}/referenceLists"
+    };
+  }
+}
+
+service ProjectsLocationsInstancesRemoteagentsService_v1beta {
+  // Lists all RemoteAgents that are valid and compatible with a specific connector. create POST /v1beta/{parent}/remoteAgents Creates a new RemoteAgent. delete DELETE /v1beta/{name} Deletes a RemoteAgent. fetchEditableRemoteAgents GET /v1beta/{parent}/remoteAgents:fetchEditableRemoteAgents Lists all RemoteAgents that the requesting user has permissions to edit. fetchInstallationCommand GET /v1beta/{name}:fetchInstallationCommand Retrieves the specific command string required to install a RemoteAgent. fetchInstallerFile GET /v1beta/{name}:fetchInstallerFile Retrieves a download link for the RemoteAgent's installer file. fetchRedeployStatus GET /v1beta/{name}:fetchRedeployStatus Returns the redeployment status for integrations on a RemoteAgent. fetchRemoteAgentsCompatibleWithJobs GET /v1beta/{parent}/remoteAgents:fetchRemoteAgentsCompatibleWithJobs Lists all RemoteAgents compatible with executing jobs for a specific integration. fetchRemoteAgentsInformation POST /v1beta/{parent}/remoteAgents:fetchRemoteAgentsInformation Retrieves detailed information for a list of RemoteAgents. get GET /v1beta/{name} Gets a single RemoteAgent. list GET /v1beta/{parent}/remoteAgents Lists RemoteAgents. migrateConnectors POST /v1beta/{name}:migrateConnectors Migrates legacy connectors on a RemoteAgent from remote to local scheduling. patch PATCH /v1beta/{remoteAgent.name} Updates an existing RemoteAgent. redeployRemoteAgent POST /v1beta/{parent}/remoteAgents:redeployRemoteAgent Redeploys configuration from one RemoteAgent to another. sendRemoteAgentInstaller POST /v1beta/{name}:sendRemoteAgentInstaller Sends the RemoteAgent installer via email. upgradeRemoteAgent POST /v1beta/{name}:upgradeRemoteAgent Upgrades a RemoteAgent to the latest available version.
+  rpc ConnectorValidRemoteAgents(ConnectorValidRemoteAgentsRequest) returns (ConnectorValidRemoteAgentsResponse) {
+    option (google.api.http) = {
+      get: "/v1beta/{parent}/remoteAgents:connectorValidRemoteAgents"
+    };
+  }
+}
+
+service ProjectsLocationsInstancesFeedsService_v1beta {
+  // Creates a feed. delete DELETE /v1beta/{name} Deletes a feed. disable POST /v1beta/{name}:disable Disable feed for ingestion. enable POST /v1beta/{name}:enable Enable feed for ingestion. generateSecret POST /v1beta/{name}:generateSecret Generates a new secret for https push feeds which do not support jwt tokens. get GET /v1beta/{name} Gets a feed. importPushLogs POST /v1beta/{parent}:importPushLogs Import logs coming from https push feeds. list GET /v1beta/{parent}/feeds Lists all feeds for the customer. patch PATCH /v1beta/{feed.name} Updates the full feed.
+  rpc Create(CreateRequest) returns (CreateResponse) {
+    option (google.api.http) = {
+      post: "/v1beta/{parent}/feeds"
+    };
+  }
+}
+
+service ProjectsLocationsInstancesFindingsrefinementsService_v1beta {
+  // Returns findings refinement activity for a specific findings refinement. create POST /v1beta/{parent}/findingsRefinements Creates a new findings refinement. get GET /v1beta/{name} Gets a single findings refinement. getDeployment GET /v1beta/{name} Gets a findings refinement deployment. list GET /v1beta/{parent}/findingsRefinements Lists a collection of findings refinements. patch PATCH /v1beta/{findingsRefinement.name} Updates a findings refinement. updateDeployment PATCH /v1beta/{findingsRefinementDeployment.name} Updates a findings refinement deployment.
+  rpc ComputeFindingsRefinementActivity(ComputeFindingsRefinementActivityRequest) returns (ComputeFindingsRefinementActivityResponse) {
+    option (google.api.http) = {
+      post: "/v1beta/{name}:computeFindingsRefinementActivity"
+    };
+  }
+}
+
+service ProjectsLocationsInstancesFormdynamicparametersService_v1beta {
+  // Gets a single FormDynamicParameter by its resource name. list GET /v1beta/{parent}/formDynamicParameters Lists all FormDynamicParameters defined in the instance. saveForm POST /v1beta/{parent}/formDynamicParameters:saveForm Saves the complete set of dynamic parameters for a specific form type.
+  rpc Get(GetRequest) returns (GetResponse) {
+    option (google.api.http) = {
+      get: "/v1beta/{name}"
+    };
+  }
+}
+
+service ProjectsLocationsInstancesForwardersService_v1beta {
+  // Create a forwarder. delete DELETE /v1beta/{name} Delete a forwarder by forwarder ID. generateForwarderFiles GET /v1beta/{name}:generateForwarderFiles Generates a forwarder's configuration files. get GET /v1beta/{name} Get a forwarder by forwarder ID. importStatsEvents POST /v1beta/{name}:importStatsEvents ImportStatsEvents imports stats events from a forwarder. list GET /v1beta/{parent}/forwarders List all forwarders for the instance. patch PATCH /v1beta/{forwarder.name} Update a forwarder.
+  rpc Create(CreateRequest) returns (CreateResponse) {
+    option (google.api.http) = {
+      post: "/v1beta/{parent}/forwarders"
+    };
+  }
+}
+
+service ProjectsLocationsInstancesForwardersCollectorsService_v1beta {
+  // Create a collector. delete DELETE /v1beta/{name} Delete a collector by collector ID. get GET /v1beta/{name} Get a collector by collector ID. list GET /v1beta/{parent}/collectors List all collectors for the forwarder. patch PATCH /v1beta/{collector.name} Update a collector.
+  rpc Create(CreateRequest) returns (CreateResponse) {
+    option (google.api.http) = {
+      post: "/v1beta/{parent}/collectors"
+    };
+  }
+}
+
+service ProjectsLocationsInstancesIngestionloglabelsService_v1beta {
+  // Returns the ingestion log labels for the customer.
+  rpc List(ListRequest) returns (ListResponse) {
+    option (google.api.http) = {
+      get: "/v1beta/{parent}/ingestionLogLabels"
+    };
+  }
+}
+
+service ProjectsLocationsInstancesIngestionlognamespacesService_v1beta {
+  // Lists ingestion log namespaces for the customer.
+  rpc List(ListRequest) returns (ListResponse) {
+    option (google.api.http) = {
+      get: "/v1beta/{parent}/ingestionLogNamespaces"
+    };
+  }
+}
+
+service ProjectsLocationsInstancesOperationsService_v1 {
+  // Starts asynchronous cancellation on a long-running operation. delete DELETE /v1/{name} Deletes a long-running operation. get GET /v1/{name} Gets the latest state of a long-running operation. list GET /v1/{name}/operations Lists operations that match the specified filter in the request.
+  rpc Cancel(CancelRequest) returns (CancelResponse) {
+    option (google.api.http) = {
+      post: "/v1/{name}:cancel"
+    };
+  }
+}
+
+service ProjectsLocationsInstancesPropertyschemadefinitionsService_v1 {
+  // Creates a new PropertySchemaDefinition. delete DELETE /v1/{name} Deletes a PropertySchemaDefinition. get GET /v1/{name} Gets a single PropertySchemaDefinition. list GET /v1/{parent}/propertySchemaDefinitions Lists PropertySchemaDefinitions. patch PATCH /v1/{propertySchemaDefinition.name} Updates an existing PropertySchemaDefinition.
+  rpc Create(CreateRequest) returns (CreateResponse) {
+    option (google.api.http) = {
+      post: "/v1/{parent}/propertySchemaDefinitions"
+    };
+  }
+}
+
+service ProjectsLocationsInstancesReferencelistsService_v1 {
+  // Creates a new reference list. get GET /v1/{name} Gets a single reference list. list GET /v1/{parent}/referenceLists Lists a collection of reference lists. patch PATCH /v1/{referenceList.name} Updates an existing reference list.
+  rpc Create(CreateRequest) returns (CreateResponse) {
+    option (google.api.http) = {
+      post: "/v1/{parent}/referenceLists"
+    };
+  }
+}
+
+service ProjectsLocationsInstancesRemoteagentsService_v1 {
+  // Lists all RemoteAgents that are valid and compatible with a specific connector. create POST /v1/{parent}/remoteAgents Creates a new RemoteAgent. delete DELETE /v1/{name} Deletes a RemoteAgent. fetchEditableRemoteAgents GET /v1/{parent}/remoteAgents:fetchEditableRemoteAgents Lists all RemoteAgents that the requesting user has permissions to edit. fetchInstallationCommand GET /v1/{name}:fetchInstallationCommand Retrieves the specific command string required to install a RemoteAgent. fetchInstallerFile GET /v1/{name}:fetchInstallerFile Retrieves a download link for the RemoteAgent's installer file. fetchRedeployStatus GET /v1/{name}:fetchRedeployStatus Returns the redeployment status for integrations on a RemoteAgent. fetchRemoteAgentsCompatibleWithJobs GET /v1/{parent}/remoteAgents:fetchRemoteAgentsCompatibleWithJobs Lists all RemoteAgents compatible with executing jobs for a specific integration. fetchRemoteAgentsInformation POST /v1/{parent}/remoteAgents:fetchRemoteAgentsInformation Retrieves detailed information for a list of RemoteAgents. get GET /v1/{name} Gets a single RemoteAgent. list GET /v1/{parent}/remoteAgents Lists RemoteAgents. migrateConnectors POST /v1/{name}:migrateConnectors Migrates legacy connectors on a RemoteAgent from remote to local scheduling. patch PATCH /v1/{remoteAgent.name} Updates an existing RemoteAgent. redeployRemoteAgent POST /v1/{parent}/remoteAgents:redeployRemoteAgent Redeploys configuration from one RemoteAgent to another. sendRemoteAgentInstaller POST /v1/{name}:sendRemoteAgentInstaller Sends the RemoteAgent installer via email. upgradeRemoteAgent POST /v1/{name}:upgradeRemoteAgent Upgrades a RemoteAgent to the latest available version.
+  rpc ConnectorValidRemoteAgents(ConnectorValidRemoteAgentsRequest) returns (ConnectorValidRemoteAgentsResponse) {
+    option (google.api.http) = {
+      get: "/v1/{parent}/remoteAgents:connectorValidRemoteAgents"
+    };
+  }
+}
+
+service ProjectsLocationsInstancesRequesttemplatesService_v1 {
+  // Defines a new manual request form, specifying the input fields analysts must provide and how the data should be visually mapped in cases. delete DELETE /v1/{name} Permanently removes an obsolete manual request form from the system. get GET /v1/{name} Retrieves the definition of a manual request form, including its display fields, visual mapping, and associated environments. list GET /v1/{parent}/requestTemplates Lists all available manual request forms configured in the system. patch PATCH /v1/{requestTemplate.name} Modifies a manual request form's structure, such as adding or removing fields, or adjusting environment associations.
+  rpc Create(CreateRequest) returns (CreateResponse) {
+    option (google.api.http) = {
+      post: "/v1/{parent}/requestTemplates"
+    };
+  }
+}
+
+service ProjectsLocationsInstancesRuleexecutionerrorsService_v1 {
+  // Lists rule execution errors.
+  rpc List(ListRequest) returns (ListResponse) {
+    option (google.api.http) = {
+      get: "/v1/{parent}/ruleExecutionErrors"
+    };
+  }
+}
+
+service ProjectsLocationsInstancesRulesService_v1 {
+  // Creates a new Rule. delete DELETE /v1/{name} Deletes a Rule. get GET /v1/{name} Gets a Rule. getDeployment GET /v1/{name} Gets a RuleDeployment. list GET /v1/{parent}/rules Lists Rules. listRevisions GET /v1/{name}:listRevisions Lists all revisions of the rule. patch PATCH /v1/{rule.name} Updates a Rule. updateDeployment PATCH /v1/{ruleDeployment.name} Updates a RuleDeployment.
+  rpc Create(CreateRequest) returns (CreateResponse) {
+    option (google.api.http) = {
+      post: "/v1/{parent}/rules"
+    };
+  }
+}
+
+service ProjectsLocationsInstancesRulesDeploymentsService_v1 {
+  // Lists RuleDeployments across all Rules.
+  rpc List(ListRequest) returns (ListResponse) {
+    option (google.api.http) = {
+      get: "/v1/{parent}/deployments"
+    };
+  }
+}
+
+service ProjectsLocationsInstancesRulesRetrohuntsService_v1 {
+  // Create a Retrohunt. get GET /v1/{name} Get a Retrohunt. list GET /v1/{parent}/retrohunts List Retrohunts.
+  rpc Create(CreateRequest) returns (CreateResponse) {
+    option (google.api.http) = {
+      post: "/v1/{parent}/retrohunts"
+    };
+  }
+}
+
+service ProjectsLocationsInstancesEnvironmentsService_v1 {
+  // Creates a new Environment. delete DELETE /v1/{name} Deletes a specific Environment. get GET /v1/{name} Gets a single Environment by its resource name. list GET /v1/{parent}/environments Lists all Environments available in the instance. patch PATCH /v1/{environment.name} Updates an existing Environment. resetWeights POST /v1/{name}/environments:resetWeights Resets the resource distribution weights for all environments.
+  rpc Create(CreateRequest) returns (CreateResponse) {
+    option (google.api.http) = {
+      post: "/v1/{parent}/environments"
+    };
+  }
+}
+
+service ProjectsLocationsInstancesEventsService_v1 {
+  // Gets a batch (list) of events given a list of names and a parent. fetchEnrichedEvent GET /v1/{name}:fetchEnrichedEvent Gets the enriched event for a given event id. get GET /v1/{name} Gets an event given a name. import POST /v1/{parent}/events:import ImportEvents import the events.
+  rpc BatchGet(BatchGetRequest) returns (BatchGetResponse) {
+    option (google.api.http) = {
+      get: "/v1/{parent}/events:batchGet"
+    };
+  }
+}
+
+service ProjectsLocationsInstancesFeedpacksService_v1 {
+  // Gets a feed pack. list GET /v1/{parent}/feedPacks Lists Packs for which feeds can be configured.
+  rpc Get(GetRequest) returns (GetResponse) {
+    option (google.api.http) = {
+      get: "/v1/{name}"
+    };
+  }
+}
+
+service ProjectsLocationsInstancesFeedserviceaccountsService_v1 {
+  // Fetch Chronicle's service account used for ingesting data from Cloud Storage buckets.
+  rpc FetchServiceAccountForCustomer(FetchServiceAccountForCustomerRequest) returns (FetchServiceAccountForCustomerResponse) {
+    option (google.api.http) = {
+      get: "/v1/{parent}/feedServiceAccounts:fetchServiceAccountForCustomer"
+    };
+  }
+}
+
+service ProjectsLocationsInstancesFeedsourcetypeschemasService_v1 {
+  // List all FeedSourceTypeSchemas.
+  rpc List(ListRequest) returns (ListResponse) {
+    option (google.api.http) = {
+      get: "/v1/{parent}/feedSourceTypeSchemas"
+    };
+  }
+}
+
+service ProjectsLocationsInstancesFeedsourcetypeschemasLogtypeschemasService_v1 {
+  // List all LogTypeSchemas compatible with a given FeedSourceType.
+  rpc List(ListRequest) returns (ListResponse) {
+    option (google.api.http) = {
+      get: "/v1/{parent}/logTypeSchemas"
+    };
+  }
+}
+
+service ProjectsLocationsInstancesFeedsService_v1 {
+  // Deletes a feed. disable POST /v1/{name}:disable Disable feed for ingestion. enable POST /v1/{name}:enable Enable feed for ingestion. generateSecret POST /v1/{name}:generateSecret Generates a new secret for https push feeds which do not support jwt tokens. get GET /v1/{name} Gets a feed. importPushLogs POST /v1/{parent}:importPushLogs Import logs coming from https push feeds. list GET /v1/{parent}/feeds Lists all feeds for the customer.
+  rpc Delete(DeleteRequest) returns (DeleteResponse) {
+    option (google.api.http) = {
+      delete: "/v1/{name}"
+    };
+  }
+}
+
+service ProjectsLocationsInstancesFindingsrefinementsService_v1 {
+  // Returns findings refinement activity for a specific findings refinement. create POST /v1/{parent}/findingsRefinements Creates a new findings refinement. get GET /v1/{name} Gets a single findings refinement. getDeployment GET /v1/{name} Gets a findings refinement deployment. list GET /v1/{parent}/findingsRefinements Lists a collection of findings refinements. patch PATCH /v1/{findingsRefinement.name} Updates a findings refinement. updateDeployment PATCH /v1/{findingsRefinementDeployment.name} Updates a findings refinement deployment.
+  rpc ComputeFindingsRefinementActivity(ComputeFindingsRefinementActivityRequest) returns (ComputeFindingsRefinementActivityResponse) {
+    option (google.api.http) = {
+      post: "/v1/{name}:computeFindingsRefinementActivity"
+    };
+  }
+}
+
+service ProjectsLocationsInstancesFormdynamicparametersService_v1 {
+  // Gets a single FormDynamicParameter by its resource name. list GET /v1/{parent}/formDynamicParameters Lists all FormDynamicParameters defined in the instance. saveForm POST /v1/{parent}/formDynamicParameters:saveForm Saves the complete set of dynamic parameters for a specific form type.
+  rpc Get(GetRequest) returns (GetResponse) {
+    option (google.api.http) = {
+      get: "/v1/{name}"
+    };
+  }
+}
+
+service ProjectsLocationsInstancesForwardersService_v1 {
+  // ImportStatsEvents imports stats events from a forwarder.
+  rpc ImportStatsEvents(ImportStatsEventsRequest) returns (ImportStatsEventsResponse) {
+    option (google.api.http) = {
+      post: "/v1/{name}:importStatsEvents"
+    };
+  }
+}
+
+service ProjectsLocationsInstancesIngestionloglabelsService_v1 {
+  // Returns the ingestion log labels for the customer.
+  rpc List(ListRequest) returns (ListResponse) {
+    option (google.api.http) = {
+      get: "/v1/{parent}/ingestionLogLabels"
+    };
+  }
+}
+
+service ProjectsLocationsInstancesIngestionlognamespacesService_v1 {
+  // Lists ingestion log namespaces for the customer.
+  rpc List(ListRequest) returns (ListResponse) {
+    option (google.api.http) = {
+      get: "/v1/{parent}/ingestionLogNamespaces"
+    };
+  }
+}
+
+service ProjectsLocationsInstancesOperationsService_v1alpha {
+  // Starts asynchronous cancellation on a long-running operation. delete DELETE /v1alpha/{name} Deletes a long-running operation. get GET /v1alpha/{name} Gets the latest state of a long-running operation. list GET /v1alpha/{name}/operations Lists operations that match the specified filter in the request. streamSearch GET /v1alpha/{name}:streamSearch Streams the results of an in-progress search operation, or returns the final results of a completed operation.
+  rpc Cancel(CancelRequest) returns (CancelResponse) {
+    option (google.api.http) = {
+      post: "/v1alpha/{name}:cancel"
+    };
+  }
+}
+
+service ProjectsLocationsInstancesPropertyschemadefinitionsService_v1alpha {
+  // Creates a new PropertySchemaDefinition. delete DELETE /v1alpha/{name} Deletes a PropertySchemaDefinition. get GET /v1alpha/{name} Gets a single PropertySchemaDefinition. list GET /v1alpha/{parent}/propertySchemaDefinitions Lists PropertySchemaDefinitions. patch PATCH /v1alpha/{propertySchemaDefinition.name} Updates an existing PropertySchemaDefinition.
+  rpc Create(CreateRequest) returns (CreateResponse) {
+    option (google.api.http) = {
+      post: "/v1alpha/{parent}/propertySchemaDefinitions"
+    };
+  }
+}
+
+service ProjectsLocationsInstancesReferencelistsService_v1alpha {
+  // Creates a new reference list. get GET /v1alpha/{name} Gets a single reference list. list GET /v1alpha/{parent}/referenceLists Lists a collection of reference lists. patch PATCH /v1alpha/{referenceList.name} Updates an existing reference list.
+  rpc Create(CreateRequest) returns (CreateResponse) {
+    option (google.api.http) = {
+      post: "/v1alpha/{parent}/referenceLists"
+    };
+  }
+}
+
+service ProjectsLocationsInstancesRemoteagentsService_v1alpha {
+  // Lists all RemoteAgents that are valid and compatible with a specific connector. create POST /v1alpha/{parent}/remoteAgents Creates a new RemoteAgent. delete DELETE /v1alpha/{name} Deletes a RemoteAgent. fetchEditableRemoteAgents GET /v1alpha/{parent}/remoteAgents:fetchEditableRemoteAgents Lists all RemoteAgents that the requesting user has permissions to edit. fetchInstallationCommand GET /v1alpha/{name}:fetchInstallationCommand Retrieves the specific command string required to install a RemoteAgent. fetchInstallerFile GET /v1alpha/{name}:fetchInstallerFile Retrieves a download link for the RemoteAgent's installer file. fetchRedeployStatus GET /v1alpha/{name}:fetchRedeployStatus Returns the redeployment status for integrations on a RemoteAgent. fetchRemoteAgentsCompatibleWithJobs GET /v1alpha/{parent}/remoteAgents:fetchRemoteAgentsCompatibleWithJobs Lists all RemoteAgents compatible with executing jobs for a specific integration. fetchRemoteAgentsInformation POST /v1alpha/{parent}/remoteAgents:fetchRemoteAgentsInformation Retrieves detailed information for a list of RemoteAgents. get GET /v1alpha/{name} Gets a single RemoteAgent. list GET /v1alpha/{parent}/remoteAgents Lists RemoteAgents. migrateConnectors POST /v1alpha/{name}:migrateConnectors Migrates legacy connectors on a RemoteAgent from remote to local scheduling. patch PATCH /v1alpha/{remoteAgent.name} Updates an existing RemoteAgent. redeployRemoteAgent POST /v1alpha/{parent}/remoteAgents:redeployRemoteAgent Redeploys configuration from one RemoteAgent to another. sendRemoteAgentInstaller POST /v1alpha/{name}:sendRemoteAgentInstaller Sends the RemoteAgent installer via email. upgradeRemoteAgent POST /v1alpha/{name}:upgradeRemoteAgent Upgrades a RemoteAgent to the latest available version.
+  rpc ConnectorValidRemoteAgents(ConnectorValidRemoteAgentsRequest) returns (ConnectorValidRemoteAgentsResponse) {
+    option (google.api.http) = {
+      get: "/v1alpha/{parent}/remoteAgents:connectorValidRemoteAgents"
+    };
+  }
+}
+
+service ProjectsLocationsInstancesRequesttemplatesService_v1alpha {
+  // Defines a new manual request form, specifying the input fields analysts must provide and how the data should be visually mapped in cases. delete DELETE /v1alpha/{name} Permanently removes an obsolete manual request form from the system. get GET /v1alpha/{name} Retrieves the definition of a manual request form, including its display fields, visual mapping, and associated environments. list GET /v1alpha/{parent}/requestTemplates Lists all available manual request forms configured in the system. patch PATCH /v1alpha/{requestTemplate.name} Modifies a manual request form's structure, such as adding or removing fields, or adjusting environment associations.
+  rpc Create(CreateRequest) returns (CreateResponse) {
+    option (google.api.http) = {
+      post: "/v1alpha/{parent}/requestTemplates"
+    };
+  }
+}
+
+service ProjectsLocationsInstancesRuleexecutionerrorsService_v1alpha {
+  // Lists rule execution errors.
+  rpc List(ListRequest) returns (ListResponse) {
+    option (google.api.http) = {
+      get: "/v1alpha/{parent}/ruleExecutionErrors"
+    };
+  }
+}
+
+service ProjectsLocationsInstancesRulesService_v1alpha {
+  // Creates a new Rule. delete DELETE /v1alpha/{name} Deletes a Rule. get GET /v1alpha/{name} Gets a Rule. getDeployment GET /v1alpha/{name} Gets a RuleDeployment. list GET /v1alpha/{parent}/rules Lists Rules. listRevisions GET /v1alpha/{name}:listRevisions Lists all revisions of the rule. modifyRules POST /v1alpha/{parent}/rules:modifyRules ModifyRules allows users to modify the rule config for multiple rules at once. patch PATCH /v1alpha/{rule.name} Updates a Rule. updateDeployment PATCH /v1alpha/{ruleDeployment.name} Updates a RuleDeployment.
+  rpc Create(CreateRequest) returns (CreateResponse) {
+    option (google.api.http) = {
+      post: "/v1alpha/{parent}/rules"
+    };
+  }
+}
+

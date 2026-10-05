@@ -1,0 +1,2505 @@
+syntax = "proto3";
+
+package chronicle.collections.v1alpha;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+import "udm.proto";
+
+enum Collection {
+  COLLECTION_UNSPECIFIED = 0;
+  APPEND = 2;
+  OVERRIDE = 3;
+  DETECTION_TIMING_DETAILS_REPROCESSING = 5;
+  DETECTION_TIMING_DETAILS_RETROHUNT = 6;
+  RUN_FREQUENCY_REALTIME = 8;
+  RUN_FREQUENCY_HOURLY = 9;
+  RUN_FREQUENCY_DAILY = 10;
+}
+
+enum Status {
+  STATUS_UNSPECIFIED = 0;
+  NEW = 2;
+  REVIEWED = 3;
+  CLOSED = 4;
+  OPEN = 5;
+}
+
+enum Priority {
+  PRIORITY_UNSPECIFIED = 0;
+  PRIORITY_INFO = 2;
+  PRIORITY_LOW = 3;
+  PRIORITY_MEDIUM = 4;
+  PRIORITY_HIGH = 5;
+  PRIORITY_CRITICAL = 6;
+}
+
+enum State {
+  STATE_UNSPECIFIED = 0;
+  RUNNING = 2;
+  SLEEPING = 3;
+  DISK_SLEEP = 4;
+  STOPPED = 5;
+  TRACING_STOP = 6;
+  ZOMBIE = 7;
+  DEAD = 8;
+  WAKE_KILL = 9;
+  WAKING = 10;
+  PARKED = 11;
+  IDLE = 12;
+  LOCKED = 13;
+  WAITING = 14;
+  SUSPENDED = 15;
+}
+
+enum CookieSameSite {
+  COOKIESAMESITE_UNSPECIFIED = 0;
+  STRICT = 2;
+  LAX = 3;
+  NONE = 4;
+}
+
+enum TaskState {
+  TASKSTATE_UNSPECIFIED = 0;
+  DISABLED = 2;
+  QUEUED = 3;
+  ACTIVE = 4;
+  RUNNING = 5;
+}
+
+enum ResourceType {
+  RESOURCETYPE_UNSPECIFIED = 0;
+  UNSPECIFIED = 1;
+  MUTEX = 2;
+  TASK = 3;
+  PIPE = 4;
+  DEVICE = 5;
+  FIREWALL_RULE = 6;
+  MAILBOX_FOLDER = 7;
+  VPC_NETWORK = 8;
+  VIRTUAL_MACHINE = 9;
+  STORAGE_BUCKET = 10;
+  STORAGE_OBJECT = 11;
+  DATABASE = 12;
+  TABLE = 13;
+  CLOUD_PROJECT = 14;
+  CLOUD_ORGANIZATION = 15;
+  SERVICE_ACCOUNT = 16;
+  ACCESS_POLICY = 17;
+  CLUSTER = 18;
+  SETTING = 19;
+  DATASET = 20;
+  BACKEND_SERVICE = 21;
+  POD = 22;
+  CONTAINER = 23;
+  FUNCTION = 24;
+  RUNTIME = 25;
+  IP_ADDRESS = 26;
+  DISK = 27;
+  VOLUME = 28;
+  IMAGE = 29;
+  SNAPSHOT = 30;
+  REPOSITORY = 31;
+  CREDENTIAL = 32;
+  LOAD_BALANCER = 33;
+  GATEWAY = 34;
+  SUBNET = 35;
+  USER = 36;
+  SERVICE = 37;
+}
+
+enum UrlVisitType {
+  URLVISITTYPE_UNSPECIFIED = 0;
+  LINK = 2;
+  TYPED = 3;
+  AUTO_BOOKMARK = 4;
+  AUTO_SUBFRAME = 5;
+  MANUAL_SUBFRAME = 6;
+  GENERATED = 7;
+  AUTO_TOPLEVEL = 8;
+  FORM_SUBMIT = 9;
+  RELOAD = 10;
+  KEYWORD = 11;
+  KEYWORD_GENERATED = 12;
+  REDIRECT = 13;
+}
+
+enum StartupType {
+  STARTUPTYPE_UNSPECIFIED = 0;
+  AUTOMATIC = 2;
+  MANUAL = 3;
+  DISABLED = 4;
+}
+
+enum ThreatCollectionType {
+  THREATCOLLECTIONTYPE_UNSPECIFIED = 0;
+  CAMPAIGN = 2;
+  REPORT = 3;
+}
+
+enum ProductPriority {
+  PRODUCTPRIORITY_UNSPECIFIED = 0;
+  UNKNOWN_PRIORITY = 1;
+  LOW_PRIORITY = 2;
+  MEDIUM_PRIORITY = 3;
+  HIGH_PRIORITY = 4;
+}
+
+enum Namespace {
+  NAMESPACE_UNSPECIFIED = 0;
+  NORMALIZED_TELEMETRY = 1;
+  RAW_TELEMETRY = 2;
+  RULE_DETECTIONS = 3;
+  UPPERCASE = 4;
+  MACHINE_INTELLIGENCE = 5;
+  SECURITY_COMMAND_CENTER = 6;
+  UNSPECIFIED = 7;
+  SOAR_ALERT = 8;
+  VIRUS_TOTAL = 9;
+}
+
+enum Role {
+  ROLE_UNSPECIFIED = 0;
+  UNKNOWN_ROLE = 1;
+  ADMINISTRATOR = 2;
+  SERVICE_ACCOUNT = 3;
+}
+
+enum OSVariantType {
+  OSVARIANTTYPE_UNSPECIFIED = 0;
+  OS_VARIANT_TYPE_UNKNOWN = 1;
+  OS_VARIANT_TYPE_FIREOS = 2;
+  OS_VARIANT_TYPE_IPHONE_OS = 3;
+}
+
+enum ThreatStatus {
+  THREATSTATUS_UNSPECIFIED = 0;
+  ACTIVE = 2;
+  CLEARED = 3;
+  FALSE_POSITIVE = 4;
+}
+
+enum Reputation {
+  REPUTATION_UNSPECIFIED = 0;
+  USEFUL = 2;
+  NOT_USEFUL = 3;
+}
+
+enum VisitSource {
+  VISITSOURCE_UNSPECIFIED = 0;
+  SYNCED = 2;
+  BROWSER = 3;
+  EXTENSION = 4;
+  IMPORTED = 5;
+}
+
+enum TokenElevationType {
+  TOKENELEVATIONTYPE_UNSPECIFIED = 0;
+  UNKNOWN = 1;
+  TYPE_1 = 2;
+  TYPE_2 = 3;
+  TYPE_3 = 4;
+}
+
+enum IoCStatsType {
+  IOCSTATSTYPE_UNSPECIFIED = 0;
+  UNSPECIFIED_IOC_STATS_TYPE = 1;
+  MANDIANT_SOURCES = 2;
+  THIRD_PARTY_SOURCES = 3;
+  THREAT_INTELLIGENCE_IOC_STATS = 4;
+}
+
+enum OSType {
+  OSTYPE_UNSPECIFIED = 0;
+  OS_TYPE_UNKNOWN = 1;
+  OS_TYPE_ANDROID = 2;
+  OS_TYPE_IOS = 3;
+  OS_TYPE_WINDOWS = 4;
+  OS_TYPE_LINUX = 5;
+  OS_TYPE_MACOS = 6;
+  OS_TYPE_CHROMEOS = 7;
+  OS_TYPE_KAIOS = 8;
+  OS_TYPE_ROKUOS = 9;
+  OS_TYPE_TIZEN = 10;
+  OS_TYPE_VIZIO = 11;
+  OS_TYPE_PLAYSTATION = 12;
+  OS_TYPE_TVOS = 13;
+  OS_TYPE_CHROMECAST = 14;
+  OS_TYPE_XBOXOS = 15;
+  OS_TYPE_VIDAAOS = 16;
+  OS_TYPE_DARWINOS = 17;
+}
+
+enum Verdict {
+  VERDICT_UNSPECIFIED = 0;
+  TRUE_POSITIVE = 2;
+  FALSE_POSITIVE = 3;
+}
+
+enum CloudEnvironment {
+  CLOUDENVIRONMENT_UNSPECIFIED = 0;
+  UNSPECIFIED_CLOUD_ENVIRONMENT = 1;
+  GOOGLE_CLOUD_PLATFORM = 2;
+  AMAZON_WEB_SERVICES = 3;
+  MICROSOFT_AZURE = 4;
+}
+
+enum MessageType {
+  MESSAGETYPE_UNSPECIFIED = 0;
+  UNKNOWN_MESSAGE_TYPE = 1;
+  DISCOVER = 2;
+  OFFER = 3;
+  REQUEST = 4;
+  DECLINE = 5;
+  ACK = 6;
+  NAK = 7;
+  RELEASE = 8;
+  INFORM = 9;
+  WIN_DELETED = 10;
+  WIN_EXPIRED = 11;
+}
+
+enum ConnectionState {
+  CONNECTIONSTATE_UNSPECIFIED = 0;
+  LISTENING = 2;
+  ESTABLISHED = 3;
+  TIME_WAIT = 4;
+  CLOSE_WAIT = 5;
+  CLOSED = 6;
+  SYN_SENT = 7;
+  SYN_RECEIVED = 8;
+  FIN_WAIT1 = 9;
+  FIN_WAIT2 = 10;
+  LAST_ACK = 11;
+}
+
+enum TriggerType {
+  TRIGGERTYPE_UNSPECIFIED = 0;
+  EVENT = 2;
+  TIME = 3;
+  DAILY = 4;
+  WEEKLY = 5;
+  MONTHLY = 6;
+  MONTHLYDOW = 7;
+  IDLE = 8;
+  REGISTRATION = 9;
+  BOOT = 10;
+  LOGON = 11;
+  SESSION_STATE_CHANGE = 12;
+  CUSTOM_TRIGGER01 = 13;
+}
+
+enum BrowserType {
+  BROWSERTYPE_UNSPECIFIED = 0;
+  BROWSER_TYPE_UNKNOWN = 1;
+  BROWSER_TYPE_CHROME = 2;
+  BROWSER_TYPE_FIREFOX = 3;
+  BROWSER_TYPE_SAFARI = 4;
+  BROWSER_TYPE_OPERA = 5;
+  BROWSER_TYPE_IE = 6;
+  BROWSER_TYPE_EDGE = 7;
+  BROWSER_TYPE_EDGIUM = 8;
+  BROWSER_TYPE_UC = 9;
+  BROWSER_TYPE_SAMSUNG = 10;
+  BROWSER_TYPE_YANDEX = 11;
+  BROWSER_TYPE_CFNETWORKAPP = 12;
+  BROWSER_TYPE_COCCOC = 13;
+  BROWSER_TYPE_NETFRONT = 14;
+  BROWSER_TYPE_ANDROIDWEBKIT = 15;
+  BROWSER_TYPE_CONJURE = 16;
+}
+
+enum ResponsePlatformInfo {
+  RESPONSEPLATFORMINFO_UNSPECIFIED = 0;
+  RESPONSE_PLATFORM_TYPE_SIEMPLIFY = 2;
+}
+
+enum UserType {
+  USERTYPE_UNSPECIFIED = 0;
+  ANALYST = 2;
+  TRIAGE_AGENT = 3;
+}
+
+enum ProductConfidence {
+  PRODUCTCONFIDENCE_UNSPECIFIED = 0;
+  UNKNOWN_CONFIDENCE = 1;
+  LOW_CONFIDENCE = 2;
+  MEDIUM_CONFIDENCE = 3;
+  HIGH_CONFIDENCE = 4;
+}
+
+enum VerdictType {
+  VERDICTTYPE_UNSPECIFIED = 0;
+  PROVIDER_ML_VERDICT = 2;
+  ANALYST_VERDICT = 3;
+}
+
+enum AccountType {
+  ACCOUNTTYPE_UNSPECIFIED = 0;
+  DOMAIN_ACCOUNT_TYPE = 2;
+  LOCAL_ACCOUNT_TYPE = 3;
+  CLOUD_ACCOUNT_TYPE = 4;
+  SERVICE_ACCOUNT_TYPE = 5;
+  DEFAULT_ACCOUNT_TYPE = 6;
+}
+
+enum CollectionType {
+  COLLECTIONTYPE_UNSPECIFIED = 0;
+  TELEMETRY_ALERT = 2;
+  GCTI_FINDING = 3;
+  UPPERCASE_ALERT = 4;
+  RULE_DETECTION = 5;
+  MACHINE_INTELLIGENCE_ALERT = 6;
+  SOAR_ALERT = 7;
+}
+
+enum FileType {
+  FILETYPE_UNSPECIFIED = 0;
+  FILE_TYPE_PE_EXE = 2;
+  FILE_TYPE_PE_DLL = 3;
+  FILE_TYPE_MSI = 4;
+  FILE_TYPE_NE_EXE = 5;
+  FILE_TYPE_NE_DLL = 6;
+  FILE_TYPE_DOS_EXE = 7;
+  FILE_TYPE_DOS_COM = 8;
+  FILE_TYPE_COFF = 9;
+  FILE_TYPE_ELF = 10;
+  FILE_TYPE_LINUX_KERNEL = 11;
+  FILE_TYPE_RPM = 12;
+  FILE_TYPE_LINUX = 13;
+  FILE_TYPE_MACH_O = 14;
+  FILE_TYPE_JAVA_BYTECODE = 15;
+  FILE_TYPE_DMG = 16;
+  FILE_TYPE_DEB = 17;
+  FILE_TYPE_PKG = 18;
+  FILE_TYPE_PYC = 19;
+  FILE_TYPE_LNK = 20;
+  FILE_TYPE_DESKTOP_ENTRY = 21;
+  FILE_TYPE_JPEG = 22;
+  FILE_TYPE_TIFF = 23;
+  FILE_TYPE_GIF = 24;
+  FILE_TYPE_PNG = 25;
+  FILE_TYPE_BMP = 26;
+  FILE_TYPE_GIMP = 27;
+  FILE_TYPE_IN_DESIGN = 28;
+  FILE_TYPE_PSD = 29;
+  FILE_TYPE_TARGA = 30;
+  FILE_TYPE_XWD = 31;
+  FILE_TYPE_DIB = 32;
+  FILE_TYPE_JNG = 33;
+  FILE_TYPE_ICO = 34;
+  FILE_TYPE_FPX = 35;
+  FILE_TYPE_EPS = 36;
+  FILE_TYPE_SVG = 37;
+  FILE_TYPE_EMF = 38;
+  FILE_TYPE_WEBP = 39;
+  FILE_TYPE_DWG = 40;
+  FILE_TYPE_DXF = 41;
+  FILE_TYPE_THREEDS = 42;
+  FILE_TYPE_OGG = 43;
+  FILE_TYPE_FLC = 44;
+  FILE_TYPE_FLI = 45;
+  FILE_TYPE_MP3 = 46;
+  FILE_TYPE_FLAC = 47;
+  FILE_TYPE_WAV = 48;
+  FILE_TYPE_MIDI = 49;
+  FILE_TYPE_AVI = 50;
+  FILE_TYPE_MPEG = 51;
+  FILE_TYPE_QUICKTIME = 52;
+  FILE_TYPE_ASF = 53;
+  FILE_TYPE_DIVX = 54;
+  FILE_TYPE_FLV = 55;
+  FILE_TYPE_WMA = 56;
+  FILE_TYPE_WMV = 57;
+  FILE_TYPE_RM = 58;
+  FILE_TYPE_MOV = 59;
+  FILE_TYPE_MP4 = 60;
+  FILE_TYPE_T3GP = 61;
+  FILE_TYPE_WEBM = 62;
+  FILE_TYPE_MKV = 63;
+  FILE_TYPE_PDF = 64;
+  FILE_TYPE_PS = 65;
+  FILE_TYPE_DOC = 66;
+  FILE_TYPE_DOCX = 67;
+  FILE_TYPE_PPT = 68;
+  FILE_TYPE_PPTX = 69;
+  FILE_TYPE_XLS = 70;
+  FILE_TYPE_XLSX = 71;
+  FILE_TYPE_RTF = 72;
+  FILE_TYPE_PPSX = 73;
+  FILE_TYPE_ODP = 74;
+  FILE_TYPE_ODS = 75;
+  FILE_TYPE_ODT = 76;
+  FILE_TYPE_HWP = 77;
+  FILE_TYPE_GUL = 78;
+  FILE_TYPE_ODF = 79;
+  FILE_TYPE_ODG = 80;
+  FILE_TYPE_ONE_NOTE = 81;
+  FILE_TYPE_OOXML = 82;
+  FILE_TYPE_SLK = 83;
+  FILE_TYPE_EBOOK = 84;
+  FILE_TYPE_LATEX = 85;
+  FILE_TYPE_TTF = 86;
+  FILE_TYPE_EOT = 87;
+  FILE_TYPE_WOFF = 88;
+  FILE_TYPE_CHM = 89;
+  FILE_TYPE_ZIP = 90;
+  FILE_TYPE_GZIP = 91;
+  FILE_TYPE_BZIP = 92;
+  FILE_TYPE_RZIP = 93;
+  FILE_TYPE_DZIP = 94;
+  FILE_TYPE_SEVENZIP = 95;
+  FILE_TYPE_CAB = 96;
+  FILE_TYPE_JAR = 97;
+  FILE_TYPE_RAR = 98;
+  FILE_TYPE_MSCOMPRESS = 99;
+  FILE_TYPE_ACE = 100;
+  FILE_TYPE_ARC = 101;
+  FILE_TYPE_ARJ = 102;
+  FILE_TYPE_ASD = 103;
+  FILE_TYPE_BLACKHOLE = 104;
+  FILE_TYPE_KGB = 105;
+  FILE_TYPE_ZLIB = 106;
+  FILE_TYPE_TAR = 107;
+  FILE_TYPE_ZST = 108;
+  FILE_TYPE_LZFSE = 109;
+  FILE_TYPE_PYTHON_WHL = 110;
+  FILE_TYPE_PYTHON_PKG = 111;
+  FILE_TYPE_MSIX = 112;
+  FILE_TYPE_TEXT = 113;
+  FILE_TYPE_SCRIPT = 114;
+  FILE_TYPE_PHP = 115;
+  FILE_TYPE_PYTHON = 116;
+  FILE_TYPE_PERL = 117;
+  FILE_TYPE_RUBY = 118;
+  FILE_TYPE_C = 119;
+  FILE_TYPE_CPP = 120;
+  FILE_TYPE_JAVA = 121;
+  FILE_TYPE_SHELLSCRIPT = 122;
+  FILE_TYPE_PASCAL = 123;
+  FILE_TYPE_AWK = 124;
+  FILE_TYPE_DYALOG = 125;
+  FILE_TYPE_FORTRAN = 126;
+  FILE_TYPE_JAVASCRIPT = 127;
+  FILE_TYPE_POWERSHELL = 128;
+  FILE_TYPE_VBA = 129;
+  FILE_TYPE_M4 = 130;
+  FILE_TYPE_OBJETIVEC = 131;
+  FILE_TYPE_JMOD = 132;
+  FILE_TYPE_MAKEFILE = 133;
+  FILE_TYPE_INI = 134;
+  FILE_TYPE_CLJ = 135;
+  FILE_TYPE_PDB = 136;
+  FILE_TYPE_SQL = 137;
+  FILE_TYPE_NEKO = 138;
+  FILE_TYPE_WER = 139;
+  FILE_TYPE_GOLANG = 140;
+  FILE_TYPE_M3U = 141;
+  FILE_TYPE_BAT = 142;
+  FILE_TYPE_MSC = 143;
+  FILE_TYPE_RDP = 144;
+  FILE_TYPE_SYMBIAN = 145;
+  FILE_TYPE_PALMOS = 146;
+  FILE_TYPE_WINCE = 147;
+  FILE_TYPE_ANDROID = 148;
+  FILE_TYPE_IPHONE = 149;
+  FILE_TYPE_HTML = 150;
+  FILE_TYPE_XML = 151;
+  FILE_TYPE_SWF = 152;
+  FILE_TYPE_FLA = 153;
+  FILE_TYPE_COOKIE = 154;
+  FILE_TYPE_TORRENT = 155;
+  FILE_TYPE_EMAIL_TYPE = 156;
+  FILE_TYPE_OUTLOOK = 157;
+  FILE_TYPE_SGML = 158;
+  FILE_TYPE_JSON = 159;
+  FILE_TYPE_CSV = 160;
+  FILE_TYPE_HTA = 161;
+  FILE_TYPE_INTERNET_SHORTCUT = 162;
+  FILE_TYPE_CAP = 163;
+  FILE_TYPE_ISOIMAGE = 164;
+  FILE_TYPE_SQUASHFS = 165;
+  FILE_TYPE_VHD = 166;
+  FILE_TYPE_APPLE = 167;
+  FILE_TYPE_MACINTOSH = 168;
+  FILE_TYPE_APPLESINGLE = 169;
+  FILE_TYPE_APPLEDOUBLE = 170;
+  FILE_TYPE_MACINTOSH_HFS = 171;
+  FILE_TYPE_APPLE_PLIST = 172;
+  FILE_TYPE_MACINTOSH_LIB = 173;
+  FILE_TYPE_APPLESCRIPT = 174;
+  FILE_TYPE_APPLESCRIPT_COMPILED = 175;
+  FILE_TYPE_CRX = 176;
+  FILE_TYPE_XPI = 177;
+  FILE_TYPE_ROM = 178;
+  FILE_TYPE_IPS = 179;
+  FILE_TYPE_PEM = 180;
+  FILE_TYPE_PGP = 181;
+  FILE_TYPE_CRT = 182;
+}
+
+enum ServiceType {
+  SERVICETYPE_UNSPECIFIED = 0;
+  KERNEL_DRIVER = 2;
+  FILE_SYSTEM_DRIVER = 3;
+  WIN32_OWN_PROCESS = 4;
+  WIN32_SHARE_PROCESS = 5;
+  ADAPTER = 6;
+  RECOGNIZER_DRIVER = 7;
+  INTERACTIVE_PROCESS = 8;
+}
+
+enum Direction {
+  DIRECTION_UNSPECIFIED = 0;
+  UNKNOWN_DIRECTION = 1;
+  INBOUND = 2;
+  OUTBOUND = 3;
+  BROADCAST = 4;
+}
+
+enum Action {
+  ACTION_UNSPECIFIED = 0;
+  UNKNOWN_ACTION = 1;
+  ALLOW = 2;
+  BLOCK = 3;
+  ALLOW_WITH_MODIFICATION = 4;
+  QUARANTINE = 5;
+  FAIL = 6;
+  CHALLENGE = 7;
+}
+
+enum AuthenticationStatus {
+  AUTHENTICATIONSTATUS_UNSPECIFIED = 0;
+  UNKNOWN_AUTHENTICATION_STATUS = 1;
+  ACTIVE = 2;
+  SUSPENDED = 3;
+  NO_ACTIVE_CREDENTIALS = 4;
+  DELETED = 5;
+}
+
+enum Platform {
+  PLATFORM_UNSPECIFIED = 0;
+  UNKNOWN_PLATFORM = 1;
+  WINDOWS = 2;
+  MAC = 3;
+  LINUX = 4;
+  GCP = 5;
+  AWS = 6;
+  AZURE = 7;
+  IOS = 8;
+  ANDROID = 9;
+  CHROME_OS = 10;
+}
+
+enum SecurityCategory {
+  SECURITYCATEGORY_UNSPECIFIED = 0;
+  UNKNOWN_CATEGORY = 1;
+  SOFTWARE_MALICIOUS = 2;
+  SOFTWARE_SUSPICIOUS = 3;
+  SOFTWARE_PUA = 4;
+  NETWORK_MALICIOUS = 5;
+  NETWORK_SUSPICIOUS = 6;
+  NETWORK_CATEGORIZED_CONTENT = 7;
+  NETWORK_DENIAL_OF_SERVICE = 8;
+  NETWORK_RECON = 9;
+  NETWORK_COMMAND_AND_CONTROL = 10;
+  ACL_VIOLATION = 11;
+  AUTH_VIOLATION = 12;
+  EXPLOIT = 13;
+  DATA_EXFILTRATION = 14;
+  DATA_AT_REST = 15;
+  DATA_DESTRUCTION = 16;
+  TOR_EXIT_NODE = 17;
+  MAIL_SPAM = 18;
+  MAIL_PHISHING = 19;
+  MAIL_SPOOFING = 20;
+  POLICY_VIOLATION = 21;
+  SOCIAL_ENGINEERING = 22;
+  PHISHING = 23;
+}
+
+enum Severity {
+  SEVERITY_UNSPECIFIED = 0;
+  UNKNOWN_SEVERITY = 1;
+  LOW = 2;
+  MEDIUM = 3;
+  HIGH = 4;
+  CRITICAL = 5;
+}
+
+enum ProductSeverity {
+  PRODUCTSEVERITY_UNSPECIFIED = 0;
+  UNKNOWN_SEVERITY = 1;
+  INFORMATIONAL = 2;
+  ERROR = 3;
+  NONE = 4;
+  LOW = 5;
+  MEDIUM = 6;
+  HIGH = 7;
+  CRITICAL = 8;
+}
+
+enum EventType {
+  EVENTTYPE_UNSPECIFIED = 0;
+  PROCESS_UNCATEGORIZED = 2;
+  PROCESS_LAUNCH = 3;
+  PROCESS_INJECTION = 4;
+  PROCESS_PRIVILEGE_ESCALATION = 5;
+  PROCESS_TERMINATION = 6;
+  PROCESS_OPEN = 7;
+  PROCESS_MODULE_LOAD = 8;
+  REGISTRY_UNCATEGORIZED = 9;
+  REGISTRY_CREATION = 10;
+  REGISTRY_MODIFICATION = 11;
+  REGISTRY_DELETION = 12;
+  SETTING_UNCATEGORIZED = 13;
+  SETTING_CREATION = 14;
+  SETTING_MODIFICATION = 15;
+  SETTING_DELETION = 16;
+  MUTEX_UNCATEGORIZED = 17;
+  MUTEX_CREATION = 18;
+  FILE_UNCATEGORIZED = 19;
+  FILE_CREATION = 20;
+  FILE_DELETION = 21;
+  FILE_MODIFICATION = 22;
+  FILE_READ = 23;
+  FILE_COPY = 24;
+  FILE_OPEN = 25;
+  FILE_MOVE = 26;
+  FILE_SYNC = 27;
+  USER_UNCATEGORIZED = 28;
+  USER_LOGIN = 29;
+  USER_LOGOUT = 30;
+  USER_CREATION = 31;
+  USER_CHANGE_PASSWORD = 32;
+  USER_CHANGE_PERMISSIONS = 33;
+  USER_STATS = 34;
+  USER_BADGE_IN = 35;
+  USER_DELETION = 36;
+  USER_RESOURCE_CREATION = 37;
+  USER_RESOURCE_UPDATE_CONTENT = 38;
+  USER_RESOURCE_UPDATE_PERMISSIONS = 39;
+  USER_COMMUNICATION = 40;
+  USER_RESOURCE_ACCESS = 41;
+  USER_RESOURCE_DELETION = 42;
+  GROUP_UNCATEGORIZED = 43;
+  GROUP_CREATION = 44;
+  GROUP_DELETION = 45;
+  GROUP_MODIFICATION = 46;
+  EMAIL_UNCATEGORIZED = 47;
+  EMAIL_TRANSACTION = 48;
+  EMAIL_URL_CLICK = 49;
+  NETWORK_UNCATEGORIZED = 50;
+  NETWORK_FLOW = 51;
+  NETWORK_CONNECTION = 52;
+  NETWORK_FTP = 53;
+  NETWORK_DHCP = 54;
+  NETWORK_DNS = 55;
+  NETWORK_HTTP = 56;
+  NETWORK_SMTP = 57;
+  STATUS_UNCATEGORIZED = 58;
+  STATUS_HEARTBEAT = 59;
+  STATUS_STARTUP = 60;
+  STATUS_SHUTDOWN = 61;
+  STATUS_UPDATE = 62;
+  SCAN_UNCATEGORIZED = 63;
+  SCAN_FILE = 64;
+  SCAN_PROCESS_BEHAVIORS = 65;
+  SCAN_PROCESS = 66;
+  SCAN_HOST = 67;
+  SCAN_VULN_HOST = 68;
+  SCAN_VULN_NETWORK = 69;
+  SCAN_NETWORK = 70;
+  SCHEDULED_TASK_UNCATEGORIZED = 71;
+  SCHEDULED_TASK_CREATION = 72;
+  SCHEDULED_TASK_DELETION = 73;
+  SCHEDULED_TASK_ENABLE = 74;
+  SCHEDULED_TASK_DISABLE = 75;
+  SCHEDULED_TASK_MODIFICATION = 76;
+  SYSTEM_AUDIT_LOG_UNCATEGORIZED = 77;
+  SYSTEM_AUDIT_LOG_WIPE = 78;
+  SERVICE_CREATION = 80;
+  SERVICE_DELETION = 81;
+  SERVICE_START = 82;
+  SERVICE_STOP = 83;
+  SERVICE_MODIFICATION = 84;
+  GENERIC_EVENT = 85;
+  RESOURCE_CREATION = 86;
+  RESOURCE_DELETION = 87;
+  RESOURCE_PERMISSIONS_CHANGE = 88;
+  RESOURCE_READ = 89;
+  RESOURCE_WRITTEN = 90;
+  DEVICE_FIRMWARE_UPDATE = 91;
+  DEVICE_CONFIG_UPDATE = 92;
+  DEVICE_PROGRAM_UPLOAD = 93;
+  DEVICE_PROGRAM_DOWNLOAD = 94;
+  ANALYST_UPDATE_VERDICT = 95;
+  ANALYST_UPDATE_REPUTATION = 96;
+  ANALYST_UPDATE_SEVERITY_SCORE = 97;
+  ANALYST_UPDATE_STATUS = 98;
+  ANALYST_ADD_COMMENT = 99;
+  ANALYST_UPDATE_PRIORITY = 100;
+  ANALYST_UPDATE_ROOT_CAUSE = 101;
+  ANALYST_UPDATE_REASON = 102;
+  ANALYST_UPDATE_RISK_SCORE = 103;
+  ENTITY_RISK_CHANGE = 104;
+  TRIAGE_AGENT_UPDATE_INVESTIGATION = 105;
+}
+
+enum AssetType {
+  ASSETTYPE_UNSPECIFIED = 0;
+  WORKSTATION = 2;
+  LAPTOP = 3;
+  IOT = 4;
+  NETWORK_ATTACHED_STORAGE = 5;
+  PRINTER = 6;
+  SCANNER = 7;
+  SERVER = 8;
+  TAPE_LIBRARY = 9;
+  MOBILE = 10;
+}
+
+enum Dimension {
+  DIMENSION_UNSPECIFIED = 0;
+  PRINCIPAL_DEVICE = 2;
+  TARGET_USER = 3;
+  TARGET_DEVICE = 4;
+  PRINCIPAL_USER = 5;
+  TARGET_IP = 6;
+  PRINCIPAL_FILE_HASH = 7;
+  PRINCIPAL_COUNTRY = 8;
+  SECURITY_CATEGORY = 9;
+  NETWORK_ASN = 10;
+  CLIENT_CERTIFICATE_HASH = 11;
+  DNS_QUERY_TYPE = 12;
+  DNS_DOMAIN = 13;
+  HTTP_USER_AGENT = 14;
+  EVENT_TYPE = 15;
+  PRODUCT_NAME = 16;
+  PRODUCT_EVENT_TYPE = 17;
+  PARENT_FOLDER_PATH = 18;
+  TARGET_RESOURCE_NAME = 19;
+  PRINCIPAL_APPLICATION = 20;
+  TARGET_APPLICATION = 21;
+  EMAIL_TO_ADDRESS = 22;
+  EMAIL_FROM_ADDRESS = 23;
+  MAIL_ID = 24;
+  PRINCIPAL_IP = 25;
+  SECURITY_ACTION = 26;
+  SECURITY_RULE_ID = 27;
+  TARGET_NETWORK_ORGANIZATION_NAME = 28;
+  PRINCIPAL_NETWORK_ORGANIZATION_NAME = 29;
+  PRINCIPAL_PROCESS_FILE_PATH = 30;
+  PRINCIPAL_PROCESS_FILE_HASH = 31;
+  SECURITY_RESULT_RULE_NAME = 32;
+  TARGET_RESOURCE_LABEL_KEY = 33;
+  VENDOR_NAME = 34;
+  TARGET_RESOURCE_TYPE = 35;
+  TARGET_LOCATION_NAME = 36;
+  LOG_TYPE = 37;
+  TARGET_HOSTNAME = 38;
+}
+
+enum EnrichmentState {
+  ENRICHMENTSTATE_UNSPECIFIED = 0;
+  ENRICHED = 2;
+  UNENRICHED = 3;
+}
+
+enum AlertState {
+  ALERTSTATE_UNSPECIFIED = 0;
+  UNSPECIFIED = 1;
+  NOT_ALERTING = 2;
+  ALERTING = 3;
+}
+
+enum ThreatVerdict {
+  THREATVERDICT_UNSPECIFIED = 0;
+  UNDETECTED = 2;
+  SUSPICIOUS = 3;
+  MALICIOUS = 4;
+}
+
+enum EventTimestampAttribute {
+  EVENTTIMESTAMPATTRIBUTE_UNSPECIFIED = 0;
+  FILE_LAST_ACCESS_TIME = 2;
+  FILE_LAST_MODIFIED_TIME = 3;
+  FILE_METADATA_LAST_CHANGE_TIME = 4;
+  FILE_CREATION_TIME = 5;
+  COLLECTED_TIME = 6;
+  COLLECTED = 7;
+  ACCESSED = 8;
+  CHANGED = 9;
+  CREATED = 10;
+  FILE_NAME_ACCESSED = 11;
+  FILE_NAME_CHANGED = 12;
+  FILE_NAME_CREATED = 13;
+  FILE_NAME_LAST_ACCESSED = 14;
+  FILE_NAME_LAST_MODIFIED = 15;
+  FILE_NAME_METADATA_LAST_CHANGED = 16;
+  FILE_NAME_MODIFIED = 17;
+  LAST_ACCESSED = 18;
+  LAST_MODIFIED = 19;
+  METADATA_LAST_CHANGED = 20;
+  MODIFIED = 21;
+  ADDED = 22;
+  BACKED_UP = 23;
+  LAST_CONNECTED = 24;
+  DELETED = 25;
+  ENDED = 26;
+  EXITED = 27;
+  EXPIRED = 28;
+  FIRST_ACCESSED = 29;
+  APPEARED = 30;
+  INSTALLED = 31;
+  LAST_ACTIVE = 32;
+  LAST_LOGGED_IN = 33;
+  LAST_LOGIN_ATTEMPT = 34;
+  LAST_PASSWORD_SET = 35;
+  LAST_PRINTED = 36;
+  LAST_RESUMED = 37;
+  LAST_EXECUTED = 38;
+  LAST_SEEN = 39;
+  LAST_SHUTDOWN = 40;
+  LAST_UPDATED = 41;
+  LAST_USED = 42;
+  LAST_VISITED = 43;
+  LINKED = 44;
+  METADATA_MODIFIED = 45;
+  CONTENT_MODIFIED = 46;
+  PURCHASED = 47;
+  RECORDED = 48;
+  REQUEST_RECEIVED = 49;
+  RESPONSE_SENT = 50;
+  SCHEDULED_TO_END = 51;
+  SCHEDULED_TO_START = 52;
+  SENT = 53;
+  STARTED = 54;
+  UPDATED = 55;
+  VALIDATED = 56;
+  MOST_RECENT_RUN = 57;
+  NEXT_RUN = 58;
+  VISITED = 59;
+  TARGET_CREATED = 60;
+  VOLUME_CREATED = 61;
+  POST_CHECKED = 62;
+  SYNCHRONIZED = 63;
+  ITEM_CREATED = 64;
+  ITEM_MODIFIED = 65;
+  DOCUMENT_LAST_SAVED = 66;
+  LAST_REGISTERED = 67;
+  LAUNCHED = 68;
+  FIRST_VISITED = 69;
+  FIRST_SEEN = 70;
+  DOWNLOADED = 71;
+}
+
+enum OpCode {
+  OPCODE_UNSPECIFIED = 0;
+  UNKNOWN_OPCODE = 1;
+  BOOTREQUEST = 2;
+  BOOTREPLY = 3;
+}
+
+enum TaskLogonType {
+  TASKLOGONTYPE_UNSPECIFIED = 0;
+  PASSWORD = 2;
+  S4U = 3;
+  INTERACTIVE_TOKEN = 4;
+  GROUP = 5;
+  SERVICE_ACCOUNT = 6;
+  INTERACTIVE_TOKEN_OR_PASSWORD = 7;
+}
+
+enum BrowserVariantType {
+  BROWSERVARIANTTYPE_UNSPECIFIED = 0;
+  BROWSER_VARIANT_TYPE_UNKNOWN = 1;
+  BROWSER_VARIANT_TYPE_BRAVE = 2;
+}
+
+enum Reason {
+  REASON_UNSPECIFIED = 0;
+  REASON_NOT_MALICIOUS = 2;
+  REASON_MALICIOUS = 3;
+  REASON_MAINTENANCE = 4;
+}
+
+enum MetricName {
+  METRICNAME_UNSPECIFIED = 0;
+  NETWORK_BYTES_INBOUND = 2;
+  NETWORK_BYTES_OUTBOUND = 3;
+  NETWORK_BYTES_TOTAL = 4;
+  AUTH_ATTEMPTS_SUCCESS = 5;
+  AUTH_ATTEMPTS_FAIL = 6;
+  AUTH_ATTEMPTS_TOTAL = 7;
+  DNS_BYTES_OUTBOUND = 8;
+  NETWORK_FLOWS_INBOUND = 9;
+  NETWORK_FLOWS_OUTBOUND = 10;
+  NETWORK_FLOWS_TOTAL = 11;
+  DNS_QUERIES_SUCCESS = 12;
+  DNS_QUERIES_FAIL = 13;
+  DNS_QUERIES_TOTAL = 14;
+  FILE_EXECUTIONS_SUCCESS = 15;
+  FILE_EXECUTIONS_FAIL = 16;
+  FILE_EXECUTIONS_TOTAL = 17;
+  HTTP_QUERIES_SUCCESS = 18;
+  HTTP_QUERIES_FAIL = 19;
+  HTTP_QUERIES_TOTAL = 20;
+  WORKSPACE_EMAILS_SENT_TOTAL = 21;
+  WORKSPACE_TOTAL_DOWNLOAD_ACTIONS = 22;
+  WORKSPACE_TOTAL_CHANGE_ACTIONS = 23;
+  WORKSPACE_AUTH_ATTEMPTS_TOTAL = 24;
+  WORKSPACE_NETWORK_BYTES_OUTBOUND = 25;
+  WORKSPACE_NETWORK_BYTES_TOTAL = 26;
+  ALERT_EVENT_NAME_COUNT = 27;
+  RESOURCE_CREATION_TOTAL = 28;
+  RESOURCE_CREATION_SUCCESS = 29;
+  RESOURCE_READ_SUCCESS = 30;
+  RESOURCE_READ_FAIL = 31;
+  RESOURCE_DELETION_SUCCESS = 32;
+  RESOURCE_CREATION_FAIL = 33;
+  RESOURCE_DELETION_FAIL = 34;
+  RESOURCE_DELETION_TOTAL = 35;
+  RESOURCE_READ_TOTAL = 36;
+  RESOURCE_WRITTEN_FAIL = 37;
+  RESOURCE_WRITTEN_SUCCESS = 38;
+  RESOURCE_WRITTEN_TOTAL = 39;
+  UDM_DATA_PRESENCE_SUMMARY = 40;
+}
+
+enum IpProtocol {
+  IPPROTOCOL_UNSPECIFIED = 0;
+  UNKNOWN_IP_PROTOCOL = 1;
+  EIGRP = 2;
+  ESP = 3;
+  ETHERIP = 4;
+  GRE = 5;
+  ICMP = 6;
+  ICMP6 = 7;
+  IGMP = 8;
+  IP6IN4 = 9;
+  PIM = 10;
+  SCTP = 11;
+  TCP = 12;
+  UDP = 13;
+  VRRP = 14;
+}
+
+enum ActionType {
+  ACTIONTYPE_UNSPECIFIED = 0;
+  EXEC = 2;
+  COM_HANDLER = 3;
+  SEND_EMAIL = 4;
+  SHOW_MESSAGE = 5;
+}
+
+enum SourceType {
+  SOURCETYPE_UNSPECIFIED = 0;
+  ENTITY_CONTEXT = 2;
+  DERIVED_CONTEXT = 3;
+  GLOBAL_CONTEXT = 4;
+}
+
+enum ApplicationProtocol {
+  APPLICATIONPROTOCOL_UNSPECIFIED = 0;
+  UNKNOWN_APPLICATION_PROTOCOL = 1;
+  AFP = 2;
+  AMQP = 3;
+  APPC = 4;
+  ATOM = 5;
+  BEEP = 6;
+  BITCOIN = 7;
+  BIT_TORRENT = 8;
+  CFDP = 9;
+  CIP = 10;
+  COAP = 11;
+  COTP = 12;
+  DCERPC = 13;
+  DDS = 14;
+  DEVICE_NET = 15;
+  DHCP = 16;
+  DICOM = 17;
+  DNP3 = 18;
+  DNS = 19;
+  ENRP = 20;
+  E_DONKEY = 21;
+  FAST_TRACK = 22;
+  FINGER = 23;
+  FREENET = 24;
+  FTAM = 25;
+  FTP = 26;
+  GOOSE = 27;
+  GOPHER = 28;
+  GRPC = 29;
+  H323 = 30;
+  HL7 = 31;
+  HTTP = 32;
+  HTTPS = 33;
+  IEC104 = 34;
+  IMAP = 35;
+  IRCP = 36;
+  KADEMLIA = 37;
+  KRB5 = 38;
+  LDAP = 39;
+  LPD = 40;
+  MIME = 41;
+  MMS = 42;
+  MODBUS = 43;
+  MQTT = 44;
+  NETCONF = 45;
+  NFS = 46;
+  NIS = 47;
+  NNTP = 48;
+  NTCIP = 49;
+  NTP = 50;
+  OSCAR = 51;
+  PNRP = 52;
+  POP3 = 53;
+  PTP = 54;
+  QUIC = 55;
+  RDP = 56;
+  RELP = 57;
+  RIP = 58;
+  RLOGIN = 59;
+  RPC = 60;
+  RTMP = 61;
+  RTP = 62;
+  RTPS = 63;
+  RTSP = 64;
+  SAP = 65;
+  SDP = 66;
+  SFTP = 67;
+  SIP = 68;
+  SLP = 69;
+  SMB = 70;
+  SMTP = 71;
+  SNMP = 72;
+  SNTP = 73;
+  SSH = 74;
+  SSMS = 75;
+  STYX = 76;
+  SV = 77;
+  TCAP = 78;
+  TDS = 79;
+  TELNET = 80;
+  TOR = 81;
+  TSP = 82;
+  VTP = 83;
+  WEB_DAV = 84;
+  WHOIS = 85;
+  X400 = 86;
+  X500 = 87;
+  XMPP = 88;
+}
+
+enum RecordType {
+  RECORDTYPE_UNSPECIFIED = 0;
+  RUN_LVL = 2;
+  BOOT_TIME = 3;
+  NEW_TIME = 4;
+  OLD_TIME = 5;
+  INIT_PROCESS = 6;
+  LOGIN_PROCESS = 7;
+  USER_PROCESS = 8;
+  DEAD_PROCESS = 9;
+  ACCOUNTING = 10;
+}
+
+enum Family {
+  FAMILY_UNSPECIFIED = 0;
+  USER_DEFINED = 1;
+  MSIE = 2;
+  GECKO = 3;
+  APPLEWEBKIT = 4;
+  OPERA = 5;
+  KHTML = 6;
+  OTHER = 7;
+  APPLE = 8;
+  BLACKBERRY = 9;
+  DOCOMO = 10;
+  GOOGLE = 11;
+  OPENWAVE = 12;
+  POLARIS = 13;
+  OBIGO = 14;
+  TELECA = 15;
+  MICROSOFT = 16;
+  NOKIA = 17;
+  NETFRONT = 18;
+  SEMC = 19;
+  SMIT = 20;
+  KOREAN = 21;
+  CLIENT_HINTS = 22;
+}
+
+enum VerdictResponse {
+  VERDICTRESPONSE_UNSPECIFIED = 0;
+  MALICIOUS = 2;
+  BENIGN = 3;
+}
+
+enum Channel {
+  CHANNEL_UNSPECIFIED = 0;
+  SECURITY = 2;
+  SYSTEM = 3;
+  APPLICATION = 4;
+  SETUP = 5;
+  FORWARDED_EVENTS = 6;
+  OTHER = 7;
+}
+
+enum AggregateFunction {
+  AGGREGATEFUNCTION_UNSPECIFIED = 0;
+  MIN = 2;
+  MAX = 3;
+  COUNT = 4;
+  SUM = 5;
+  AVG = 6;
+  STDDEV = 7;
+}
+
+enum Type {
+  TYPE_UNSPECIFIED = 0;
+  MATCH = 2;
+  OUTCOME = 3;
+}
+
+enum DeploymentStatus {
+  DEPLOYMENTSTATUS_UNSPECIFIED = 0;
+  ACTIVE = 2;
+  PENDING_DECOMISSION = 3;
+  DECOMISSIONED = 4;
+}
+
+enum AssociationType {
+  ASSOCIATIONTYPE_UNSPECIFIED = 0;
+  THREAT_ACTOR = 2;
+  MALWARE = 3;
+  SOFTWARE_TOOLKIT = 4;
+}
+
+enum Relationship {
+  RELATIONSHIP_UNSPECIFIED = 0;
+  OWNS = 2;
+  ADMINISTERS = 3;
+  MEMBER = 4;
+  EXECUTES = 5;
+  DOWNLOADED_FROM = 6;
+  CONTACTS = 7;
+}
+
+enum Directionality {
+  DIRECTIONALITY_UNSPECIFIED = 0;
+  BIDIRECTIONAL = 2;
+  UNIDIRECTIONAL = 3;
+}
+
+enum EntityLabel {
+  ENTITYLABEL_UNSPECIFIED = 0;
+  PRINCIPAL = 2;
+  TARGET = 3;
+  OBSERVER = 4;
+  SRC = 5;
+  NETWORK = 6;
+  SECURITY_RESULT = 7;
+  INTERMEDIARY = 8;
+}
+
+enum PermissionType {
+  PERMISSIONTYPE_UNSPECIFIED = 0;
+  UNKNOWN_PERMISSION_TYPE = 1;
+  ADMIN_WRITE = 2;
+  ADMIN_READ = 3;
+  DATA_WRITE = 4;
+  DATA_READ = 5;
+}
+
+enum EntityType {
+  ENTITYTYPE_UNSPECIFIED = 0;
+  UNKNOWN_ENTITYTYPE = 1;
+  ASSET = 2;
+  USER = 3;
+  GROUP = 4;
+  RESOURCE = 5;
+  IP_ADDRESS = 6;
+  CIDR_BLOCK = 7;
+  FILE = 8;
+  DOMAIN_NAME = 9;
+  URL = 10;
+  MUTEX = 11;
+  METRIC = 12;
+}
+
+enum Outcome {
+  OUTCOME_UNSPECIFIED = 0;
+  SUCCESS = 2;
+  FAILURE = 3;
+}
+
+enum AuthType {
+  AUTHTYPE_UNSPECIFIED = 0;
+  MACHINE = 2;
+  SSO = 3;
+  VPN = 4;
+  PHYSICAL = 5;
+  TACACS = 6;
+}
+
+enum Mechanism {
+  MECHANISM_UNSPECIFIED = 0;
+  USERNAME_PASSWORD = 2;
+  OTP = 3;
+  HARDWARE_KEY = 4;
+  LOCAL = 5;
+  REMOTE = 6;
+  REMOTE_INTERACTIVE = 7;
+  MECHANISM_OTHER = 8;
+  BADGE_READER = 9;
+  NETWORK = 10;
+  BATCH = 11;
+  SERVICE = 12;
+  UNLOCK = 13;
+  NETWORK_CLEAR_TEXT = 14;
+  NEW_CREDENTIALS = 15;
+  INTERACTIVE = 16;
+  CACHED_INTERACTIVE = 17;
+  CACHED_REMOTE_INTERACTIVE = 18;
+  CACHED_UNLOCK = 19;
+  BIOMETRIC = 20;
+  WEARABLE = 21;
+}
+
+message Collection {
+  string id = 2;
+  CollectionType type = 3;
+  Namespace idNamespace = 4;
+  string createdTime = 5;
+  string lastUpdatedTime = 6;
+  Interval timeWindow = 7;
+  repeated Element collectionElements = 8;
+  repeated SecurityResult detection = 9;
+  string detectionTime = 10;
+  Investigation investigation = 11;
+  repeated string tags = 12;
+  ResponsePlatformInfo responsePlatformInfo = 13;
+  string caseName = 14;
+  Feedback feedbackSummary = 15;
+  repeated Feedback feedbackHistory = 16;
+  bool soarAlert = 17;
+  SoarAlertMetadata soarAlertMetadata = 18;
+  string dataAccessScope = 19;
+  repeated DetectionTimingDetails detectionTimingDetails = 20;
+  LatencyMetrics latencyMetrics = 21;
+  RunFrequency ruleRunFrequency = 22;
+}
+
+message Element {
+  SecurityResult association = 2;
+  repeated Reference references = 3;
+  string label = 4;
+  bool referencesSampled = 5;
+  LatencyMetrics latencyMetrics = 6;
+}
+
+message Reference {
+  UDM event = 2;
+  Entity entity = 3;
+  repeated DataTableRowInfo joinedDataTableRows = 4;
+  EntityGraphEnrichment graphEnrichment = 5;
+  Id id = 6;
+  string logBatchToken = 7;
+}
+
+message DataTableRowInfo {
+  string dataTable = 2;
+  string row = 3;
+  string rowId = 4;
+}
+
+message EntityGraphEnrichment {
+  string dataTable = 2;
+  EnrichmentType enrichmentType = 3;
+  Entity overriddenEntity = 4;
+}
+
+message LatencyMetrics {
+  string oldestIngestionTime = 2;
+  string newestIngestionTime = 3;
+  string oldestEventTime = 4;
+  string newestEventTime = 5;
+  string ingestionLatency = 6;
+}
+
+message SoarAlertMetadata {
+  string alertId = 2;
+  string sourceRule = 3;
+  string vendor = 4;
+  string sourceSystem = 5;
+  string product = 6;
+  string sourceSystemTicketId = 7;
+  string sourceSystemUri = 8;
+}
+
+
+message Feedback {
+  string idpUserId = 1;
+  string createdTime = 2;
+  Verdict verdict = 3;
+  Reputation reputation = 4;
+  int32 confidenceScore = 5;
+  int32 riskScore = 6;
+  bool disregarded = 7;
+  int32 severity = 8;
+  string comment = 9;
+  Status status = 10;
+  Priority priority = 11;
+  string rootCause = 12;
+  Reason reason = 13;
+  string severityDisplay = 14;
+  string priorityDisplay = 15;
+  string triageAgentInvestigationId = 16;
+  UserType userType = 17;
+}
+
+message Interval {
+  string startTime = 1;
+  string endTime = 2;
+}
+
+message UDM {
+  Metadata metadata = 1;
+  string additional = 2;
+  Noun principal = 3;
+  Noun src = 4;
+  Noun target = 5;
+  repeated Noun intermediary = 6;
+  Noun observer = 7;
+  repeated Noun about = 8;
+  repeated SecurityResult securityResult = 9;
+  Network network = 10;
+  Extensions extensions = 11;
+  string extracted = 12;
+  GroupedFields grouped = 13;
+}
+
+message Noun {
+  string hostname = 1;
+  Domain domain = 2;
+  Artifact artifact = 3;
+  Url urlMetadata = 4;
+  Browser browser = 5;
+  string assetId = 6;
+  User user = 7;
+  repeated User userManagementChain = 8;
+  Group group = 9;
+  Process process = 10;
+  repeated Process processAncestors = 11;
+  Asset asset = 12;
+  repeated string ip = 13;
+  repeated string natIp = 14;
+  int32 port = 15;
+  int32 natPort = 16;
+  repeated string mac = 17;
+  string administrativeDomain = 18;
+  string namespace = 19;
+  string url = 20;
+  File file = 21;
+  string email = 22;
+  Registry registry = 23;
+  string application = 24;
+  Platform platform = 25;
+  string platformVersion = 26;
+  string platformPatchLevel = 27;
+  Cloud clouddeprecated = 28;
+  Location location = 29;
+  repeated Location ipLocationdeprecated = 30;
+  repeated Artifact ipGeoArtifact = 31;
+  Resource resource = 32;
+  repeated Resource resourceAncestors = 33;
+  repeated Label labelsdeprecated = 34;
+  Id objectReference = 35;
+  Investigation investigation = 36;
+  Network network = 37;
+  repeated SecurityResult securityResult = 38;
+  string name = 39;
+  Prevalence prevalence = 40;
+  string firstSeenTime = 41;
+  string lastSeenTime = 42;
+  string registrar = 43;
+  string contactEmail = 44;
+  string whoisServer = 45;
+  repeated string nameServer = 46;
+  string creationTime = 47;
+  string updateTime = 48;
+  string expirationTime = 49;
+  string auditUpdateTime = 50;
+  string status = 51;
+  User registrant = 52;
+  User admin = 53;
+  User tech = 54;
+  User billing = 55;
+  User zone = 56;
+  string whoisRecordRawText = 57;
+  string registryDataRawText = 58;
+  int32 ianaRegistrarId = 59;
+  bool privateRegistration = 60;
+  repeated string categories = 61;
+  Favicon favicon = 62;
+  string jarm = 63;
+  repeated DNSRecord lastDnsRecords = 64;
+  string lastDnsRecordsTime = 65;
+  SSLCertificate lastHttpsCertificate = 66;
+  string lastHttpsCertificateTime = 67;
+  repeated PopularityRank popularityRanks = 68;
+  repeated string tags = 69;
+  string whoisTime = 70;
+  string productObjectId = 71;
+  string userid = 72;
+  string userDisplayName = 73;
+  string firstName = 74;
+  string middleName = 75;
+  string lastName = 76;
+  repeated string phoneNumbers = 77;
+  Location personalAddress = 78;
+  Attribute attribute = 79;
+  string firstSeenTime = 80;
+  AccountType accountType = 81;
+  string groupiddeprecated = 82;
+  repeated string groupIdentifiers = 83;
+  string windowsSid = 84;
+  repeated string emailAddresses = 85;
+  string employeeId = 86;
+  string title = 87;
+  string companyName = 88;
+  repeated string department = 89;
+  Location officeAddress = 90;
+  repeated User managers = 91;
+  string hireDate = 92;
+  string terminationDate = 93;
+  repeated TimeOff timeOff = 94;
+  string lastLoginTime = 95;
+  string lastPasswordChangeTime = 96;
+  string passwordExpirationTime = 97;
+  string accountExpirationTime = 98;
+  string accountLockoutTime = 99;
+  string lastBadPasswordAttemptTime = 100;
+  AuthenticationStatus userAuthenticationStatus = 101;
+  string roleNamedeprecated = 102;
+  string roleDescriptiondeprecated = 103;
+  Role userRoledeprecated = 104;
+  Interval interval = 105;
+  string description = 106;
+  string rawMd5 = 107;
+  string dhash = 108;
+  string type = 109;
+  string value = 110;
+  string ttl = 111;
+  string priority = 112;
+  string retry = 113;
+  string refresh = 114;
+  string minimum = 115;
+  string expire = 116;
+  string serial = 117;
+  string rname = 118;
+  string giver = 119;
+  string rank = 120;
+  string ingestionTime = 121;
+  string url = 122;
+  repeated string categories = 123;
+  Favicon favicon = 124;
+  string htmlMeta = 125;
+  string lastFinalUrl = 126;
+  int32 lastHttpResponseCode = 127;
+  string lastHttpResponseContentLength = 128;
+  string lastHttpResponseContentSha256 = 129;
+  string lastHttpResponseCookies = 130;
+  string lastHttpResponseHeaders = 131;
+  repeated string tags = 132;
+  string title = 133;
+  repeated Tracker trackers = 134;
+  string tracker = 135;
+  string id = 136;
+  string timestamp = 137;
+  string url = 138;
+  BrowserType browserType = 139;
+  string browserVersion = 140;
+  string firstVisitTime = 141;
+  string lastVisitTime = 142;
+  string profile = 143;
+  bool typed = 144;
+  UrlVisitType visitType = 145;
+  bool hidden = 146;
+  string requestOriginUri = 147;
+  string visitCount = 148;
+  string visitCountCriteria = 149;
+  string indexedContent = 150;
+  string firstBookmarkedTime = 151;
+  repeated Cookie cookies = 152;
+  string typedCount = 153;
+  VisitSource visitSource = 154;
+  string name = 155;
+  string value = 156;
+  string domain = 157;
+  string path = 158;
+  string expirationTime = 159;
+  bool httpOnly = 160;
+  bool secure = 161;
+  string maxAge = 162;
+  CookieSameSite sameSite = 163;
+  bool session = 164;
+  bool partitioned = 165;
+  string productObjectId = 166;
+  string creationTimedeprecated = 167;
+  string groupDisplayName = 168;
+  Attribute attribute = 169;
+  repeated string emailAddresses = 170;
+  string windowsSid = 171;
+  string pid = 172;
+  string parentPiddeprecated = 173;
+  Process parentProcess = 174;
+  File file = 175;
+  string commandLine = 176;
+  repeated string commandLineHistory = 177;
+  string productSpecificProcessId = 178;
+  string accessMask = 179;
+  string integrityLevelRid = 180;
+  string euid = 181;
+  string ruid = 182;
+  string egid = 183;
+  string rgid = 184;
+  string pgid = 185;
+  string sessionLeaderPid = 186;
+  string tty = 187;
+  TokenElevationType tokenElevationType = 188;
+  string productSpecificParentProcessIddeprecated = 189;
+  bool ipv6 = 190;
+  string kernelDuration = 191;
+  string userDuration = 192;
+  string realDuration = 193;
+  State state = 194;
+  string sha256 = 195;
+  string md5 = 196;
+  string sha1 = 197;
+  string size = 198;
+  string fullPath = 199;
+  string mimeType = 200;
+  FileMetadata fileMetadatadeprecated = 201;
+  SecurityResult securityResult = 202;
+  FileMetadataPE peFile = 203;
+  string ssdeep = 204;
+  string vhash = 205;
+  string ahashdeprecated = 206;
+  string authentihash = 207;
+  string symhash = 208;
+  PrefetchFileMetadata prefetchFileMetadata = 209;
+  FileType fileType = 210;
+  repeated string capabilitiesTags = 211;
+  repeated string names = 212;
+  repeated string tags = 213;
+  string lastModificationTime = 214;
+  string createTime = 215;
+  string lastAccessTime = 216;
+  Prevalence prevalence = 217;
+  string firstSeenTime = 218;
+  string lastSeenTime = 219;
+  string statMode = 220;
+  string statInode = 221;
+  string statDev = 222;
+  string statNlink = 223;
+  int32 statFlags = 224;
+  string lastAnalysisTime = 225;
+  repeated string embeddedUrls = 226;
+  repeated string embeddedDomains = 227;
+  repeated string embeddedIps = 228;
+  ExifInfo exifInfo = 229;
+  SignatureInfo signatureInfo = 230;
+  PDFInfo pdfInfo = 231;
+  string firstSubmissionTime = 232;
+  string lastSubmissionTime = 233;
+  Favicon mainIcon = 234;
+  NtfsFileMetadata ntfs = 235;
+  AppCompatMetadata appCompatCache = 236;
+  PeFileMetadata pedeprecated = 237;
+  string importHash = 238;
+  string imphash = 239;
+  string entryPoint = 240;
+  string entryPointExiftool = 241;
+  string compilationTime = 242;
+  string compilationExiftoolTime = 243;
+  repeated FileMetadataSection section = 244;
+  repeated FileMetadataImports imports = 245;
+  repeated FileMetadataPeResourceInfo resource = 246;
+  repeated StringToInt64MapEntry resourcesTypeCountdeprecated = 247;
+  repeated StringToInt64MapEntry resourcesLanguageCountdeprecated = 248;
+  repeated Label resourcesTypeCountStr = 249;
+  repeated Label resourcesLanguageCountStr = 250;
+  FileMetadataSignatureInfo signatureInfodeprecated = 251;
+  string name = 252;
+  double entropy = 253;
+  string rawSizeBytes = 254;
+  string virtualSizeBytes = 255;
+  string md5Hex = 256;
+  string library = 257;
+  repeated string functions = 258;
+  string sha256Hex = 259;
+  string filetypeMagic = 260;
+  string languageCode = 261;
+  double entropy = 262;
+  string fileType = 263;
+  string key = 264;
+  string value = 265;
+  string verificationMessage = 266;
+  bool verified = 267;
+  repeated string signerdeprecated = 268;
+  repeated SignerInfo signers = 269;
+  repeated X509 x509 = 270;
+  string name = 271;
+  string status = 272;
+  string validUsage = 273;
+  string certIssuer = 274;
+  string name = 275;
+  string algorithm = 276;
+  string thumbprint = 277;
+  string certIssuer = 278;
+  string serialNumber = 279;
+  string runCount = 280;
+  string prefetchHash = 281;
+  string originalFile = 282;
+  string product = 283;
+  string company = 284;
+  string fileDescription = 285;
+  string entryPoint = 286;
+  string compilationTime = 287;
+  FileMetadataSignatureInfo sigcheck = 288;
+  FileMetadataCodesign codesign = 289;
+  string id = 290;
+  string format = 291;
+  string compilationTime = 292;
+  string teamId = 293;
+  string js = 294;
+  string javascript = 295;
+  string launchActionCount = 296;
+  string objectStreamCount = 297;
+  string endobjCount = 298;
+  string header = 299;
+  string acroform = 300;
+  string autoaction = 301;
+  string embeddedFile = 302;
+  string encrypted = 303;
+  string flash = 304;
+  string jbig2Compression = 305;
+  string objCount = 306;
+  string endstreamCount = 307;
+  string pageCount = 308;
+  string streamCount = 309;
+  string openaction = 310;
+  string startxref = 311;
+  string suspiciousColors = 312;
+  string trailer = 313;
+  string xfa = 314;
+  string xref = 315;
+  string changeTime = 316;
+  string filenameCreateTime = 317;
+  string filenameModifyTime = 318;
+  string filenameAccessTime = 319;
+  string filenameChangeTime = 320;
+  repeated UsnJournal usnJournal = 321;
+  string attributesFlag = 322;
+  Attribute attributesdeprecated = 323;
+  repeated Attribute fileAttributes = 324;
+  bool allocated = 325;
+  Reason reasondeprecated = 326;
+  repeated Reason reasons = 327;
+  string registryKey = 328;
+  string registryValueName = 329;
+  string registryValueData = 330;
+  Type registryValueType = 331;
+  string registryValueBinaryData = 332;
+  Namespace namespace = 333;
+  string id = 334;
+  string stringId = 335;
+  repeated string comments = 336;
+  Verdict verdict = 337;
+  Reputation reputation = 338;
+  int32 severityScore = 339;
+  Status status = 340;
+  Priority priority = 341;
+  string rootCause = 342;
+  Reason reason = 343;
+  int32 riskScore = 344;
+  string id = 345;
+}
+
+message Resource {
+  string typedeprecated = 1;
+  ResourceType resourceType = 2;
+  string resourceSubtype = 3;
+  string iddeprecated = 4;
+  string name = 5;
+  string parentdeprecated = 6;
+  string productObjectId = 7;
+  Attribute attribute = 8;
+  ScheduledTask scheduledTaskdeprecated = 9;
+  ScheduledCronTask scheduledCronTask = 10;
+  ScheduledAnacronTask scheduledAnacronTask = 11;
+  WindowsScheduledTask windowsScheduledTask = 12;
+  Volume volume = 13;
+  Service service = 14;
+  int32 minute = 15;
+  int32 hour = 16;
+  int32 monthDay = 17;
+  int32 month = 18;
+  int32 weekDay = 19;
+  string comment = 20;
+  string author = 21;
+  string minute = 22;
+  string hour = 23;
+  string monthDay = 24;
+  string month = 25;
+  string weekDay = 26;
+  string comment = 27;
+  string author = 28;
+  string event = 29;
+  string path = 30;
+  string period = 31;
+  string delayMinutes = 32;
+  string jobId = 33;
+  string path = 34;
+  string sourceLine = 35;
+  string author = 36;
+  string virtualPath = 37;
+  int32 exitCode = 38;
+  TaskState state = 39;
+  TaskLogonType logonType = 40;
+  repeated TaskAction taskActions = 41;
+  repeated TaskTrigger taskTriggers = 42;
+  ActionType actionType = 43;
+  repeated string execArguments = 44;
+  string execWorkingDirectory = 45;
+  string comClassId = 46;
+  string comData = 47;
+  bool enabled = 48;
+  string duration = 49;
+  string interval = 50;
+  TriggerType triggerType = 51;
+  string fileSystem = 52;
+  string mountPoint = 53;
+  string devicePath = 54;
+  bool isMounted = 55;
+  bool isReadOnly = 56;
+  string name = 57;
+  string displayName = 58;
+  ServiceType serviceTypedeprecated = 59;
+  repeated ServiceType serviceTypes = 60;
+  StartupType startupType = 61;
+  State state = 62;
+}
+
+message Artifact {
+  string ip = 1;
+  Prevalence prevalence = 2;
+  string firstSeenTime = 3;
+  string lastSeenTime = 4;
+  Location location = 5;
+  Network network = 6;
+  string asOwner = 7;
+  string asn = 8;
+  string jarm = 9;
+  SSLCertificate lastHttpsCertificate = 10;
+  string lastHttpsCertificateDate = 11;
+  string regionalInternetRegistry = 12;
+  repeated string tags = 13;
+  string whois = 14;
+  string whoisDate = 15;
+  repeated Tunnels tunnels = 16;
+  bool anonymous = 17;
+  ArtifactClient artifactClient = 18;
+  repeated string risks = 19;
+  string provider = 20;
+  string type = 21;
+  repeated string behaviors = 22;
+  repeated string proxies = 23;
+}
+
+message GoogleSecurityOperations {
+  CloudEnvironment environment = 1;
+  Resource vpcdeprecated = 2;
+  Resource projectdeprecated = 3;
+  string availabilityZone = 4;
+}
+
+message SSLCertificate {
+  CertSignature certSignature = 1;
+  Extension extensiondeprecated = 2;
+  string certExtensions = 3;
+  string firstSeenTime = 4;
+  Subject issuer = 5;
+  EC ec = 6;
+  string serialNumber = 7;
+  string signatureAlgorithm = 8;
+  string size = 9;
+  Subject subject = 10;
+  string thumbprint = 11;
+  string thumbprintSha256 = 12;
+  Validity validity = 13;
+  string version = 14;
+  PublicKey publicKey = 15;
+  string signature = 16;
+  string signatureAlgorithm = 17;
+  bool ca = 18;
+  string subjectKeyId = 19;
+  AuthorityKeyId authorityKeyId = 20;
+  string keyUsage = 21;
+  string caInfoAccess = 22;
+  string crlDistributionPoints = 23;
+  string extendedKeyUsage = 24;
+  string subjectAlternativeName = 25;
+  string certificatePolicies = 26;
+  string netscapeCertComment = 27;
+  string certTemplateNameDc = 28;
+  bool netscapeCertificate = 29;
+  bool peLogotype = 30;
+  bool oldAuthorityKeyId = 31;
+  string keyid = 32;
+  string serialNumber = 33;
+  string countryName = 34;
+  string commonName = 35;
+  string locality = 36;
+  string organization = 37;
+  string organizationalUnit = 38;
+  string stateOrProvinceName = 39;
+  string oid = 40;
+  string pub = 41;
+  string expiryTime = 42;
+  string issueTime = 43;
+  string algorithm = 44;
+  RSA rsa = 45;
+  string keySize = 46;
+  string modulus = 47;
+  string exponent = 48;
+}
+
+message SecurityResult {
+  Noun about = 1;
+  repeated SecurityCategory category = 2;
+  repeated string categoryDetails = 3;
+  string threatName = 4;
+  string ruleSet = 5;
+  string ruleSetDisplayName = 6;
+  string rulesetCategoryDisplayName = 7;
+  string ruleId = 8;
+  string ruleName = 9;
+  string displayName = 10;
+  string ruleVersion = 11;
+  string ruleType = 12;
+  string ruleAuthor = 13;
+  repeated Label ruleLabels = 14;
+  AlertState alertState = 15;
+  repeated Label detectionFields = 16;
+  repeated Label outcomesdeprecated = 17;
+  FindingVariable variables = 18;
+  string summary = 19;
+  string description = 20;
+  repeated Action action = 21;
+  string actionDetails = 22;
+  ProductSeverity severity = 23;
+  ProductConfidence confidence = 24;
+  ProductPriority priority = 25;
+  double riskScore = 26;
+  double confidenceScore = 27;
+  repeated AnalyticsMetadata analyticsMetadata = 28;
+  string severityDetails = 29;
+  string confidenceDetails = 30;
+  string priorityDetails = 31;
+  string urlBackToProduct = 32;
+  string threatId = 33;
+  string threatFeedName = 34;
+  Namespace threatIdNamespace = 35;
+  ThreatStatus threatStatus = 36;
+  AttackDetails attackDetails = 37;
+  string firstDiscoveredTime = 38;
+  repeated Association associations = 39;
+  repeated string campaignsdeprecated = 40;
+  repeated string reportsdeprecated = 41;
+  Verdict verdictdeprecated = 42;
+  string lastUpdatedTime = 43;
+  repeated VerdictInfo verdictInfo = 44;
+  ThreatVerdict threatVerdict = 45;
+  string lastDiscoveredTime = 46;
+  string detectionDepth = 47;
+  repeated ThreatCollectionItem threatCollections = 48;
+  string version = 49;
+  repeated Tactic tactics = 50;
+  repeated Technique techniques = 51;
+  string id = 52;
+  string name = 53;
+  string id = 54;
+  string name = 55;
+  string subtechniqueId = 56;
+  string subtechniqueName = 57;
+  int32 sourceCount = 58;
+  int32 responseCount = 59;
+  string neighbourInfluence = 60;
+  ProviderMLVerdict verdict = 61;
+  AnalystVerdict analystVerdict = 62;
+  string sourceProvider = 63;
+  int32 benignCount = 64;
+  int32 maliciousCount = 65;
+  int32 confidenceScore = 66;
+  repeated Source mandiantSources = 67;
+  repeated Source thirdPartySources = 68;
+  string name = 69;
+  int32 benignCount = 70;
+  int32 maliciousCount = 71;
+  ProductConfidence quality = 72;
+  int32 responseCount = 73;
+  int32 sourceCount = 74;
+  repeated Source threatIntelligenceSources = 75;
+  int32 confidenceScore = 76;
+  string verdictTime = 77;
+  VerdictResponse verdictResponse = 78;
+  int32 sourceCount = 79;
+  int32 responseCount = 80;
+  string neighbourInfluence = 81;
+  VerdictType verdictType = 82;
+  string sourceProvider = 83;
+  int32 benignCount = 84;
+  int32 maliciousCount = 85;
+  int32 confidenceScore = 86;
+  repeated IoCStats iocStats = 87;
+  string verdictTime = 88;
+  VerdictResponse verdictResponse = 89;
+  int32 globalCustomerCount = 90;
+  int32 globalHitsCount = 91;
+  bool pwn = 92;
+  string categoryDetails = 93;
+  string pwnFirstTaggedTime = 94;
+  IoCStatsType iocStatsType = 95;
+  string firstLevelSource = 96;
+  string secondLevelSource = 97;
+  int32 benignCount = 98;
+  ProductConfidence quality = 99;
+  int32 maliciousCount = 100;
+  int32 responseCount = 101;
+  int32 sourceCount = 102;
+  string id = 103;
+  ThreatCollectionType type = 104;
+  repeated string altNames = 105;
+}
+
+message GroupedFields {
+  repeated string ip = 1;
+  repeated string domain = 2;
+  repeated string hostname = 3;
+  repeated string user = 4;
+  repeated string email = 5;
+  repeated string filePath = 6;
+  repeated string hash = 7;
+  repeated string processId = 8;
+}
+
+message Network {
+  string sentBytes = 1;
+  string receivedBytes = 2;
+  string totalBytes = 3;
+  string sentPackets = 4;
+  string receivedPackets = 5;
+  string sessionDuration = 6;
+  string sessionId = 7;
+  string parentSessionId = 8;
+  string applicationProtocolVersion = 9;
+  string communityId = 10;
+  Direction direction = 11;
+  IpProtocol ipProtocol = 12;
+  bool ipv6 = 13;
+  ApplicationProtocol applicationProtocol = 14;
+  Ftp ftp = 15;
+  Email email = 16;
+  Dns dns = 17;
+  Dhcp dhcp = 18;
+  Http http = 19;
+  Tls tls = 20;
+  Smtp smtp = 21;
+  string asn = 22;
+  string dnsDomain = 23;
+  string carrierName = 24;
+  string organizationName = 25;
+  string ipSubnetRange = 26;
+  bool isProxy = 27;
+  ProxyInfo proxyInfo = 28;
+  ConnectionState connectionState = 29;
+  string command = 30;
+  string from = 31;
+  string replyTo = 32;
+  repeated string to = 33;
+  repeated string cc = 34;
+  repeated string bcc = 35;
+  string mailId = 36;
+  repeated string subject = 37;
+  string bounceAddress = 38;
+  int32 id = 39;
+  bool response = 40;
+  int32 opcode = 41;
+  bool authoritative = 42;
+  bool truncated = 43;
+  bool recursionDesired = 44;
+  bool recursionAvailable = 45;
+  int32 responseCode = 46;
+  repeated Question questions = 47;
+  repeated ResourceRecord answers = 48;
+  repeated ResourceRecord authority = 49;
+  repeated ResourceRecord additional = 50;
+  string name = 51;
+  int32 type = 52;
+  int32 class = 53;
+  Prevalence prevalence = 54;
+  string name = 55;
+  int32 type = 56;
+  int32 class = 57;
+  int32 ttl = 58;
+  string data = 59;
+  string binaryData = 60;
+  OpCode opcode = 61;
+  int32 htype = 62;
+  int32 hlen = 63;
+  int32 hops = 64;
+  int32 transactionId = 65;
+  int32 seconds = 66;
+  int32 flags = 67;
+  string ciaddr = 68;
+  string yiaddr = 69;
+  string siaddr = 70;
+  string giaddr = 71;
+  string chaddr = 72;
+  string sname = 73;
+  string file = 74;
+  repeated Option options = 75;
+  MessageType type = 76;
+  int32 leaseTimeSeconds = 77;
+  string clientHostname = 78;
+  string clientIdentifier = 79;
+  string requestedAddress = 80;
+  string clientIdentifierString = 81;
+  int32 code = 82;
+  string data = 83;
+  string method = 84;
+  string referralUrl = 85;
+  string userAgent = 86;
+  int32 responseCode = 87;
+  UserAgentProto parsedUserAgent = 88;
+  Client client = 89;
+  Server server = 90;
+  string cipher = 91;
+  string curve = 92;
+  string version = 93;
+  string versionProtocol = 94;
+  bool established = 95;
+  string nextProtocol = 96;
+  bool resumed = 97;
+  Certificate certificate = 98;
+  string ja3 = 99;
+  string serverName = 100;
+  repeated string supportedCiphers = 101;
+  string ja4 = 102;
+  string version = 103;
+  string serial = 104;
+  string subject = 105;
+  string issuer = 106;
+  string md5 = 107;
+  string sha1 = 108;
+  string sha256 = 109;
+  string notBefore = 110;
+  string notAfter = 111;
+  Certificate certificate = 112;
+  string ja3s = 113;
+  string ja4s = 114;
+  string helo = 115;
+  string mailFrom = 116;
+  repeated string rcptTo = 117;
+  repeated string serverResponse = 118;
+  string messagePath = 119;
+  bool isWebmail = 120;
+  bool isTls = 121;
+  bool anonymous = 122;
+  bool anonymousVpn = 123;
+  bool publicProxy = 124;
+  bool torExitNode = 125;
+  bool smartDnsProxy = 126;
+  bool hostingProvider = 127;
+  bool vpnDatacenter = 128;
+  bool residentialProxy = 129;
+  string vpnServiceName = 130;
+  bool proxyOverVpn = 131;
+  bool relayProxy = 132;
+}
+
+message Label {
+  string key = 1;
+  string value = 2;
+  string source = 3;
+  bool rbacEnabled = 4;
+}
+
+message UserAgentProto {
+  Family family = 1;
+  string subFamily = 2;
+  string platform = 3;
+  string device = 4;
+  string deviceVersion = 5;
+  string carrier = 6;
+  string security = 7;
+  string locale = 8;
+  string os = 9;
+  string osVariant = 10;
+  string browser = 11;
+  string browserVersion = 12;
+  string browserEngineVersion = 13;
+  string googleToolbarVersion = 14;
+  string javaProfile = 15;
+  string javaProfileVersion = 16;
+  string javaConfiguration = 17;
+  string javaConfigurationVersion = 18;
+  string messaging = 19;
+  string messagingVersion = 20;
+  OSType osType = 21;
+  OSVariantType osVariantType = 22;
+  BrowserType browserType = 23;
+  BrowserVariantType browserVariantType = 24;
+  repeated Annotation annotation = 25;
+  string key = 26;
+  string value = 27;
+}
+
+message Prevalence {
+  int32 rollingMax = 1;
+  int32 dayCount = 2;
+  int32 rollingMaxSubDomains = 3;
+  int32 dayMax = 4;
+  int32 dayMaxSubDomains = 5;
+}
+
+message Extensions {
+  Authentication auth = 1;
+  Vulnerabilities vulns = 2;
+  EntityRisk entityRisk = 3;
+  LinuxUtmp linuxUtmp = 4;
+  WindowsEventLog windowsEventLog = 5;
+  ResourceUsage resourceUsage = 6;
+  SystemEventDetails systemEventDetails = 7;
+  OutlookMetadata outlookMetadata = 8;
+  Srum srum = 9;
+  UserAssist userAssist = 10;
+  repeated Vulnerability vulnerabilities = 11;
+  RecordType recordType = 12;
+  Channel channel = 13;
+  string eventId = 14;
+  string activityId = 15;
+  string usedEntity = 16;
+  string usedEntityId = 17;
+  string messageType = 18;
+  string senderImageId = 19;
+  string subsystem = 20;
+  string comment = 21;
+  string template = 22;
+  string title = 23;
+  int32 securityFlagsCount = 24;
+  string id = 25;
+  string backgroundBytesRead = 26;
+  string backgroundBytesWritten = 27;
+  string backgroundContextSwitches = 28;
+  string backgroundCycleCount = 29;
+  string backgroundFlushesCount = 30;
+  string backgroundReadOperations = 31;
+  string backgroundWriteOperations = 32;
+  string interfaceLuid = 33;
+  string applicationFocusCount = 34;
+  string applicationFocusDuration = 35;
+  string executionsCount = 36;
+  string entryIndex = 37;
+}
+
+message Location {
+  string city = 1;
+  string state = 2;
+  string countryOrRegion = 3;
+  string name = 4;
+  string deskName = 5;
+  string floorName = 6;
+  double regionLatitudedeprecated = 7;
+  double regionLongitudedeprecated = 8;
+  LatLng regionCoordinates = 9;
+  double latitude = 10;
+  double longitude = 11;
+}
+
+message Attribute {
+  Cloud cloud = 1;
+  repeated Label labels = 2;
+  repeated Permission permissions = 3;
+  repeated Role roles = 4;
+  string creationTime = 5;
+  string lastUpdateTime = 6;
+  string name = 7;
+  string description = 8;
+  Type type = 9;
+}
+
+message Entity {
+  EntityMetadata metadata = 1;
+  Noun entity = 2;
+  repeated Relation relations = 3;
+  string additional = 4;
+  Metric metric = 5;
+  EntityRisk riskScore = 6;
+}
+
+message Metadata {
+  string id = 1;
+  string productLogId = 2;
+  string eventTimestamp = 3;
+  repeated EventTimestampAttribute eventTimestampAttributes = 4;
+  string collectedTimestamp = 5;
+  string ingestedTimestamp = 6;
+  EventType eventType = 7;
+  string vendorName = 8;
+  string productName = 9;
+  string productVersion = 10;
+  string productEventType = 11;
+  string productDeploymentId = 12;
+  string description = 13;
+  string urlBackToProduct = 14;
+  repeated Label ingestionLabels = 15;
+  Tags tags = 16;
+  EnrichmentState enrichmentState = 17;
+  string logType = 18;
+  DataAccessLabels baseLabels = 19;
+  DataAccessLabels enrichmentLabels = 20;
+  string structuredFieldsdeprecated = 21;
+  string parserVersion = 22;
+  repeated string tenantId = 23;
+  repeated string dataTapConfigName = 24;
+}
+
+message Vulnerability {
+  Noun about = 1;
+  string name = 2;
+  string description = 3;
+  string vendor = 4;
+  string scanStartTime = 5;
+  string scanEndTime = 6;
+  string firstFound = 7;
+  string lastFound = 8;
+  Severity severity = 9;
+  string severityDetails = 10;
+  double cvssBaseScore = 11;
+  string cvssVector = 12;
+  string cvssVersion = 13;
+  string cveId = 14;
+  string cveDescription = 15;
+  string vendorVulnerabilityId = 16;
+  string vendorKnowledgeBaseArticleId = 17;
+}
+
+message EntityRisk {
+  string riskVersion = 1;
+  Interval riskWindow = 2;
+  int32 DEPRECATEDRiskScoredeprecated = 3;
+  int32 detectionsCount = 4;
+  string firstDetectionTime = 5;
+  string lastDetectionTime = 6;
+  double riskScore = 7;
+  int32 normalizedRiskScore = 8;
+  string riskWindowSize = 9;
+  string lastResetTime = 10;
+  string detailUri = 11;
+  bool riskWindowHasNewDetections = 12;
+  RiskDelta riskDelta = 13;
+  RiskDelta rawRiskDelta = 14;
+  string previousRangeEndTime = 15;
+  int32 riskScoreDelta = 16;
+  int32 previousRiskScore = 17;
+  int32 riskScoreNumericDelta = 18;
+}
+
+message ResponsePlatformInfo {
+  string alertId = 1;
+  ResponsePlatformType responsePlatformType = 2;
+}
+
+message AppCompatMetadata {
+  int32 sequence = 1;
+  bool executed = 2;
+  string controlSet = 3;
+}
+
+message Asset {
+  string productObjectId = 1;
+  string hostname = 2;
+  string assetId = 3;
+  repeated string ip = 4;
+  repeated string mac = 5;
+  repeated string natIp = 6;
+  string firstSeenTime = 7;
+  repeated Hardware hardware = 8;
+  PlatformSoftware platformSoftware = 9;
+  repeated Software software = 10;
+  Location location = 11;
+  string category = 12;
+  AssetType type = 13;
+  string networkDomain = 14;
+  string creationTimedeprecated = 15;
+  string firstDiscoverTime = 16;
+  string lastDiscoverTime = 17;
+  string systemLastUpdateTime = 18;
+  string lastBootTime = 19;
+  repeated Label labelsdeprecated = 20;
+  DeploymentStatus deploymentStatus = 21;
+  repeated Vulnerability vulnerabilities = 22;
+  Attribute attribute = 23;
+  WmiPersistenceItem wmiPersistenceItem = 24;
+  string serialNumber = 25;
+  string manufacturer = 26;
+  string model = 27;
+  string cpuPlatform = 28;
+  string cpuModel = 29;
+  string cpuClockSpeed = 30;
+  string cpuMaxClockSpeed = 31;
+  string cpuNumberCores = 32;
+  string ram = 33;
+  Platform platform = 34;
+  string platformVersion = 35;
+  string platformPatchLevel = 36;
+  string name = 37;
+  string version = 38;
+  repeated Permission permissions = 39;
+  string description = 40;
+  string vendorName = 41;
+  string caption = 42;
+  string name = 43;
+  string settingId = 44;
+  string derivation = 45;
+  string propertyCount = 46;
+  egWin32_StartupCommandCommand relPath = 47;
+  string dynasty = 48;
+  string wmiSuperClass = 49;
+  string wmiClass = 50;
+  string genus = 51;
+}
+
+message FindingVariable {
+  Type type = 1;
+  string value = 2;
+  string sourcePath = 3;
+  bool boolVal = 4;
+  string bytesVal = 5;
+  double doubleVal = 6;
+  string int64Val = 7;
+  string uint64Val = 8;
+  string stringVal = 9;
+  string timestampTime = 10;
+  bool nullVal = 11;
+  BoolSequence boolSeq = 12;
+  BytesSequence bytesSeq = 13;
+  DoubleSequence doubleSeq = 14;
+  Int64Sequence int64Seq = 15;
+  Uint64Sequence uint64Seq = 16;
+  StringSequence stringSeq = 17;
+  repeated bool boolVals = 18;
+  repeated string bytesVals = 19;
+  repeated double doubleVals = 20;
+  repeated string int64Vals = 21;
+  repeated string uint64Vals = 22;
+  repeated string stringVals = 23;
+}
+
+message AnalyticsMetadata {
+  string analytic = 1;
+}
+
+message Permission {
+  string name = 1;
+  string description = 2;
+  PermissionType type = 3;
+}
+
+message Association {
+  string id = 1;
+  repeated string countryCode = 2;
+  AssociationType type = 3;
+  string name = 4;
+  string description = 5;
+  string role = 6;
+  string sourceCountrydeprecated = 7;
+  repeated AssociationAlias alias = 8;
+  string firstReferenceTime = 9;
+  string lastReferenceTime = 10;
+  repeated string industriesAffected = 11;
+  repeated Association associatedActors = 12;
+  Location regionCode = 13;
+  Location sponsorRegion = 14;
+  repeated Location targetedRegions = 15;
+  repeated string tags = 16;
+  string name = 17;
+  string company = 18;
+}
+
+message Metric {
+  string firstSeen = 1;
+  string lastSeen = 2;
+  Measure sumMeasure = 3;
+  string totalEvents = 4;
+  MetricName metricName = 5;
+  repeated Dimension dimensions = 6;
+  string exportWindow = 7;
+  double value = 8;
+  AggregateFunction aggregateFunction = 9;
+}
+
+message Authentication {
+  AuthType type = 1;
+  repeated Mechanism mechanism = 2;
+  string authDetails = 3;
+  Outcome outcome = 4;
+}
+
+message DataAccessLabels {
+  repeated string logTypes = 1;
+  repeated string ingestionLabelsdeprecated = 2;
+  repeated string namespaces = 3;
+  repeated string customLabels = 4;
+  repeated DataAccessIngestionLabel ingestionKvLabels = 5;
+  bool allowScopedAccess = 6;
+}
+
+message EntityMetadata {
+  string productEntityId = 1;
+  string collectedTimestamp = 2;
+  string creationTimestamp = 3;
+  Interval interval = 4;
+  string vendorName = 5;
+  string productName = 6;
+  string feed = 7;
+  string productVersion = 8;
+  EntityType entityType = 9;
+  string description = 10;
+  repeated SecurityResult threat = 11;
+  SourceType sourceType = 12;
+  repeated Label sourceLabels = 13;
+  Metadata eventMetadata = 14;
+  string structuredFieldsdeprecated = 15;
+  string extracted = 16;
+}
+
+message Relation {
+  Noun entity = 1;
+  EntityType entityType = 2;
+  Relationship relationship = 3;
+  Directionality direction = 4;
+  string uid = 5;
+  EntityLabel entityLabel = 6;
+}
+
+message DataAccessIngestionLabel {
+  string key = 1;
+  string value = 2;
+}
+

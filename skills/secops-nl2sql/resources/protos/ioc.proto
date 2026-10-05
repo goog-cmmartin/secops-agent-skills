@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package chronicle.ioc.v1alpha;
+
+import "google/protobuf/timestamp.proto";
+
+// IoC represents the Threat Intelligence IoC match schema in Google SecOps.
+// Refer to https://docs.cloud.google.com/chronicle/docs/reference/sample-yaral-for-native-dashboard#iocs
+message IoC {
+  string ioc_value = 1; // Domain, IP, or hash indicator value
+  string ioc_type = 2; // Type of IOC (e.g. IOC_TYPE_DOMAIN, IOC_TYPE_IP, IOC_TYPE_HASH)
+  string feed_log_type = 3; // IOC feed log type (e.g. ET_PRO_IOC)
+  bool is_global = 4; // Determines whether this is a global IOC indicator
+  int64 day_bucket_seconds = 5; // Specific day bucket when an IOC hit occurred, in epoch seconds
+  string category = 6; // Category or type for this indicator (e.g. malware, phishing)
+  int32 confidence_score = 7; // Raw confidence level provided by the original IOC source
+  string feed_name = 8; // Original feed from which the IOC indicator originated
+  string severity = 9; // Raw severity level assigned to the indicator
+  google.protobuf.Timestamp ioc_ingest_time = 10; // Timestamp indicating when the IOC was first ingested
+  string asset = 11; // The asset indicator associated with the match
+  string location = 12; // The physical or logical location associated with the indicator
+  google.protobuf.Timestamp start_time = 13; // Match window start timestamp
+  google.protobuf.Timestamp end_time = 14; // Match window end timestamp
+  google.protobuf.Timestamp event_time = 15; // Event occurrence timestamp
+}
+
+enum IocTypeEnum {
+  IOC_TYPE_UNSPECIFIED = 0;
+  IOC_TYPE_DOMAIN = 1;
+  IOC_TYPE_IP = 2;
+  IOC_TYPE_HASH = 3;
+  IOC_TYPE_URL = 4;
+}

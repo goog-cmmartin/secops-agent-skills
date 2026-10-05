@@ -1,0 +1,2583 @@
+syntax = "proto3";
+
+package udm;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+import "google/type/interval.proto";
+
+enum Priority {
+  PRIORITY_UNSPECIFIED = 0;
+  PRIORITY_INFO = 100;
+  PRIORITY_LOW = 200;
+  PRIORITY_MEDIUM = 300;
+  PRIORITY_HIGH = 400;
+  PRIORITY_CRITICAL = 500;
+}
+
+enum Reason {
+  REASON_UNSPECIFIED = 0;
+  REASON_NOT_MALICIOUS = 1;
+  REASON_MALICIOUS = 2;
+  REASON_MAINTENANCE = 3;
+}
+
+enum Reputation {
+  REPUTATION_UNSPECIFIED = 0;
+  USEFUL = 1;
+  NOT_USEFUL = 2;
+}
+
+enum Status {
+  STATUS_UNSPECIFIED = 0;
+  NEW = 1;
+  REVIEWED = 2;
+  CLOSED = 3;
+  OPEN = 4;
+}
+
+enum ThreatVerdict {
+  THREAT_VERDICT_UNSPECIFIED = 0;
+  UNDETECTED = 1;
+  SUSPICIOUS = 2;
+  MALICIOUS = 3;
+}
+
+enum Verdict {
+  VERDICT_UNSPECIFIED = 0;
+  TRUE_POSITIVE = 1;
+  FALSE_POSITIVE = 2;
+}
+
+message AtiPrioritization {
+  int32 gti_verdict = 1;
+  int32 gti_severity = 2;
+  int32 gti_threat_score = 3;
+  int32 mandiant_analyst_confidence = 4;
+  google.protobuf.Timestamp gti_update_time = 5;
+  bool active_ir = 6;
+  google.protobuf.Timestamp active_ir_first_tagged_time = 7;
+  int64 global_customer_count = 8;
+  int64 global_hit_count = 9;
+  bool exclusive = 10;
+  bool osint = 11;
+  bool scanner = 12;
+  bool reviewed = 13;
+  repeated SecurityResult.Association attributed_malware = 14;
+  repeated SecurityResult.Association attributed_threat_actors = 15;
+}
+
+message Entity {
+  EntityMetadata metadata = 1;
+  Noun entity = 2;
+  repeated Relation relations = 3;
+  google.protobuf.Struct additional = 4;
+  EntityRisk risk_score = 5;
+  Metric metric = 6;
+}
+
+message EntityMetadata {
+  enum EntityType {
+    ASSET = 1;
+    USER = 10000;
+    GROUP = 10001;
+    RESOURCE = 2;
+    IP_ADDRESS = 3;
+    CIDR_BLOCK = 9;
+    FILE = 4;
+    DOMAIN_NAME = 5;
+    URL = 6;
+    MUTEX = 7;
+    METRIC = 8;
+  }
+
+  enum SourceType {
+    SOURCE_TYPE_UNSPECIFIED = 0;
+    ENTITY_CONTEXT = 1;
+    DERIVED_CONTEXT = 2;
+    GLOBAL_CONTEXT = 3;
+  }
+
+  string product_entity_id = 1;
+  google.protobuf.Timestamp collected_timestamp = 2;
+  google.protobuf.Timestamp creation_timestamp = 3;
+  google.type.Interval interval = 4;
+  string vendor_name = 5;
+  string product_name = 6;
+  string feed = 7;
+  string product_version = 8;
+  EntityType entity_type = 9;
+  string description = 10;
+  repeated SecurityResult threat = 11;
+  SourceType source_type = 12;
+  repeated Label source_labels = 13;
+  Metadata event_metadata = 14;
+  google.protobuf.Struct structured_fields = 15;
+  google.protobuf.Struct extracted = 16;
+  AtiPrioritization ati_prioritization = 17;
+}
+
+message EntityRisk {
+  string risk_version = 1;
+  google.type.Interval risk_window = 2;
+  bool risk_window_has_new_detections = 3;
+  int32 DEPRECATED_risk_score = 4;
+  RiskDelta risk_delta = 5;
+  int32 detections_count = 6;
+  google.protobuf.Timestamp first_detection_time = 7;
+  google.protobuf.Timestamp last_detection_time = 8;
+  float risk_score = 9;
+  int32 normalized_risk_score = 10;
+  int64 risk_window_size = 11;
+  RiskDelta raw_risk_delta = 12;
+}
+
+message Metric {
+  enum AggregateFunction {
+    AGGREGATE_FUNCTION_UNSPECIFIED = 0;
+    MIN = 1;
+    MAX = 2;
+    COUNT = 3;
+    SUM = 4;
+    AVG = 5;
+    STDDEV = 6;
+  }
+
+  enum Dimension {
+    DIMENSION_UNSPECIFIED = 0;
+    PRINCIPAL_DEVICE = 1;
+    TARGET_USER = 2;
+    TARGET_DEVICE = 3;
+    PRINCIPAL_USER = 4;
+    TARGET_IP = 5;
+    PRINCIPAL_FILE_HASH = 6;
+    PRINCIPAL_COUNTRY = 7;
+    SECURITY_CATEGORY = 8;
+    NETWORK_ASN = 9;
+    CLIENT_CERTIFICATE_HASH = 10;
+    DNS_QUERY_TYPE = 11;
+    DNS_DOMAIN = 12;
+    HTTP_USER_AGENT = 13;
+    EVENT_TYPE = 14;
+    PRODUCT_NAME = 15;
+    PRODUCT_EVENT_TYPE = 16;
+    PARENT_FOLDER_PATH = 17;
+    TARGET_RESOURCE_NAME = 18;
+    PRINCIPAL_APPLICATION = 19;
+    TARGET_APPLICATION = 20;
+    EMAIL_TO_ADDRESS = 21;
+    EMAIL_FROM_ADDRESS = 22;
+    MAIL_ID = 23;
+    PRINCIPAL_IP = 24;
+    SECURITY_ACTION = 25;
+    SECURITY_RULE_ID = 28;
+    TARGET_NETWORK_ORGANIZATION_NAME = 29;
+    PRINCIPAL_NETWORK_ORGANIZATION_NAME = 30;
+    PRINCIPAL_PROCESS_FILE_PATH = 31;
+    PRINCIPAL_PROCESS_FILE_HASH = 32;
+    SECURITY_RESULT_RULE_NAME = 33;
+    TARGET_RESOURCE_LABEL_KEY = 34;
+    VENDOR_NAME = 35;
+    TARGET_RESOURCE_TYPE = 36;
+    TARGET_LOCATION_NAME = 37;
+    LOG_TYPE = 38;
+    TARGET_HOSTNAME = 39;
+  }
+
+  enum MetricName {
+    METRIC_NAME_UNSPECIFIED = 0;
+    NETWORK_BYTES_INBOUND = 1;
+    NETWORK_BYTES_OUTBOUND = 2;
+    NETWORK_BYTES_TOTAL = 3;
+    AUTH_ATTEMPTS_SUCCESS = 4;
+    AUTH_ATTEMPTS_FAIL = 5;
+    AUTH_ATTEMPTS_TOTAL = 6;
+    DNS_BYTES_OUTBOUND = 7;
+    NETWORK_FLOWS_INBOUND = 8;
+    NETWORK_FLOWS_OUTBOUND = 9;
+    NETWORK_FLOWS_TOTAL = 10;
+    DNS_QUERIES_SUCCESS = 11;
+    DNS_QUERIES_FAIL = 12;
+    DNS_QUERIES_TOTAL = 13;
+    FILE_EXECUTIONS_SUCCESS = 14;
+    FILE_EXECUTIONS_FAIL = 15;
+    FILE_EXECUTIONS_TOTAL = 16;
+    HTTP_QUERIES_SUCCESS = 17;
+    HTTP_QUERIES_FAIL = 18;
+    HTTP_QUERIES_TOTAL = 19;
+    WORKSPACE_EMAILS_SENT_TOTAL = 20;
+    WORKSPACE_TOTAL_DOWNLOAD_ACTIONS = 21;
+    WORKSPACE_TOTAL_CHANGE_ACTIONS = 22;
+    WORKSPACE_AUTH_ATTEMPTS_TOTAL = 23;
+    WORKSPACE_NETWORK_BYTES_OUTBOUND = 24;
+    WORKSPACE_NETWORK_BYTES_TOTAL = 25;
+    ALERT_EVENT_NAME_COUNT = 26;
+    RESOURCE_CREATION_TOTAL = 27;
+    RESOURCE_CREATION_SUCCESS = 28;
+    RESOURCE_READ_SUCCESS = 29;
+    RESOURCE_READ_FAIL = 30;
+    RESOURCE_DELETION_SUCCESS = 31;
+    RESOURCE_CREATION_FAIL = 32;
+    RESOURCE_DELETION_FAIL = 33;
+    RESOURCE_DELETION_TOTAL = 34;
+    RESOURCE_READ_TOTAL = 35;
+    RESOURCE_WRITTEN_FAIL = 36;
+    RESOURCE_WRITTEN_SUCCESS = 37;
+    RESOURCE_WRITTEN_TOTAL = 38;
+    UDM_DATA_PRESENCE_SUMMARY = 39;
+  }
+
+  message Measure {
+    double value = 1;
+    Metric.AggregateFunction aggregate_function = 2;
+  }
+
+  google.protobuf.Timestamp first_seen = 1;
+  google.protobuf.Timestamp last_seen = 2;
+  Measure sum_measure = 3;
+  int64 total_events = 4;
+  MetricName metric_name = 5;
+  repeated Dimension dimensions = 6;
+  int64 export_window = 7;
+}
+
+message Relation {
+  enum Directionality {
+    DIRECTIONALITY_UNSPECIFIED = 0;
+    BIDIRECTIONAL = 1;
+    UNIDIRECTIONAL = 2;
+  }
+
+  enum EntityLabel {
+    ENTITY_LABEL_UNSPECIFIED = 0;
+    PRINCIPAL = 1;
+    TARGET = 2;
+    OBSERVER = 3;
+    SRC = 4;
+    NETWORK = 5;
+    SECURITY_RESULT = 6;
+    INTERMEDIARY = 7;
+  }
+
+  enum Relationship {
+    RELATIONSHIP_UNSPECIFIED = 0;
+    OWNS = 1;
+    ADMINISTERS = 2;
+    MEMBER = 3;
+    EXECUTES = 4;
+    DOWNLOADED_FROM = 5;
+    CONTACTS = 6;
+  }
+
+  Noun entity = 1;
+  EntityMetadata.EntityType entity_type = 2;
+  Relationship relationship = 3;
+  Directionality direction = 4;
+  bytes uid = 5;
+  EntityLabel entity_label = 6;
+}
+
+message RiskDelta {
+  google.protobuf.Timestamp previous_range_end_time = 1;
+  int32 risk_score_delta = 2;
+  int32 previous_risk_score = 3;
+  int32 risk_score_numeric_delta = 4;
+}
+
+message Extensions {
+  Authentication auth = 1;
+  Vulnerabilities vulns = 2;
+  EntityRisk entity_risk = 3;
+  LinuxUtmp linux_utmp = 4;
+  WindowsEventLog windows_event_log = 5;
+  ResourceUsage resource_usage = 6;
+  SystemEventDetails system_event_details = 7;
+  OutlookMetadata outlook_metadata = 8;
+  Srum srum = 9;
+  UserAssist user_assist = 10;
+}
+
+message Metadata {
+  enum EnrichmentState {
+    ENRICHMENT_STATE_UNSPECIFIED = 0;
+    ENRICHED = 1;
+    UNENRICHED = 2;
+  }
+
+  enum EventTimestampAttribute {
+    EVENT_TIMESTAMP_ATTRIBUTE_UNSPECIFIED = 0;
+    FILE_LAST_ACCESS_TIME = 1;
+    FILE_LAST_MODIFIED_TIME = 2;
+    FILE_METADATA_LAST_CHANGE_TIME = 3;
+    FILE_CREATION_TIME = 4;
+    COLLECTED_TIME = 5;
+    COLLECTED = 6;
+    ACCESSED = 7;
+    CHANGED = 8;
+    CREATED = 9;
+    FILE_NAME_ACCESSED = 10;
+    FILE_NAME_CHANGED = 11;
+    FILE_NAME_CREATED = 12;
+    FILE_NAME_LAST_ACCESSED = 13;
+    FILE_NAME_LAST_MODIFIED = 14;
+    FILE_NAME_METADATA_LAST_CHANGED = 15;
+    FILE_NAME_MODIFIED = 16;
+    LAST_ACCESSED = 17;
+    LAST_MODIFIED = 18;
+    METADATA_LAST_CHANGED = 19;
+    MODIFIED = 20;
+    ADDED = 21;
+    BACKED_UP = 22;
+    LAST_CONNECTED = 23;
+    DELETED = 24;
+    ENDED = 25;
+    EXITED = 26;
+    EXPIRED = 27;
+    FIRST_ACCESSED = 28;
+    APPEARED = 29;
+    INSTALLED = 30;
+    LAST_ACTIVE = 31;
+    LAST_LOGGED_IN = 32;
+    LAST_LOGIN_ATTEMPT = 33;
+    LAST_PASSWORD_SET = 34;
+    LAST_PRINTED = 35;
+    LAST_RESUMED = 36;
+    LAST_EXECUTED = 37;
+    LAST_SEEN = 38;
+    LAST_SHUTDOWN = 39;
+    LAST_UPDATED = 40;
+    LAST_USED = 41;
+    LAST_VISITED = 42;
+    LINKED = 43;
+    METADATA_MODIFIED = 44;
+    CONTENT_MODIFIED = 45;
+    PURCHASED = 46;
+    RECORDED = 47;
+    REQUEST_RECEIVED = 48;
+    RESPONSE_SENT = 49;
+    SCHEDULED_TO_END = 50;
+    SCHEDULED_TO_START = 51;
+    SENT = 52;
+    STARTED = 53;
+    UPDATED = 54;
+    VALIDATED = 55;
+    MOST_RECENT_RUN = 56;
+    NEXT_RUN = 57;
+    VISITED = 58;
+    TARGET_CREATED = 59;
+    VOLUME_CREATED = 60;
+    POST_CHECKED = 61;
+    SYNCHRONIZED = 62;
+    ITEM_CREATED = 63;
+    ITEM_MODIFIED = 64;
+    DOCUMENT_LAST_SAVED = 65;
+    LAST_REGISTERED = 66;
+    LAUNCHED = 67;
+    FIRST_VISITED = 68;
+    FIRST_SEEN = 69;
+    DOWNLOADED = 70;
+  }
+
+  enum EventType {
+    EVENTTYPE_UNSPECIFIED = 0;
+    PROCESS_UNCATEGORIZED = 10000;
+    PROCESS_LAUNCH = 10001;
+    PROCESS_INJECTION = 10002;
+    PROCESS_PRIVILEGE_ESCALATION = 10003;
+    PROCESS_TERMINATION = 10004;
+    PROCESS_OPEN = 10005;
+    PROCESS_MODULE_LOAD = 10006;
+    REGISTRY_UNCATEGORIZED = 11000;
+    REGISTRY_CREATION = 11001;
+    REGISTRY_MODIFICATION = 11002;
+    REGISTRY_DELETION = 11003;
+    SETTING_UNCATEGORIZED = 12000;
+    SETTING_CREATION = 12001;
+    SETTING_MODIFICATION = 12002;
+    SETTING_DELETION = 12003;
+    MUTEX_UNCATEGORIZED = 13000;
+    MUTEX_CREATION = 13001;
+    FILE_UNCATEGORIZED = 14000;
+    FILE_CREATION = 14001;
+    FILE_DELETION = 14002;
+    FILE_MODIFICATION = 14003;
+    FILE_READ = 14004;
+    FILE_COPY = 14005;
+    FILE_OPEN = 14006;
+    FILE_MOVE = 14007;
+    FILE_SYNC = 14008;
+    USER_UNCATEGORIZED = 15000;
+    USER_LOGIN = 15001;
+    USER_LOGOUT = 15002;
+    USER_CREATION = 15003;
+    USER_CHANGE_PASSWORD = 15004;
+    USER_CHANGE_PERMISSIONS = 15005;
+    USER_STATS = 15006;
+    USER_BADGE_IN = 15007;
+    USER_DELETION = 15008;
+    USER_RESOURCE_CREATION = 15009;
+    USER_RESOURCE_UPDATE_CONTENT = 15010;
+    USER_RESOURCE_UPDATE_PERMISSIONS = 15011;
+    USER_COMMUNICATION = 15012;
+    USER_RESOURCE_ACCESS = 15013;
+    USER_RESOURCE_DELETION = 15014;
+    GROUP_UNCATEGORIZED = 23000;
+    GROUP_CREATION = 23001;
+    GROUP_DELETION = 23002;
+    GROUP_MODIFICATION = 23003;
+    EMAIL_UNCATEGORIZED = 19000;
+    EMAIL_TRANSACTION = 19001;
+    EMAIL_URL_CLICK = 19002;
+    NETWORK_UNCATEGORIZED = 16000;
+    NETWORK_FLOW = 16001;
+    NETWORK_CONNECTION = 16002;
+    NETWORK_FTP = 16003;
+    NETWORK_DHCP = 16004;
+    NETWORK_DNS = 16005;
+    NETWORK_HTTP = 16006;
+    NETWORK_SMTP = 16007;
+    STATUS_UNCATEGORIZED = 17000;
+    STATUS_HEARTBEAT = 17001;
+    STATUS_STARTUP = 17002;
+    STATUS_SHUTDOWN = 17003;
+    STATUS_UPDATE = 17004;
+    SCAN_UNCATEGORIZED = 18000;
+    SCAN_FILE = 18001;
+    SCAN_PROCESS_BEHAVIORS = 18002;
+    SCAN_PROCESS = 18003;
+    SCAN_HOST = 18004;
+    SCAN_VULN_HOST = 18005;
+    SCAN_VULN_NETWORK = 18006;
+    SCAN_NETWORK = 18007;
+    SCHEDULED_TASK_UNCATEGORIZED = 20000;
+    SCHEDULED_TASK_CREATION = 20001;
+    SCHEDULED_TASK_DELETION = 20002;
+    SCHEDULED_TASK_ENABLE = 20003;
+    SCHEDULED_TASK_DISABLE = 20004;
+    SCHEDULED_TASK_MODIFICATION = 20005;
+    SYSTEM_AUDIT_LOG_UNCATEGORIZED = 21000;
+    SYSTEM_AUDIT_LOG_WIPE = 21001;
+    SERVICE_UNSPECIFIED = 22000;
+    SERVICE_CREATION = 22001;
+    SERVICE_DELETION = 22002;
+    SERVICE_START = 22003;
+    SERVICE_STOP = 22004;
+    SERVICE_MODIFICATION = 22005;
+    GENERIC_EVENT = 100000;
+    RESOURCE_CREATION = 1;
+    RESOURCE_DELETION = 2;
+    RESOURCE_PERMISSIONS_CHANGE = 3;
+    RESOURCE_READ = 4;
+    RESOURCE_WRITTEN = 5;
+    DEVICE_FIRMWARE_UPDATE = 25000;
+    DEVICE_CONFIG_UPDATE = 25001;
+    DEVICE_PROGRAM_UPLOAD = 25002;
+    DEVICE_PROGRAM_DOWNLOAD = 25003;
+    ANALYST_UPDATE_VERDICT = 24000;
+    ANALYST_UPDATE_REPUTATION = 24001;
+    ANALYST_UPDATE_SEVERITY_SCORE = 24002;
+    ANALYST_UPDATE_STATUS = 24007;
+    ANALYST_ADD_COMMENT = 24008;
+    ANALYST_UPDATE_PRIORITY = 24009;
+    ANALYST_UPDATE_ROOT_CAUSE = 24010;
+    ANALYST_UPDATE_REASON = 24011;
+    ANALYST_UPDATE_RISK_SCORE = 24012;
+    ENTITY_RISK_CHANGE = 26000;
+    TRIAGE_AGENT_UPDATE_INVESTIGATION = 27000;
+  }
+
+  bytes id = 1;
+  string product_log_id = 2;
+  google.protobuf.Timestamp event_timestamp = 3;
+  repeated EventTimestampAttribute event_timestamp_attributes = 4;
+  google.protobuf.Timestamp collected_timestamp = 5;
+  google.protobuf.Timestamp ingested_timestamp = 6;
+  EventType event_type = 7;
+  string vendor_name = 8;
+  string product_name = 9;
+  string product_version = 10;
+  string product_event_type = 11;
+  string product_deployment_id = 12;
+  string description = 13;
+  string url_back_to_product = 14;
+  repeated Label ingestion_labels = 15;
+  Tags tags = 16;
+  EnrichmentState enrichment_state = 17;
+  string log_type = 18;
+  DataAccessLabels base_labels = 19;
+  DataAccessLabels enrichment_labels = 20;
+  google.protobuf.Struct structured_fields = 21;
+  string parser_version = 22;
+}
+
+message Network {
+  enum ApplicationProtocol {
+    UNKNOWN_APPLICATION_PROTOCOL = 0;
+    AFP = 1;
+    APPC = 2;
+    AMQP = 3;
+    ATOM = 4;
+    BEEP = 5;
+    BITCOIN = 6;
+    BIT_TORRENT = 7;
+    CFDP = 8;
+    CIP = 67;
+    COAP = 9;
+    COTP = 68;
+    DCERPC = 66;
+    DDS = 10;
+    DEVICE_NET = 11;
+    DHCP = 4000;
+    DICOM = 69;
+    DNP3 = 70;
+    DNS = 3000;
+    E_DONKEY = 12;
+    ENRP = 13;
+    FAST_TRACK = 14;
+    FINGER = 15;
+    FREENET = 16;
+    FTAM = 17;
+    GOOSE = 71;
+    GOPHER = 18;
+    GRPC = 77;
+    HL7 = 19;
+    H323 = 20;
+    HTTP = 2000;
+    HTTPS = 2001;
+    IEC104 = 72;
+    IMAP = 81;
+    IRCP = 21;
+    KADEMLIA = 22;
+    KRB5 = 65;
+    LDAP = 23;
+    LPD = 24;
+    MIME = 25;
+    MMS = 73;
+    MODBUS = 26;
+    MQTT = 27;
+    NETCONF = 28;
+    NFS = 29;
+    NIS = 30;
+    NNTP = 31;
+    NTCIP = 32;
+    NTP = 33;
+    OSCAR = 34;
+    PNRP = 35;
+    POP3 = 82;
+    PTP = 74;
+    QUIC = 1000;
+    RDP = 36;
+    RELP = 37;
+    RIP = 38;
+    RLOGIN = 39;
+    RPC = 40;
+    RTMP = 41;
+    RTP = 42;
+    RTPS = 43;
+    RTSP = 44;
+    SAP = 45;
+    SDP = 46;
+    SFTP = 80;
+    SIP = 47;
+    SLP = 48;
+    SMB = 49;
+    SMTP = 50;
+    SNMP = 75;
+    SNTP = 51;
+    SSH = 52;
+    SSMS = 53;
+    STYX = 54;
+    SV = 76;
+    TCAP = 55;
+    TDS = 56;
+    TELNET = 79;
+    TOR = 57;
+    TSP = 58;
+    VTP = 59;
+    WHOIS = 60;
+    WEB_DAV = 61;
+    X400 = 62;
+    X500 = 63;
+    XMPP = 64;
+    FTP = 78;
+  }
+
+  enum ConnectionState {
+    CONNECTION_STATE_UNSPECIFIED = 0;
+    LISTENING = 1;
+    ESTABLISHED = 2;
+    TIME_WAIT = 3;
+    CLOSE_WAIT = 4;
+    CLOSED = 5;
+    SYN_SENT = 6;
+    SYN_RECEIVED = 7;
+    FIN_WAIT1 = 8;
+    FIN_WAIT2 = 9;
+    LAST_ACK = 10;
+  }
+
+  enum Direction {
+    UNKNOWN_DIRECTION = 0;
+    INBOUND = 1;
+    OUTBOUND = 2;
+    BROADCAST = 3;
+  }
+
+  enum IpProtocol {
+    UNKNOWN_IP_PROTOCOL = 0;
+    ICMP = 1;
+    IGMP = 2;
+    TCP = 6;
+    UDP = 17;
+    IP6IN4 = 41;
+    GRE = 47;
+    ESP = 50;
+    ICMP6 = 58;
+    EIGRP = 88;
+    ETHERIP = 97;
+    PIM = 103;
+    VRRP = 112;
+    SCTP = 132;
+  }
+
+  uint64 sent_bytes = 1;
+  uint64 received_bytes = 2;
+  int64 total_bytes = 3;
+  int64 sent_packets = 4;
+  int64 received_packets = 5;
+  int64 session_duration = 6;
+  string session_id = 7;
+  string parent_session_id = 8;
+  string application_protocol_version = 9;
+  string community_id = 10;
+  Direction direction = 11;
+  IpProtocol ip_protocol = 12;
+  bool ipv6 = 13;
+  ApplicationProtocol application_protocol = 14;
+  Ftp ftp = 15;
+  Email email = 16;
+  Dns dns = 17;
+  Dhcp dhcp = 18;
+  Http http = 19;
+  Tls tls = 20;
+  Smtp smtp = 21;
+  string asn = 22;
+  string dns_domain = 23;
+  string carrier_name = 24;
+  string organization_name = 25;
+  string ip_subnet_range = 26;
+  bool is_proxy = 27;
+  ProxyInfo proxy_info = 28;
+  ConnectionState connection_state = 29;
+}
+
+message Noun {
+  enum Platform {
+    UNKNOWN_PLATFORM = 0;
+    WINDOWS = 1;
+    MAC = 2;
+    LINUX = 3;
+    GCP = 4;
+    AWS = 5;
+    AZURE = 6;
+    IOS = 7;
+    ANDROID = 8;
+    CHROME_OS = 9;
+  }
+
+  string hostname = 1;
+  Domain domain = 2;
+  Artifact artifact = 3;
+  Url url_metadata = 4;
+  Browser browser = 5;
+  string asset_id = 6;
+  User user = 7;
+  repeated User user_management_chain = 8;
+  Group group = 9;
+  Process process = 10;
+  repeated Process process_ancestors = 11;
+  Asset asset = 12;
+  repeated string ip = 13;
+  repeated string nat_ip = 14;
+  int32 port = 15;
+  int32 nat_port = 16;
+  repeated string mac = 17;
+  string administrative_domain = 18;
+  string namespace = 19;
+  string url = 20;
+  File file = 21;
+  string email = 22;
+  Registry registry = 23;
+  string application = 24;
+  Platform platform = 25;
+  string platform_version = 26;
+  string platform_patch_level = 27;
+  Cloud cloud = 28;
+  Location location = 29;
+  repeated Location ip_location = 30;
+  repeated Artifact ip_geo_artifact = 31;
+  Resource resource = 32;
+  repeated Resource resource_ancestors = 33;
+  repeated Label labels = 34;
+  Id object_reference = 35;
+  Investigation investigation = 36;
+  Network network = 37;
+  repeated SecurityResult security_result = 38;
+}
+
+message SecurityResult {
+  enum Action {
+    UNKNOWN_ACTION = 0;
+    ALLOW = 1;
+    BLOCK = 2;
+    ALLOW_WITH_MODIFICATION = 3;
+    QUARANTINE = 4;
+    FAIL = 5;
+    CHALLENGE = 6;
+  }
+
+  enum AlertState {
+    UNSPECIFIED = 0;
+    NOT_ALERTING = 1;
+    ALERTING = 2;
+  }
+
+  enum IoCStatsType {
+    UNSPECIFIED_IOC_STATS_TYPE = 0;
+    MANDIANT_SOURCES = 1;
+    THIRD_PARTY_SOURCES = 2;
+    THREAT_INTELLIGENCE_IOC_STATS = 3;
+  }
+
+  enum ProductConfidence {
+    UNKNOWN_CONFIDENCE = 0;
+    LOW_CONFIDENCE = 200;
+    MEDIUM_CONFIDENCE = 300;
+    HIGH_CONFIDENCE = 400;
+  }
+
+  enum ProductPriority {
+    UNKNOWN_PRIORITY = 0;
+    LOW_PRIORITY = 200;
+    MEDIUM_PRIORITY = 300;
+    HIGH_PRIORITY = 400;
+  }
+
+  enum ProductSeverity {
+    UNKNOWN_SEVERITY = 0;
+    INFORMATIONAL = 100;
+    ERROR = 150;
+    NONE = 101;
+    LOW = 200;
+    MEDIUM = 300;
+    HIGH = 400;
+    CRITICAL = 500;
+  }
+
+  enum SecurityCategory {
+    UNKNOWN_CATEGORY = 0;
+    SOFTWARE_MALICIOUS = 10000;
+    SOFTWARE_SUSPICIOUS = 10100;
+    SOFTWARE_PUA = 10200;
+    NETWORK_MALICIOUS = 20000;
+    NETWORK_SUSPICIOUS = 20100;
+    NETWORK_CATEGORIZED_CONTENT = 20200;
+    NETWORK_DENIAL_OF_SERVICE = 20300;
+    NETWORK_RECON = 20400;
+    NETWORK_COMMAND_AND_CONTROL = 20500;
+    ACL_VIOLATION = 30000;
+    AUTH_VIOLATION = 40000;
+    EXPLOIT = 50000;
+    DATA_EXFILTRATION = 60000;
+    DATA_AT_REST = 60100;
+    DATA_DESTRUCTION = 60200;
+    TOR_EXIT_NODE = 60300;
+    MAIL_SPAM = 70000;
+    MAIL_PHISHING = 70100;
+    MAIL_SPOOFING = 70200;
+    POLICY_VIOLATION = 80000;
+    SOCIAL_ENGINEERING = 90001;
+    PHISHING = 90002;
+  }
+
+  enum ThreatCollectionType {
+    THREAT_COLLECTION_TYPE_UNSPECIFIED = 0;
+    CAMPAIGN = 1;
+    REPORT = 2;
+  }
+
+  enum ThreatStatus {
+    THREAT_STATUS_UNSPECIFIED = 0;
+    ACTIVE = 1;
+    CLEARED = 2;
+    FALSE_POSITIVE = 3;
+  }
+
+  enum VerdictResponse {
+    VERDICT_RESPONSE_UNSPECIFIED = 0;
+    MALICIOUS = 1;
+    BENIGN = 2;
+  }
+
+  enum VerdictType {
+    VERDICT_TYPE_UNSPECIFIED = 0;
+    PROVIDER_ML_VERDICT = 1;
+    ANALYST_VERDICT = 2;
+  }
+
+  message AnalystVerdict {
+    int32 confidence_score = 1;
+    google.protobuf.Timestamp verdict_time = 2;
+    SecurityResult.VerdictResponse verdict_response = 3;
+  }
+
+  message Association {
+    string id = 1;
+    repeated string country_code = 2;
+    SecurityResult.Association.AssociationType type = 3;
+    string name = 4;
+    string description = 5;
+    string role = 6;
+    string source_country = 7;
+    repeated SecurityResult.Association.AssociationAlias alias = 8;
+    google.protobuf.Timestamp first_reference_time = 9;
+    google.protobuf.Timestamp last_reference_time = 10;
+    repeated string industries_affected = 11;
+    repeated SecurityResult.Association associated_actors = 12;
+    Location region_code = 13;
+    Location sponsor_region = 14;
+    repeated Location targeted_regions = 15;
+    repeated string tags = 16;
+  }
+
+  message IoCStats {
+    SecurityResult.IoCStatsType ioc_stats_type = 1;
+    string first_level_source = 2;
+    string second_level_source = 3;
+    int32 benign_count = 4;
+    SecurityResult.ProductConfidence quality = 5;
+    int32 malicious_count = 6;
+    int32 response_count = 7;
+    int32 source_count = 8;
+  }
+
+  message ProviderMLVerdict {
+    string source_provider = 1;
+    int32 benign_count = 2;
+    int32 malicious_count = 3;
+    int32 confidence_score = 4;
+    repeated SecurityResult.Source mandiant_sources = 5;
+    repeated SecurityResult.Source third_party_sources = 6;
+  }
+
+  message Source {
+    string name = 1;
+    int32 benign_count = 2;
+    int32 malicious_count = 3;
+    SecurityResult.ProductConfidence quality = 4;
+    int32 response_count = 5;
+    int32 source_count = 6;
+    repeated SecurityResult.Source threat_intelligence_sources = 7;
+  }
+
+  message ThreatCollectionItem {
+    string id = 1;
+    SecurityResult.ThreatCollectionType type = 2;
+    repeated string alt_names = 3;
+  }
+
+  message VariablesEntry {
+    string key = 1;
+    FindingVariable value = 2;
+  }
+
+  message Verdict {
+    int32 source_count = 1;
+    int32 response_count = 2;
+    string neighbour_influence = 3;
+    SecurityResult.ProviderMLVerdict verdict = 4;
+    SecurityResult.AnalystVerdict analyst_verdict = 5;
+  }
+
+  message VerdictInfo {
+    int32 source_count = 1;
+    int32 response_count = 2;
+    string neighbour_influence = 3;
+    SecurityResult.VerdictType verdict_type = 4;
+    string source_provider = 5;
+    int32 benign_count = 6;
+    int32 malicious_count = 7;
+    int32 confidence_score = 8;
+    repeated SecurityResult.IoCStats ioc_stats = 9;
+    google.protobuf.Timestamp verdict_time = 10;
+    SecurityResult.VerdictResponse verdict_response = 11;
+    int32 global_customer_count = 12;
+    int32 global_hits_count = 13;
+    bool pwn = 14;
+    string category_details = 15;
+    google.protobuf.Timestamp pwn_first_tagged_time = 16;
+  }
+
+  Noun about = 1;
+  repeated SecurityCategory category = 2;
+  repeated string category_details = 3;
+  string threat_name = 4;
+  string rule_set = 5;
+  string rule_set_display_name = 6;
+  string ruleset_category_display_name = 7;
+  string rule_id = 8;
+  string rule_name = 9;
+  string display_name = 10;
+  string rule_version = 11;
+  string rule_type = 12;
+  string rule_author = 13;
+  repeated Label rule_labels = 14;
+  AlertState alert_state = 15;
+  repeated Label detection_fields = 16;
+  repeated Label outcomes = 17;
+  repeated VariablesEntry variables = 18;
+  string summary = 19;
+  string description = 20;
+  repeated Action action = 21;
+  string action_details = 22;
+  ProductSeverity severity = 23;
+  ProductConfidence confidence = 24;
+  ProductPriority priority = 25;
+  float risk_score = 26;
+  float confidence_score = 27;
+  repeated AnalyticsMetadata analytics_metadata = 28;
+  string severity_details = 29;
+  string confidence_details = 30;
+  string priority_details = 31;
+  string url_back_to_product = 32;
+  string threat_id = 33;
+  string threat_feed_name = 34;
+  Id.Namespace threat_id_namespace = 35;
+  ThreatStatus threat_status = 36;
+  AttackDetails attack_details = 37;
+  google.protobuf.Timestamp first_discovered_time = 38;
+  repeated Association associations = 39;
+  repeated string campaigns = 40;
+  repeated string reports = 41;
+  Verdict verdict = 42;
+  google.protobuf.Timestamp last_updated_time = 43;
+  repeated VerdictInfo verdict_info = 44;
+  ThreatVerdict threat_verdict = 45;
+  google.protobuf.Timestamp last_discovered_time = 46;
+  int64 detection_depth = 47;
+  repeated ThreatCollectionItem threat_collections = 48;
+}
+
+message AnalyticsMetadata {
+  string analytic = 1;
+}
+
+message AppCompatMetadata {
+  int32 sequence = 1;
+  bool executed = 2;
+  string control_set = 3;
+}
+
+message Artifact {
+  string ip = 1;
+  Prevalence prevalence = 2;
+  google.protobuf.Timestamp first_seen_time = 3;
+  google.protobuf.Timestamp last_seen_time = 4;
+  Location location = 5;
+  Network network = 6;
+  string as_owner = 7;
+  int64 asn = 8;
+  string jarm = 9;
+  SSLCertificate last_https_certificate = 10;
+  google.protobuf.Timestamp last_https_certificate_date = 11;
+  string regional_internet_registry = 12;
+  repeated string tags = 13;
+  string whois = 14;
+  google.protobuf.Timestamp whois_date = 15;
+  repeated Tunnels tunnels = 16;
+  bool anonymous = 17;
+  ArtifactClient artifact_client = 18;
+  repeated string risks = 19;
+}
+
+message ArtifactClient {
+  repeated string behaviors = 1;
+  repeated string proxies = 2;
+}
+
+message Asset {
+  enum AssetType {
+    ROLE_UNSPECIFIED = 0;
+    WORKSTATION = 1;
+    LAPTOP = 2;
+    IOT = 3;
+    NETWORK_ATTACHED_STORAGE = 4;
+    PRINTER = 5;
+    SCANNER = 6;
+    SERVER = 7;
+    TAPE_LIBRARY = 8;
+    MOBILE = 9;
+  }
+
+  enum DeploymentStatus {
+    DEPLOYMENT_STATUS_UNSPECIFIED = 0;
+    ACTIVE = 1;
+    PENDING_DECOMMISSION = 2;
+    DECOMMISSIONED = 3;
+  }
+
+  string product_object_id = 1;
+  string hostname = 2;
+  string asset_id = 3;
+  repeated string ip = 4;
+  repeated string mac = 5;
+  repeated string nat_ip = 6;
+  google.protobuf.Timestamp first_seen_time = 7;
+  repeated Hardware hardware = 8;
+  PlatformSoftware platform_software = 9;
+  repeated Software software = 10;
+  Location location = 11;
+  string category = 12;
+  AssetType type = 13;
+  string network_domain = 14;
+  google.protobuf.Timestamp creation_time = 15;
+  google.protobuf.Timestamp first_discover_time = 16;
+  google.protobuf.Timestamp last_discover_time = 17;
+  google.protobuf.Timestamp system_last_update_time = 18;
+  google.protobuf.Timestamp last_boot_time = 19;
+  repeated Label labels = 20;
+  DeploymentStatus deployment_status = 21;
+  repeated Vulnerability vulnerabilities = 22;
+  Attribute attribute = 23;
+  WmiPersistenceItem wmi_persistence_item = 24;
+}
+
+message AttackDetails {
+  message Tactic {
+    string id = 1;
+    string name = 2;
+  }
+
+  message Technique {
+    string id = 1;
+    string name = 2;
+    string subtechnique_id = 3;
+    string subtechnique_name = 4;
+  }
+
+  string version = 1;
+  repeated Tactic tactics = 2;
+  repeated Technique techniques = 3;
+}
+
+message Attribute {
+  Cloud cloud = 1;
+  repeated Label labels = 2;
+  repeated Permission permissions = 3;
+  repeated Role roles = 4;
+  google.protobuf.Timestamp creation_time = 5;
+  google.protobuf.Timestamp last_update_time = 6;
+}
+
+message Authentication {
+  enum AuthType {
+    AUTHTYPE_UNSPECIFIED = 0;
+    MACHINE = 1;
+    SSO = 2;
+    VPN = 3;
+    PHYSICAL = 4;
+    TACACS = 5;
+  }
+
+  enum AuthenticationStatus {
+    UNKNOWN_AUTHENTICATION_STATUS = 0;
+    ACTIVE = 1;
+    SUSPENDED = 2;
+    NO_ACTIVE_CREDENTIALS = 3;
+    DELETED = 4;
+  }
+
+  enum Mechanism {
+    MECHANISM_UNSPECIFIED = 0;
+    USERNAME_PASSWORD = 1;
+    OTP = 2;
+    HARDWARE_KEY = 3;
+    LOCAL = 4;
+    REMOTE = 5;
+    REMOTE_INTERACTIVE = 6;
+    MECHANISM_OTHER = 7;
+    BADGE_READER = 8;
+    NETWORK = 9;
+    BATCH = 10;
+    SERVICE = 11;
+    UNLOCK = 12;
+    NETWORK_CLEAR_TEXT = 13;
+    NEW_CREDENTIALS = 14;
+    INTERACTIVE = 15;
+    CACHED_INTERACTIVE = 16;
+    CACHED_REMOTE_INTERACTIVE = 17;
+    CACHED_UNLOCK = 18;
+    BIOMETRIC = 19;
+    WEARABLE = 20;
+  }
+
+  enum Outcome {
+    OUTCOME_UNSPECIFIED = 0;
+    SUCCESS = 1;
+    FAILURE = 2;
+  }
+
+  AuthType type = 1;
+  repeated Mechanism mechanism = 2;
+  string auth_details = 3;
+  Outcome outcome = 4;
+}
+
+message BoolSequence {
+  repeated bool bool_vals = 1;
+}
+
+message Browser {
+  enum BrowserType {
+    BROWSER_TYPE_UNSPECIFIED = 0;
+    CHROME = 1;
+    FIREFOX = 2;
+    SAFARI = 3;
+    INTERNET_EXPLORER = 4;
+    EDGE = 5;
+    OPERA = 6;
+  }
+
+  enum UrlVisitType {
+    URL_VISIT_TYPE_UNSPECIFIED = 0;
+    LINK = 1;
+    TYPED = 2;
+    AUTO_BOOKMARK = 3;
+    AUTO_SUBFRAME = 4;
+    MANUAL_SUBFRAME = 5;
+    GENERATED = 6;
+    AUTO_TOPLEVEL = 7;
+    FORM_SUBMIT = 8;
+    RELOAD = 9;
+    KEYWORD = 10;
+    KEYWORD_GENERATED = 11;
+    REDIRECT = 12;
+  }
+
+  enum VisitSource {
+    VISIT_SOURCE_UNSPECIFIED = 0;
+    SYNCED = 1;
+    BROWSER = 2;
+    EXTENSION = 3;
+    IMPORTED = 4;
+  }
+
+  message Cookie {
+    string name = 1;
+    string value = 2;
+    string domain = 3;
+    string path = 4;
+    google.protobuf.Timestamp expiration_time = 5;
+    bool http_only = 6;
+    bool secure = 7;
+    int64 max_age = 8;
+    Browser.Cookie.CookieSameSite same_site = 9;
+    bool session = 10;
+    bool partitioned = 11;
+  }
+
+  BrowserType browser_type = 1;
+  string browser_version = 2;
+  google.protobuf.Timestamp first_visit_time = 3;
+  google.protobuf.Timestamp last_visit_time = 4;
+  string profile = 5;
+  bool typed = 6;
+  UrlVisitType visit_type = 7;
+  bool hidden = 8;
+  string request_origin_uri = 9;
+  int64 visit_count = 10;
+  string visit_count_criteria = 11;
+  string indexed_content = 12;
+  google.protobuf.Timestamp first_bookmarked_time = 13;
+  repeated Cookie cookies = 14;
+  int64 typed_count = 15;
+  VisitSource visit_source = 16;
+}
+
+message BytesSequence {
+  repeated bytes bytes_vals = 1;
+}
+
+message Certificate {
+  string version = 1;
+  string serial = 2;
+  string subject = 3;
+  string issuer = 4;
+  string md5 = 5;
+  string sha1 = 6;
+  string sha256 = 7;
+  google.protobuf.Timestamp not_before = 8;
+  google.protobuf.Timestamp not_after = 9;
+}
+
+message Cloud {
+  enum CloudEnvironment {
+    UNSPECIFIED_CLOUD_ENVIRONMENT = 0;
+    GOOGLE_CLOUD_PLATFORM = 1;
+    AMAZON_WEB_SERVICES = 2;
+    MICROSOFT_AZURE = 3;
+  }
+
+  CloudEnvironment environment = 1;
+  Resource vpc = 2;
+  Resource project = 3;
+  string availability_zone = 4;
+}
+
+message DNSRecord {
+  string type = 1;
+  string value = 2;
+  int64 ttl = 3;
+  int64 priority = 4;
+  int64 retry = 5;
+  int64 refresh = 6;
+  int64 minimum = 7;
+  int64 expire = 8;
+  int64 serial = 9;
+  string rname = 10;
+}
+
+message Dhcp {
+  enum MessageType {
+    UNKNOWN_MESSAGE_TYPE = 0;
+    DISCOVER = 1;
+    OFFER = 2;
+    REQUEST = 3;
+    DECLINE = 4;
+    ACK = 5;
+    NAK = 6;
+    RELEASE = 7;
+    INFORM = 8;
+    WIN_DELETED = 100;
+    WIN_EXPIRED = 101;
+  }
+
+  enum OpCode {
+    UNKNOWN_OPCODE = 0;
+    BOOTREQUEST = 1;
+    BOOTREPLY = 2;
+  }
+
+  message Option {
+    uint32 code = 1;
+    bytes data = 2;
+  }
+
+  OpCode opcode = 1;
+  uint32 htype = 2;
+  uint32 hlen = 3;
+  uint32 hops = 4;
+  uint32 transaction_id = 5;
+  uint32 seconds = 6;
+  uint32 flags = 7;
+  string ciaddr = 8;
+  string yiaddr = 9;
+  string siaddr = 10;
+  string giaddr = 11;
+  string chaddr = 12;
+  string sname = 13;
+  string file = 14;
+  repeated Option options = 15;
+  MessageType type = 16;
+  uint32 lease_time_seconds = 17;
+  string client_hostname = 18;
+  bytes client_identifier = 19;
+  string requested_address = 20;
+  string client_identifier_string = 21;
+}
+
+message Dns {
+  message Question {
+    string name = 1;
+    uint32 type = 2;
+    uint32 class = 3;
+    Prevalence prevalence = 4;
+  }
+
+  message ResourceRecord {
+    string name = 1;
+    uint32 type = 2;
+    uint32 class = 3;
+    uint32 ttl = 4;
+    string data = 5;
+    bytes binary_data = 6;
+  }
+
+  uint32 id = 1;
+  bool response = 2;
+  uint32 opcode = 3;
+  bool authoritative = 4;
+  bool truncated = 5;
+  bool recursion_desired = 6;
+  bool recursion_available = 7;
+  uint32 response_code = 8;
+  repeated Question questions = 9;
+  repeated ResourceRecord answers = 10;
+  repeated ResourceRecord authority = 11;
+  repeated ResourceRecord additional = 12;
+}
+
+message Domain {
+  string name = 1;
+  Prevalence prevalence = 2;
+  google.protobuf.Timestamp first_seen_time = 3;
+  google.protobuf.Timestamp last_seen_time = 4;
+  string registrar = 5;
+  string contact_email = 6;
+  string whois_server = 7;
+  repeated string name_server = 8;
+  google.protobuf.Timestamp creation_time = 9;
+  google.protobuf.Timestamp update_time = 10;
+  google.protobuf.Timestamp expiration_time = 11;
+  google.protobuf.Timestamp audit_update_time = 12;
+  string status = 13;
+  User registrant = 14;
+  User admin = 15;
+  User tech = 16;
+  User billing = 17;
+  User zone = 18;
+  bytes whois_record_raw_text = 19;
+  bytes registry_data_raw_text = 20;
+  int32 iana_registrar_id = 21;
+  bool private_registration = 22;
+  repeated string categories = 23;
+  Favicon favicon = 24;
+  string jarm = 25;
+  repeated DNSRecord last_dns_records = 26;
+  google.protobuf.Timestamp last_dns_records_time = 27;
+  SSLCertificate last_https_certificate = 28;
+  google.protobuf.Timestamp last_https_certificate_time = 29;
+  repeated PopularityRank popularity_ranks = 30;
+  repeated string tags = 31;
+  google.protobuf.Timestamp whois_time = 32;
+}
+
+message DoubleSequence {
+  repeated double double_vals = 1;
+}
+
+message Email {
+  string from = 1;
+  string reply_to = 2;
+  repeated string to = 3;
+  repeated string cc = 4;
+  repeated string bcc = 5;
+  string mail_id = 6;
+  repeated string subject = 7;
+  string bounce_address = 8;
+}
+
+message ExifInfo {
+  string original_file = 1;
+  string product = 2;
+  string company = 3;
+  string file_description = 4;
+  int64 entry_point = 5;
+  google.protobuf.Timestamp compilation_time = 6;
+}
+
+message Favicon {
+  string raw_md5 = 1;
+  string dhash = 2;
+}
+
+message File {
+  enum FileType {
+    FILE_TYPE_UNSPECIFIED = 0;
+    FILE_TYPE_PE_EXE = 1;
+    FILE_TYPE_PE_DLL = 2;
+    FILE_TYPE_MSI = 3;
+    FILE_TYPE_NE_EXE = 10;
+    FILE_TYPE_NE_DLL = 11;
+    FILE_TYPE_DOS_EXE = 20;
+    FILE_TYPE_DOS_COM = 21;
+    FILE_TYPE_COFF = 30;
+    FILE_TYPE_ELF = 31;
+    FILE_TYPE_LINUX_KERNEL = 32;
+    FILE_TYPE_RPM = 33;
+    FILE_TYPE_LINUX = 34;
+    FILE_TYPE_MACH_O = 35;
+    FILE_TYPE_JAVA_BYTECODE = 36;
+    FILE_TYPE_DMG = 37;
+    FILE_TYPE_DEB = 38;
+    FILE_TYPE_PKG = 39;
+    FILE_TYPE_PYC = 40;
+    FILE_TYPE_LNK = 50;
+    FILE_TYPE_DESKTOP_ENTRY = 51;
+    FILE_TYPE_JPEG = 100;
+    FILE_TYPE_TIFF = 101;
+    FILE_TYPE_GIF = 102;
+    FILE_TYPE_PNG = 103;
+    FILE_TYPE_BMP = 104;
+    FILE_TYPE_GIMP = 105;
+    FILE_TYPE_IN_DESIGN = 106;
+    FILE_TYPE_PSD = 107;
+    FILE_TYPE_TARGA = 108;
+    FILE_TYPE_XWD = 109;
+    FILE_TYPE_DIB = 110;
+    FILE_TYPE_JNG = 111;
+    FILE_TYPE_ICO = 112;
+    FILE_TYPE_FPX = 113;
+    FILE_TYPE_EPS = 114;
+    FILE_TYPE_SVG = 115;
+    FILE_TYPE_EMF = 116;
+    FILE_TYPE_WEBP = 117;
+    FILE_TYPE_DWG = 118;
+    FILE_TYPE_DXF = 119;
+    FILE_TYPE_THREEDS = 120;
+    FILE_TYPE_OGG = 150;
+    FILE_TYPE_FLC = 151;
+    FILE_TYPE_FLI = 152;
+    FILE_TYPE_MP3 = 153;
+    FILE_TYPE_FLAC = 154;
+    FILE_TYPE_WAV = 155;
+    FILE_TYPE_MIDI = 156;
+    FILE_TYPE_AVI = 157;
+    FILE_TYPE_MPEG = 158;
+    FILE_TYPE_QUICKTIME = 159;
+    FILE_TYPE_ASF = 160;
+    FILE_TYPE_DIVX = 161;
+    FILE_TYPE_FLV = 162;
+    FILE_TYPE_WMA = 163;
+    FILE_TYPE_WMV = 164;
+    FILE_TYPE_RM = 165;
+    FILE_TYPE_MOV = 166;
+    FILE_TYPE_MP4 = 167;
+    FILE_TYPE_T3GP = 168;
+    FILE_TYPE_WEBM = 169;
+    FILE_TYPE_MKV = 170;
+    FILE_TYPE_PDF = 200;
+    FILE_TYPE_PS = 201;
+    FILE_TYPE_DOC = 202;
+    FILE_TYPE_DOCX = 203;
+    FILE_TYPE_PPT = 204;
+    FILE_TYPE_PPTX = 205;
+    FILE_TYPE_XLS = 206;
+    FILE_TYPE_XLSX = 207;
+    FILE_TYPE_RTF = 208;
+    FILE_TYPE_PPSX = 209;
+    FILE_TYPE_ODP = 250;
+    FILE_TYPE_ODS = 251;
+    FILE_TYPE_ODT = 252;
+    FILE_TYPE_HWP = 253;
+    FILE_TYPE_GUL = 254;
+    FILE_TYPE_ODF = 255;
+    FILE_TYPE_ODG = 256;
+    FILE_TYPE_ONE_NOTE = 257;
+    FILE_TYPE_OOXML = 258;
+    FILE_TYPE_SLK = 259;
+    FILE_TYPE_EBOOK = 260;
+    FILE_TYPE_LATEX = 261;
+    FILE_TYPE_TTF = 262;
+    FILE_TYPE_EOT = 263;
+    FILE_TYPE_WOFF = 264;
+    FILE_TYPE_CHM = 265;
+    FILE_TYPE_ZIP = 300;
+    FILE_TYPE_GZIP = 301;
+    FILE_TYPE_BZIP = 302;
+    FILE_TYPE_RZIP = 303;
+    FILE_TYPE_DZIP = 304;
+    FILE_TYPE_SEVENZIP = 305;
+    FILE_TYPE_CAB = 306;
+    FILE_TYPE_JAR = 307;
+    FILE_TYPE_RAR = 308;
+    FILE_TYPE_MSCOMPRESS = 309;
+    FILE_TYPE_ACE = 310;
+    FILE_TYPE_ARC = 311;
+    FILE_TYPE_ARJ = 312;
+    FILE_TYPE_ASD = 313;
+    FILE_TYPE_BLACKHOLE = 314;
+    FILE_TYPE_KGB = 315;
+    FILE_TYPE_ZLIB = 316;
+    FILE_TYPE_TAR = 317;
+    FILE_TYPE_ZST = 318;
+    FILE_TYPE_LZFSE = 319;
+    FILE_TYPE_PYTHON_WHL = 320;
+    FILE_TYPE_PYTHON_PKG = 321;
+    FILE_TYPE_MSIX = 322;
+    FILE_TYPE_TEXT = 400;
+    FILE_TYPE_SCRIPT = 401;
+    FILE_TYPE_PHP = 402;
+    FILE_TYPE_PYTHON = 403;
+    FILE_TYPE_PERL = 404;
+    FILE_TYPE_RUBY = 405;
+    FILE_TYPE_C = 406;
+    FILE_TYPE_CPP = 407;
+    FILE_TYPE_JAVA = 408;
+    FILE_TYPE_SHELLSCRIPT = 409;
+    FILE_TYPE_PASCAL = 410;
+    FILE_TYPE_AWK = 411;
+    FILE_TYPE_DYALOG = 412;
+    FILE_TYPE_FORTRAN = 413;
+    FILE_TYPE_JAVASCRIPT = 414;
+    FILE_TYPE_POWERSHELL = 415;
+    FILE_TYPE_VBA = 416;
+    FILE_TYPE_M4 = 417;
+    FILE_TYPE_OBJETIVEC = 418;
+    FILE_TYPE_JMOD = 419;
+    FILE_TYPE_MAKEFILE = 420;
+    FILE_TYPE_INI = 421;
+    FILE_TYPE_CLJ = 422;
+    FILE_TYPE_PDB = 425;
+    FILE_TYPE_SQL = 426;
+    FILE_TYPE_NEKO = 427;
+    FILE_TYPE_WER = 428;
+    FILE_TYPE_GOLANG = 429;
+    FILE_TYPE_M3U = 430;
+    FILE_TYPE_BAT = 431;
+    FILE_TYPE_MSC = 432;
+    FILE_TYPE_RDP = 433;
+    FILE_TYPE_SYMBIAN = 500;
+    FILE_TYPE_PALMOS = 501;
+    FILE_TYPE_WINCE = 502;
+    FILE_TYPE_ANDROID = 503;
+    FILE_TYPE_IPHONE = 504;
+    FILE_TYPE_HTML = 600;
+    FILE_TYPE_XML = 601;
+    FILE_TYPE_SWF = 602;
+    FILE_TYPE_FLA = 603;
+    FILE_TYPE_COOKIE = 604;
+    FILE_TYPE_TORRENT = 605;
+    FILE_TYPE_EMAIL_TYPE = 606;
+    FILE_TYPE_OUTLOOK = 607;
+    FILE_TYPE_SGML = 608;
+    FILE_TYPE_JSON = 609;
+    FILE_TYPE_CSV = 610;
+    FILE_TYPE_HTA = 611;
+    FILE_TYPE_INTERNET_SHORTCUT = 612;
+    FILE_TYPE_CAP = 700;
+    FILE_TYPE_ISOIMAGE = 800;
+    FILE_TYPE_SQUASHFS = 801;
+    FILE_TYPE_VHD = 802;
+    FILE_TYPE_APPLE = 1000;
+    FILE_TYPE_MACINTOSH = 1001;
+    FILE_TYPE_APPLESINGLE = 1002;
+    FILE_TYPE_APPLEDOUBLE = 1003;
+    FILE_TYPE_MACINTOSH_HFS = 1004;
+    FILE_TYPE_APPLE_PLIST = 1005;
+    FILE_TYPE_MACINTOSH_LIB = 1006;
+    FILE_TYPE_APPLESCRIPT = 1007;
+    FILE_TYPE_APPLESCRIPT_COMPILED = 1008;
+    FILE_TYPE_CRX = 1100;
+    FILE_TYPE_XPI = 1101;
+    FILE_TYPE_ROM = 1200;
+    FILE_TYPE_IPS = 1201;
+    FILE_TYPE_PEM = 1300;
+    FILE_TYPE_PGP = 1301;
+    FILE_TYPE_CRT = 1302;
+  }
+
+  string sha256 = 1;
+  string md5 = 2;
+  string sha1 = 3;
+  uint64 size = 4;
+  string full_path = 5;
+  string mime_type = 6;
+  FileMetadata file_metadata = 7;
+  SecurityResult security_result = 8;
+  FileMetadataPE pe_file = 9;
+  string ssdeep = 10;
+  string vhash = 11;
+  string ahash = 12;
+  string authentihash = 13;
+  string symhash = 14;
+  PrefetchFileMetadata prefetch_file_metadata = 15;
+  FileType file_type = 16;
+  repeated string capabilities_tags = 17;
+  repeated string names = 18;
+  repeated string tags = 19;
+  google.protobuf.Timestamp last_modification_time = 20;
+  google.protobuf.Timestamp create_time = 21;
+  google.protobuf.Timestamp last_access_time = 22;
+  Prevalence prevalence = 23;
+  google.protobuf.Timestamp first_seen_time = 24;
+  google.protobuf.Timestamp last_seen_time = 25;
+  uint64 stat_mode = 26;
+  uint64 stat_inode = 27;
+  uint64 stat_dev = 28;
+  uint64 stat_nlink = 29;
+  uint32 stat_flags = 30;
+  google.protobuf.Timestamp last_analysis_time = 31;
+  repeated string embedded_urls = 32;
+  repeated string embedded_domains = 33;
+  repeated string embedded_ips = 34;
+  ExifInfo exif_info = 35;
+  SignatureInfo signature_info = 36;
+  PDFInfo pdf_info = 37;
+  google.protobuf.Timestamp first_submission_time = 38;
+  google.protobuf.Timestamp last_submission_time = 39;
+  Favicon main_icon = 40;
+  NtfsFileMetadata ntfs = 41;
+  AppCompatMetadata app_compat_cache = 42;
+}
+
+message FileMetadata {
+  PeFileMetadata pe = 1;
+}
+
+message FileMetadataCodesign {
+  string id = 1;
+  string format = 2;
+  google.protobuf.Timestamp compilation_time = 3;
+  string team_id = 4;
+}
+
+message FileMetadataImports {
+  string library = 1;
+  repeated string functions = 2;
+}
+
+message FileMetadataPE {
+  string imphash = 1;
+  int64 entry_point = 2;
+  int64 entry_point_exiftool = 3;
+  google.protobuf.Timestamp compilation_time = 4;
+  google.protobuf.Timestamp compilation_exiftool_time = 5;
+  repeated FileMetadataSection section = 6;
+  repeated FileMetadataImports imports = 7;
+  repeated FileMetadataPeResourceInfo resource = 8;
+  repeated StringToInt64MapEntry resources_type_count = 9;
+  repeated StringToInt64MapEntry resources_language_count = 10;
+  repeated Label resources_type_count_str = 11;
+  repeated Label resources_language_count_str = 12;
+  FileMetadataSignatureInfo signature_info = 13;
+}
+
+message FileMetadataPeResourceInfo {
+  string sha256_hex = 1;
+  string filetype_magic = 2;
+  string language_code = 3;
+  double entropy = 4;
+  string file_type = 5;
+}
+
+message FileMetadataSection {
+  string name = 1;
+  double entropy = 2;
+  int64 raw_size_bytes = 3;
+  int64 virtual_size_bytes = 4;
+  string md5_hex = 5;
+}
+
+message FileMetadataSignatureInfo {
+  string verification_message = 1;
+  bool verified = 2;
+  repeated string signer = 3;
+  repeated SignerInfo signers = 4;
+  repeated X509 x509 = 5;
+}
+
+message FindingVariable {
+  enum Type {
+    TYPE_UNSPECIFIED = 0;
+    MATCH = 1;
+    OUTCOME = 2;
+  }
+
+  Type type = 1;
+  string value = 2;
+  string source_path = 3;
+  bool bool_val = 4;
+  bytes bytes_val = 5;
+  double double_val = 6;
+  int64 int64_val = 7;
+  uint64 uint64_val = 8;
+  string string_val = 9;
+  google.protobuf.Timestamp timestamp_time = 10;
+  bool null_val = 11;
+  BoolSequence bool_seq = 12;
+  BytesSequence bytes_seq = 13;
+  DoubleSequence double_seq = 14;
+  Int64Sequence int64_seq = 15;
+  Uint64Sequence uint64_seq = 16;
+  StringSequence string_seq = 17;
+}
+
+message Ftp {
+  string command = 1;
+}
+
+message Group {
+  string product_object_id = 1;
+  google.protobuf.Timestamp creation_time = 2;
+  string group_display_name = 3;
+  Attribute attribute = 4;
+  repeated string email_addresses = 5;
+  string windows_sid = 6;
+}
+
+message GroupedFields {
+  repeated string ip = 1;
+  repeated string domain = 2;
+  repeated string hostname = 3;
+  repeated string user = 4;
+  repeated string email = 5;
+  repeated string file_path = 6;
+  repeated string hash = 7;
+  repeated string process_id = 8;
+}
+
+message Hardware {
+  string serial_number = 1;
+  string manufacturer = 2;
+  string model = 3;
+  string cpu_platform = 4;
+  string cpu_model = 5;
+  uint64 cpu_clock_speed = 6;
+  uint64 cpu_max_clock_speed = 7;
+  uint64 cpu_number_cores = 8;
+  uint64 ram = 9;
+}
+
+message Http {
+  string method = 1;
+  string referral_url = 2;
+  string user_agent = 3;
+  int32 response_code = 4;
+  string parsed_user_agent = 5;
+}
+
+message Int64Sequence {
+  repeated int64 int64_vals = 1;
+}
+
+message Investigation {
+  Verdict verdict = 1;
+  Reputation reputation = 2;
+  uint32 severity_score = 3;
+  Status status = 4;
+  repeated string comments = 5;
+  Priority priority = 6;
+  string root_cause = 7;
+  Reason reason = 8;
+  uint32 risk_score = 9;
+  string id = 10;
+}
+
+message Label {
+  string key = 1;
+  string value = 2;
+  string source = 3;
+  bool rbac_enabled = 4;
+}
+
+message LinuxUtmp {
+  enum RecordType {
+    RECORD_TYPE_UNSPECIFIED = 0;
+    RUN_LVL = 1;
+    BOOT_TIME = 2;
+    NEW_TIME = 3;
+    OLD_TIME = 4;
+    INIT_PROCESS = 5;
+    LOGIN_PROCESS = 6;
+    USER_PROCESS = 7;
+    DEAD_PROCESS = 8;
+    ACCOUNTING = 9;
+  }
+
+  RecordType record_type = 1;
+}
+
+message Location {
+  string city = 1;
+  string state = 2;
+  string country_or_region = 3;
+  string name = 4;
+  string desk_name = 5;
+  string floor_name = 6;
+  float region_latitude = 7;
+  float region_longitude = 8;
+  google.type.LatLng region_coordinates = 9;
+}
+
+message NtfsFileMetadata {
+  google.protobuf.Timestamp change_time = 1;
+  google.protobuf.Timestamp filename_create_time = 2;
+  google.protobuf.Timestamp filename_modify_time = 3;
+  google.protobuf.Timestamp filename_access_time = 4;
+  google.protobuf.Timestamp filename_change_time = 5;
+  repeated UsnJournal usn_journal = 6;
+}
+
+message OutlookMetadata {
+  string comment = 1;
+  string template = 2;
+  string title = 3;
+  int32 security_flags_count = 4;
+}
+
+message PDFInfo {
+  int64 js = 1;
+  int64 javascript = 2;
+  int64 launch_action_count = 3;
+  int64 object_stream_count = 4;
+  int64 endobj_count = 5;
+  string header = 6;
+  int64 acroform = 7;
+  int64 autoaction = 8;
+  int64 embedded_file = 9;
+  int64 encrypted = 10;
+  int64 flash = 11;
+  int64 jbig2_compression = 12;
+  int64 obj_count = 13;
+  int64 endstream_count = 14;
+  int64 page_count = 15;
+  int64 stream_count = 16;
+  int64 openaction = 17;
+  int64 startxref = 18;
+  int64 suspicious_colors = 19;
+  int64 trailer = 20;
+  int64 xfa = 21;
+  int64 xref = 22;
+}
+
+message PeFileMetadata {
+  string import_hash = 1;
+}
+
+message Permission {
+  enum PermissionType {
+    UNKNOWN_PERMISSION_TYPE = 0;
+    ADMIN_WRITE = 1;
+    ADMIN_READ = 2;
+    DATA_WRITE = 3;
+    DATA_READ = 4;
+  }
+
+  string name = 1;
+  string description = 2;
+  PermissionType type = 3;
+}
+
+message PlatformSoftware {
+  Noun.Platform platform = 1;
+  string platform_version = 2;
+  string platform_patch_level = 3;
+}
+
+message PopularityRank {
+  string giver = 1;
+  int64 rank = 2;
+  google.protobuf.Timestamp ingestion_time = 3;
+}
+
+message PrefetchFileMetadata {
+  int64 run_count = 1;
+  string prefetch_hash = 2;
+}
+
+message Prevalence {
+  int32 rolling_max = 1;
+  int32 day_count = 2;
+  int32 rolling_max_sub_domains = 3;
+  int32 day_max = 4;
+  int32 day_max_sub_domains = 5;
+}
+
+message Process {
+  enum State {
+    STATE_UNSPECIFIED = 0;
+    RUNNING = 1;
+    SLEEPING = 2;
+    DISK_SLEEP = 3;
+    STOPPED = 4;
+    TRACING_STOP = 5;
+    ZOMBIE = 6;
+    DEAD = 7;
+    WAKE_KILL = 8;
+    WAKING = 9;
+    PARKED = 10;
+    IDLE = 11;
+    LOCKED = 12;
+    WAITING = 13;
+    SUSPENDED = 14;
+  }
+
+  enum TokenElevationType {
+    UNKNOWN = 0;
+    TYPE_1 = 1;
+    TYPE_2 = 2;
+    TYPE_3 = 3;
+  }
+
+  string pid = 1;
+  string parent_pid = 2;
+  Process parent_process = 3;
+  File file = 4;
+  string command_line = 5;
+  repeated string command_line_history = 6;
+  string product_specific_process_id = 7;
+  uint64 access_mask = 8;
+  uint64 integrity_level_rid = 9;
+  string euid = 10;
+  string ruid = 11;
+  string egid = 12;
+  string rgid = 13;
+  string pgid = 14;
+  string session_leader_pid = 15;
+  string tty = 16;
+  TokenElevationType token_elevation_type = 17;
+  string product_specific_parent_process_id = 18;
+  bool ipv6 = 19;
+  int64 kernel_duration = 20;
+  int64 user_duration = 21;
+  int64 real_duration = 22;
+  State state = 23;
+}
+
+message ProxyInfo {
+  bool anonymous = 1;
+  bool anonymous_vpn = 2;
+  bool public_proxy = 3;
+  bool tor_exit_node = 4;
+  bool smart_dns_proxy = 5;
+  bool hosting_provider = 6;
+  bool vpn_datacenter = 7;
+  bool residential_proxy = 8;
+  string vpn_service_name = 9;
+  bool proxy_over_vpn = 10;
+  bool relay_proxy = 11;
+}
+
+message Registry {
+  enum Type {
+    TYPE_UNSPECIFIED = 0;
+    NONE = 1;
+    SZ = 2;
+    EXPAND_SZ = 3;
+    BINARY = 4;
+    DWORD = 5;
+    DWORD_LITTLE_ENDIAN = 6;
+    DWORD_BIG_ENDIAN = 7;
+    LINK = 8;
+    MULTI_SZ = 9;
+    RESOURCE_LIST = 10;
+    QWORD = 11;
+    QWORD_LITTLE_ENDIAN = 12;
+  }
+
+  string registry_key = 1;
+  string registry_value_name = 2;
+  string registry_value_data = 3;
+  Type registry_value_type = 4;
+  bytes registry_value_binary_data = 5;
+}
+
+message Resource {
+  enum ResourceType {
+    UNSPECIFIED = 0;
+    MUTEX = 1;
+    TASK = 2;
+    PIPE = 3;
+    DEVICE = 4;
+    FIREWALL_RULE = 5;
+    MAILBOX_FOLDER = 6;
+    VPC_NETWORK = 7;
+    VIRTUAL_MACHINE = 8;
+    STORAGE_BUCKET = 9;
+    STORAGE_OBJECT = 10;
+    DATABASE = 11;
+    TABLE = 12;
+    CLOUD_PROJECT = 13;
+    CLOUD_ORGANIZATION = 14;
+    SERVICE_ACCOUNT = 15;
+    ACCESS_POLICY = 16;
+    CLUSTER = 17;
+    SETTING = 18;
+    DATASET = 19;
+    BACKEND_SERVICE = 20;
+    POD = 21;
+    CONTAINER = 22;
+    FUNCTION = 23;
+    RUNTIME = 24;
+    IP_ADDRESS = 25;
+    DISK = 26;
+    VOLUME = 27;
+    IMAGE = 28;
+    SNAPSHOT = 29;
+    REPOSITORY = 30;
+    CREDENTIAL = 31;
+    LOAD_BALANCER = 32;
+    GATEWAY = 33;
+    SUBNET = 34;
+    USER = 35;
+    SERVICE = 36;
+  }
+
+  string type = 1;
+  ResourceType resource_type = 2;
+  string resource_subtype = 3;
+  string id = 4;
+  string name = 5;
+  string parent = 6;
+  string product_object_id = 7;
+  Attribute attribute = 8;
+  ScheduledTask scheduled_task = 9;
+  ScheduledCronTask scheduled_cron_task = 10;
+  ScheduledAnacronTask scheduled_anacron_task = 11;
+  WindowsScheduledTask windows_scheduled_task = 12;
+  Volume volume = 13;
+  Service service = 14;
+}
+
+message ResourceUsage {
+  string used_entity = 1;
+  string used_entity_id = 2;
+}
+
+message Role {
+  enum Type {
+    TYPE_UNSPECIFIED = 0;
+    ADMINISTRATOR = 1;
+    SERVICE_ACCOUNT = 2;
+  }
+
+  string name = 1;
+  string description = 2;
+  Type type = 3;
+}
+
+message SSLCertificate {
+  message AuthorityKeyId {
+    string keyid = 1;
+    string serial_number = 2;
+  }
+
+  message CertSignature {
+    string signature = 1;
+    string signature_algorithm = 2;
+  }
+
+  message DSA {
+    string p = 1;
+    string q = 2;
+    string g = 3;
+    string pub = 4;
+  }
+
+  message EC {
+    string oid = 1;
+    string pub = 2;
+  }
+
+  message Extension {
+    bool ca = 1;
+    string subject_key_id = 2;
+    SSLCertificate.AuthorityKeyId authority_key_id = 3;
+    string key_usage = 4;
+    string ca_info_access = 5;
+    string crl_distribution_points = 6;
+    string extended_key_usage = 7;
+    string subject_alternative_name = 8;
+    string certificate_policies = 9;
+    string netscape_cert_comment = 10;
+    string cert_template_name_dc = 11;
+    bool netscape_certificate = 12;
+    bool pe_logotype = 13;
+    bool old_authority_key_id = 14;
+  }
+
+  message PublicKey {
+    string algorithm = 1;
+    SSLCertificate.RSA rsa = 2;
+  }
+
+  message RSA {
+    int64 key_size = 1;
+    string modulus = 2;
+    string exponent = 3;
+  }
+
+  message Subject {
+    string country_name = 1;
+    string common_name = 2;
+    string locality = 3;
+    string organization = 4;
+    string organizational_unit = 5;
+    string state_or_province_name = 6;
+  }
+
+  message Validity {
+    google.protobuf.Timestamp expiry_time = 1;
+    google.protobuf.Timestamp issue_time = 2;
+  }
+
+  CertSignature cert_signature = 1;
+  Extension extension = 2;
+  google.protobuf.Struct cert_extensions = 3;
+  google.protobuf.Timestamp first_seen_time = 4;
+  Subject issuer = 5;
+  EC ec = 6;
+  string serial_number = 7;
+  string signature_algorithm = 8;
+  int64 size = 9;
+  Subject subject = 10;
+  string thumbprint = 11;
+  string thumbprint_sha256 = 12;
+  Validity validity = 13;
+  string version = 14;
+  PublicKey public_key = 15;
+}
+
+message ScheduledAnacronTask {
+  string period = 1;
+  int64 delay_minutes = 2;
+  string job_id = 3;
+  string path = 4;
+  string source_line = 5;
+}
+
+message ScheduledCronTask {
+  string minute = 1;
+  string hour = 2;
+  string month_day = 3;
+  string month = 4;
+  string week_day = 5;
+  string comment = 6;
+  string author = 7;
+  string event = 8;
+  string path = 9;
+}
+
+message ScheduledTask {
+  int32 minute = 1;
+  int32 hour = 2;
+  int32 month_day = 3;
+  int32 month = 4;
+  int32 week_day = 5;
+  string comment = 6;
+  string author = 7;
+}
+
+message Service {
+  enum ServiceType {
+    SERVICE_TYPE_UNSPECIFIED = 0;
+    KERNEL_DRIVER = 1;
+    FILE_SYSTEM_DRIVER = 2;
+    WIN32_OWN_PROCESS = 3;
+    WIN32_SHARE_PROCESS = 4;
+    ADAPTER = 5;
+    RECOGNIZER_DRIVER = 6;
+    INTERACTIVE_PROCESS = 7;
+  }
+
+  enum StartupType {
+    STARTUP_TYPE_UNSPECIFIED = 0;
+    AUTOMATIC = 1;
+    MANUAL = 2;
+    DISABLED = 3;
+  }
+
+  enum State {
+    STATE_UNSPECIFIED = 0;
+    RUNNING = 1;
+    STOPPED = 2;
+    PAUSED = 3;
+    COMPLETED = 4;
+    START_PENDING = 5;
+    STOP_PENDING = 6;
+    PAUSE_PENDING = 7;
+    CONTINUE_PENDING = 8;
+  }
+
+  string display_name = 1;
+  ServiceType service_type = 2;
+  repeated ServiceType service_types = 3;
+  StartupType startup_type = 4;
+  State state = 5;
+}
+
+message SignatureInfo {
+  FileMetadataSignatureInfo sigcheck = 1;
+  FileMetadataCodesign codesign = 2;
+}
+
+message SignerInfo {
+  string name = 1;
+  string status = 2;
+  string valid_usage = 3;
+  string cert_issuer = 4;
+}
+
+message Smtp {
+  string helo = 1;
+  string mail_from = 2;
+  repeated string rcpt_to = 3;
+  repeated string server_response = 4;
+  string message_path = 5;
+  bool is_webmail = 6;
+  bool is_tls = 7;
+}
+
+message Software {
+  string name = 1;
+  string version = 2;
+  repeated Permission permissions = 3;
+  string description = 4;
+  string vendor_name = 5;
+}
+
+message Srum {
+  string id = 1;
+  int64 background_bytes_read = 2;
+  int64 background_bytes_written = 3;
+  int64 background_context_switches = 4;
+  int64 background_cycle_count = 5;
+  int64 background_flushes_count = 6;
+  int64 background_read_operations = 7;
+  int64 background_write_operations = 8;
+  string interface_luid = 9;
+}
+
+message StringSequence {
+  repeated string string_vals = 1;
+}
+
+message StringToInt64MapEntry {
+  string key = 1;
+  int64 value = 2;
+}
+
+message SystemEventDetails {
+  string message_type = 1;
+  string sender_image_id = 2;
+  string subsystem = 3;
+}
+
+message Tags {
+  repeated bytes tenant_id = 1;
+  repeated string data_tap_config_name = 2;
+}
+
+message TimeOff {
+  google.type.Interval interval = 1;
+  string description = 2;
+}
+
+message Tls {
+  message Client {
+    Certificate certificate = 1;
+    string ja3 = 2;
+    string server_name = 3;
+    repeated string supported_ciphers = 4;
+    string ja4 = 5;
+  }
+
+  message Server {
+    Certificate certificate = 1;
+    string ja3s = 2;
+    string ja4s = 3;
+  }
+
+  Client client = 1;
+  Server server = 2;
+  string cipher = 3;
+  string curve = 4;
+  string version = 5;
+  string version_protocol = 6;
+  bool established = 7;
+  string next_protocol = 8;
+  bool resumed = 9;
+}
+
+message Tracker {
+  string tracker = 1;
+  string id = 2;
+  google.protobuf.Timestamp timestamp = 3;
+  string url = 4;
+}
+
+message Tunnels {
+  string provider = 1;
+  string type = 2;
+}
+
+message Uint64Sequence {
+  repeated uint64 uint64_vals = 1;
+}
+
+message Url {
+  string url = 1;
+  repeated string categories = 2;
+  Favicon favicon = 3;
+  google.protobuf.Struct html_meta = 4;
+  string last_final_url = 5;
+  int32 last_http_response_code = 6;
+  int64 last_http_response_content_length = 7;
+  string last_http_response_content_sha256 = 8;
+  google.protobuf.Struct last_http_response_cookies = 9;
+  google.protobuf.Struct last_http_response_headers = 10;
+  repeated string tags = 11;
+  string title = 12;
+  repeated Tracker trackers = 13;
+}
+
+message User {
+  enum AccountType {
+    ACCOUNT_TYPE_UNSPECIFIED = 0;
+    DOMAIN_ACCOUNT_TYPE = 1;
+    LOCAL_ACCOUNT_TYPE = 2;
+    CLOUD_ACCOUNT_TYPE = 3;
+    SERVICE_ACCOUNT_TYPE = 4;
+    DEFAULT_ACCOUNT_TYPE = 5;
+  }
+
+  enum Role {
+    UNKNOWN_ROLE = 0;
+    ADMINISTRATOR = 1;
+    SERVICE_ACCOUNT = 2;
+  }
+
+  string product_object_id = 1;
+  string userid = 2;
+  string user_display_name = 3;
+  string first_name = 4;
+  string middle_name = 5;
+  string last_name = 6;
+  repeated string phone_numbers = 7;
+  Location personal_address = 8;
+  Attribute attribute = 9;
+  google.protobuf.Timestamp first_seen_time = 10;
+  AccountType account_type = 11;
+  string groupid = 12;
+  repeated string group_identifiers = 13;
+  string windows_sid = 14;
+  repeated string email_addresses = 15;
+  string employee_id = 16;
+  string title = 17;
+  string company_name = 18;
+  repeated string department = 19;
+  Location office_address = 20;
+  repeated User managers = 21;
+  google.protobuf.Timestamp hire_date = 22;
+  google.protobuf.Timestamp termination_date = 23;
+  repeated TimeOff time_off = 24;
+  google.protobuf.Timestamp last_login_time = 25;
+  google.protobuf.Timestamp last_password_change_time = 26;
+  google.protobuf.Timestamp password_expiration_time = 27;
+  google.protobuf.Timestamp account_expiration_time = 28;
+  google.protobuf.Timestamp account_lockout_time = 29;
+  google.protobuf.Timestamp last_bad_password_attempt_time = 30;
+  Authentication.AuthenticationStatus user_authentication_status = 31;
+  string role_name = 32;
+  string role_description = 33;
+  Role user_role = 34;
+}
+
+message UserAssist {
+  int64 application_focus_count = 1;
+  int64 application_focus_duration = 2;
+  int64 executions_count = 3;
+  int64 entry_index = 4;
+}
+
+message UsnJournal {
+  enum Attribute {
+    ATTRIBUTE_UNSPECIFIED = 0;
+    READ_ONLY = 1;
+    HIDDEN = 2;
+    SYSTEM = 3;
+    ARCHIVE = 4;
+    COMPRESSED = 5;
+    ENCRYPTED = 6;
+    DIRECTORY = 7;
+    DEVICE = 8;
+    NORMAL = 9;
+    TEMPORARY = 10;
+    SPARSE_FILE = 11;
+    REPARSE_POINT = 12;
+    OFFLINE = 13;
+    NOT_CONTENT_INDEXED = 14;
+    NON_CONTENT_INDEXED = 14;
+    INTEGRITY_STREAM = 15;
+    VIRTUAL = 16;
+    NO_SCRUB_DATA = 17;
+    EA = 18;
+    PINNED = 19;
+    UNPINNED = 20;
+    RECALL_ON_OPEN = 21;
+    RECALL_ON_DATA_ACCESS = 22;
+  }
+
+  enum Reason {
+    REASON_UNSPECIFIED = 0;
+    DATA_OVERWRITE = 1;
+    DATA_EXTEND = 2;
+    DATA_TRUNCATION = 3;
+    NAMED_DATA_OVERWRITE = 4;
+    NAMED_DATA_EXTEND = 5;
+    NAMED_DATA_TRUNCATION = 6;
+    FILE_CREATE = 7;
+    FILE_DELETE = 8;
+    EA_CHANGE = 9;
+    SECURITY_CHANGE = 10;
+    RENAME_OLD_NAME = 11;
+    RENAME_NEW_NAME = 12;
+    INDEXABLE_CHANGE = 13;
+    BASIC_INFO_CHANGE = 14;
+    HARD_LINK_CHANGE = 15;
+    COMPRESSION_CHANGE = 16;
+    ENCRYPTION_CHANGE = 17;
+    OBJECT_ID_CHANGE = 18;
+    REPARSE_POINT_CHANGE = 19;
+    STREAM_CHANGE = 20;
+    TRANSACTED_CHANGE = 21;
+    CLOSE = 22;
+  }
+
+  string attributes_flag = 1;
+  Attribute attributes = 2;
+  repeated Attribute file_attributes = 3;
+  bool allocated = 4;
+  Reason reason = 5;
+  repeated Reason reasons = 6;
+}
+
+message Volume {
+  string file_system = 1;
+  string mount_point = 2;
+  string device_path = 3;
+  bool is_mounted = 4;
+  bool is_read_only = 5;
+  string name = 6;
+}
+
+message Vulnerabilities {
+  repeated Vulnerability vulnerabilities = 1;
+}
+
+message Vulnerability {
+  enum Severity {
+    UNKNOWN_SEVERITY = 0;
+    LOW = 1;
+    MEDIUM = 2;
+    HIGH = 3;
+    CRITICAL = 4;
+  }
+
+  Noun about = 1;
+  string name = 2;
+  string description = 3;
+  string vendor = 4;
+  google.protobuf.Timestamp scan_start_time = 5;
+  google.protobuf.Timestamp scan_end_time = 6;
+  google.protobuf.Timestamp first_found = 7;
+  google.protobuf.Timestamp last_found = 8;
+  Severity severity = 9;
+  string severity_details = 10;
+  float cvss_base_score = 11;
+  string cvss_vector = 12;
+  string cvss_version = 13;
+  string cve_id = 14;
+  string cve_description = 15;
+  string vendor_vulnerability_id = 16;
+  string vendor_knowledge_base_article_id = 17;
+}
+
+message WindowsEventLog {
+  enum Channel {
+    CHANNEL_UNSPECIFIED = 0;
+    SECURITY = 1;
+    SYSTEM = 2;
+    APPLICATION = 3;
+    SETUP = 4;
+    FORWARDED_EVENTS = 5;
+    OTHER = 6;
+  }
+
+  Channel channel = 1;
+  string event_id = 2;
+  string activity_id = 3;
+}
+
+message WindowsScheduledTask {
+  enum TaskLogonType {
+    TASK_LOGON_TYPE_UNSPECIFIED = 0;
+    PASSWORD = 1;
+    S4U = 2;
+    INTERACTIVE_TOKEN = 3;
+    GROUP = 4;
+    SERVICE_ACCOUNT = 5;
+    INTERACTIVE_TOKEN_OR_PASSWORD = 6;
+  }
+
+  enum TaskState {
+    TASK_STATE_UNSPECIFIED = 0;
+    DISABLED = 1;
+    QUEUED = 2;
+    ACTIVE = 3;
+    RUNNING = 4;
+  }
+
+  message TaskAction {
+    WindowsScheduledTask.TaskAction.ActionType action_type = 1;
+    repeated string exec_arguments = 2;
+    string exec_working_directory = 3;
+    string com_class_id = 4;
+    string com_data = 5;
+  }
+
+  message TaskTrigger {
+    bool enabled = 1;
+    int64 duration = 2;
+    string interval = 3;
+    WindowsScheduledTask.TaskTrigger.TriggerType trigger_type = 4;
+  }
+
+  string author = 1;
+  string virtual_path = 2;
+  int32 exit_code = 3;
+  TaskState state = 4;
+  TaskLogonType logon_type = 5;
+  repeated TaskAction task_actions = 6;
+  repeated TaskTrigger task_triggers = 7;
+}
+
+message WmiPersistenceItem {
+  string caption = 1;
+  string name = 2;
+  string setting_id = 3;
+  string derivation = 4;
+  int64 property_count = 5;
+  string rel_path = 6;
+  string dynasty = 7;
+  string wmi_super_class = 8;
+  string wmi_class = 9;
+  int64 genus = 10;
+}
+
+message X509 {
+  string name = 1;
+  string algorithm = 2;
+  string thumbprint = 3;
+  string cert_issuer = 4;
+  string serial_number = 5;
+}
+
+message DataAccessIngestionLabel {
+  string key = 1;
+  string value = 2;
+}
+
+message DataAccessLabels {
+  repeated string log_types = 1;
+  repeated string ingestion_labels = 2;
+  repeated string namespaces = 3;
+  repeated string custom_labels = 4;
+  repeated DataAccessIngestionLabel ingestion_kv_labels = 5;
+  bool allow_scoped_access = 6;
+}
+
+
+// Missing types appended to make proto valid
+message Id {}

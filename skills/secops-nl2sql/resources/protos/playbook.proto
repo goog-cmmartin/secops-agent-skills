@@ -1,0 +1,86 @@
+syntax = "proto3";
+
+package chronicle.playbook.v1alpha;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+import "case.proto";
+
+// PlaybookInstance represents an execution instance run of a SOAR Playbook in Google SecOps.
+// Refer to https://docs.cloud.google.com/chronicle/docs/reference/soar-data-dashboard#playbook
+message PlaybookInstance {
+  string name = 1; // Unique identifier (GUID) of the SOAR playbook instance run
+  google.protobuf.Timestamp create_time = 2; // Timestamp when the playbook instance was created
+  google.protobuf.Timestamp start_time = 3; // Timestamp when the playbook execution started
+  google.protobuf.Timestamp end_time = 4; // Timestamp when the playbook execution ended
+  PlaybookStatusEnum status = 5; // Current status of the playbook execution
+  string display_name = 6; // Display name of the playbook instance
+  bool debug = 7; // Indicates whether the playbook instance is running in debug mode
+  bool simulated = 8; // Indicates whether the playbook instance is a simulated run
+  string block_step_id = 9; // Block step ID associated with this playbook instance
+  ResourceResponsePlatformInfo alert = 10; // Alert associated with this playbook run instance
+  ResourceResponsePlatformInfo case_response_platform_info = 11; // Information about the associated SOAR case
+  SOARPlaybookDefinition metadata = 12; // Playbook definition associated with this playbook instance
+  repeated SOARAction action = 13; // Actions associated with this playbook instance
+}
+
+// SOARPlaybookDefinition represents the metadata definition of a SOAR Playbook.
+message SOARPlaybookDefinition {
+  string name = 1; // Unique identifier (GUID) of the SOAR playbook definition
+  string display_name = 2; // Human-readable name for the playbook definition
+  string description = 3; // Description of the playbook purpose or functionality
+  bool enabled = 4; // Indicates whether the playbook definition is enabled
+  bool archived = 5; // Indicates whether the playbook definition is archived
+  bool automatic = 6; // Indicates whether triggered automatically or manually
+  repeated string environments = 7; // Applicable environments for the playbook definition
+  double version = 8; // Version number of the playbook definition
+  int32 priority = 9; // Priority level assigned to the playbook
+  PlaybookTypeEnum type = 10; // Type of the SOAR playbook (REGULAR, NESTED)
+  bool debug_mode = 11; // Indicates whether in debug mode
+  string template_name = 12; // Name of the template the playbook is based on
+  SOARUser author = 13; // User who created the playbook definition
+  SOARUser last_editor = 14; // User who last edited the playbook definition
+  SOARUser version_author = 15; // User who created the current version
+  string version_comment = 16; // Comment associated with current version
+}
+
+// SOARAction represents an action step within a SOAR Playbook execution.
+message SOARAction {
+  string name = 1; // Unique identifier (GUID) for the SOAR action
+  string integration = 2; // Integration used to execute this action
+  string action = 3; // Name of the action
+  ActionStatusEnum status = 4; // Current status of the action
+  string result_message = 5; // Details about the action outcome or errors
+  string result_value = 6; // Actual result value produced by the action
+  bool automatic = 7; // Indicates whether executed automatically or manually
+  google.protobuf.Timestamp create_time = 8; // Timestamp when action was created
+  string step_id = 9; // Identifier of step associated with this action
+  string step = 10; // Name of step associated with this action
+  string entity_id = 11; // Identifier of entity associated with this action
+  string instance = 12; // Name of instance associated with this action
+  google.protobuf.Duration execution_time_ms = 13; // Time taken to execute action
+}
+
+enum PlaybookStatusEnum {
+  PLAYBOOK_STATUS_UNSPECIFIED = 0;
+  PLAYBOOK_STATUS_RUNNING = 1;
+  PLAYBOOK_STATUS_SUCCESS = 2;
+  PLAYBOOK_STATUS_FAILED = 3;
+  PLAYBOOK_STATUS_CANCELLED = 4;
+  PLAYBOOK_STATUS_COMPLETED = 5;
+}
+
+enum PlaybookTypeEnum {
+  PLAYBOOK_TYPE_UNSPECIFIED = 0;
+  REGULAR = 1;
+  NESTED = 2;
+}
+
+enum ActionStatusEnum {
+  ACTION_STATUS_UNSPECIFIED = 0;
+  ACTION_STATUS_PENDING = 1;
+  ACTION_STATUS_RUNNING = 2;
+  ACTION_STATUS_SUCCESS = 3;
+  ACTION_STATUS_FAILED = 4;
+  ACTION_STATUS_SKIPPED = 5;
+}

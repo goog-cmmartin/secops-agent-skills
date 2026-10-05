@@ -1,0 +1,159 @@
+syntax = "proto3";
+
+package chronicle.ingestion.v1alpha;
+
+import "google/protobuf/timestamp.proto";
+
+// IngestionMetric represents the unified Ingestion Metrics schema in Google SecOps.
+// Refer to https://docs.cloud.google.com/chronicle/docs/reference/ingestion-metrics-schema
+message IngestionMetric {
+  string component = 1; // Component/pipeline type (e.g. Forwarder, Ingestion API, Collection Agent, Normalizer, Out-of-band Processor)
+  string collector_id = 2; // Unique identifier of the collection mechanism / forwarder / API feed
+  string feed_id = 3; // Identifier of the specific feed (for Out-of-band Processor)
+  string log_type = 4; // Log source type (e.g. WINDOWS_DNS, PCAP_DNS)
+  string input_type = 5; // Forwarder input type (pcap, syslog, splunk)
+  string namespace = 6; // Namespace that the log belongs to
+  string ingestion_source = 7; // Ingestion source label
+  string state = 8; // Normalizer final status (parsed, validated, failed_parsing, failed_validation, failed_indexing)
+  string event_type = 9; // Event type (EDR, WEBPROXY, ASSET_CONTEXT)
+  string drop_reason_code = 10; // Reason for dropping the log
+  string buffer_type = 11; // Buffer type used in forwarder
+  string health_status = 12; // Overall health (HEALTHY, ANOMALOUS, CRITICAL)
+  string issue = 13; // Pipeline issue details
+
+  // Volume and Metrics (double / FLOAT64)
+  double log_volume = 14; // Size of logs received/ingested, in bytes
+  double log_count = 15; // Number of logs received/ingested
+  double event_count = 16; // Number of events generated during interval
+  double drop_count = 17; // Number of logs dropped
+  double quota_limit_per_second = 18; // Quota limit set by customer
+  double quota_rejected_long_term_log_volume = 19; // Volume rejected due to long-term quota limit
+  double quota_rejected_short_term_log_volume = 20; // Volume rejected due to short-term quota limit
+
+  // Forwarder & Agent Performance Metrics
+  double memory_used = 21; // Percentage or kilobytes of memory used
+  double disk_used = 22; // Percentage of disk used
+  double cpu_used = 23; // Percentage or CPU time used
+  double buffer_used = 24; // Percentage or queue size of buffer used
+  double buffer_capacity = 25; // Queue capacity of exporter
+  double process_uptime = 26; // Agent process uptime in seconds
+
+  // Normalizer Latency Distribution Metrics
+  double latency_count = 27; // Number of values in latency distribution
+  double buckets = 28; // Number of values in each bucket
+  double bucketer_num_finite_buckets = 29; // Number of buckets in latency distribution
+  double bucketer_growth_factor = 30; // Bucketer growth factor
+  double bucketer_scale_factor = 31; // Bucketer scale factor
+  double latency_overflow = 32; // Overflow bucket value
+  double latency_underflow = 33; // Underflow bucket value
+
+  // Timestamps
+  google.protobuf.Timestamp start_time = 34; // Interval start timestamp
+  google.protobuf.Timestamp end_time = 35; // Interval end timestamp
+  google.protobuf.Timestamp last_heartbeat_time = 36; // Last active timestamp
+  google.protobuf.Timestamp last_collection_time = 37; // Timestamp when log entry was fetched from source
+  google.protobuf.Timestamp last_event_time = 38; // Epoch timestamp of latest log entry
+  google.protobuf.Timestamp last_normalization_time = 39; // Timestamp when log entry was parsed
+}
+
+// Specific Component Schemas
+message ForwarderIngestion {
+  string component = 1;
+  string collector_id = 2;
+  string log_type = 3;
+  string input_type = 4;
+  string drop_reason_code = 5;
+  google.protobuf.Timestamp last_heartbeat_time = 6;
+  double log_volume = 7;
+  double drop_count = 8;
+  double log_count = 9;
+  double memory_used = 10;
+  double disk_used = 11;
+  double cpu_used = 12;
+  double buffer_used = 13;
+  string buffer_type = 14;
+}
+
+message IngestionApiMetric {
+  string component = 1;
+  string collector_id = 2;
+  string log_type = 3;
+  string namespace = 4;
+  double log_volume = 5;
+  double log_count = 6;
+  double quota_limit_per_second = 7;
+  double quota_rejected_long_term_log_volume = 8;
+  double quota_rejected_short_term_log_volume = 9;
+  string ingestion_source = 10;
+  google.protobuf.Timestamp last_collection_time = 11;
+  string health_status = 12;
+  string issue = 13;
+}
+
+message CollectionAgentMetric {
+  string component = 1;
+  string collector_id = 2;
+  string log_type = 3;
+  string input_type = 4;
+  double drop_count = 5;
+  double log_count = 6;
+  double memory_used = 7;
+  double cpu_used = 8;
+  double buffer_used = 9;
+  double buffer_capacity = 10;
+  double process_uptime = 11;
+  google.protobuf.Timestamp last_collection_time = 12;
+  string health_status = 13;
+  string issue = 14;
+}
+
+message NormalizerIngestion {
+  string component = 1;
+  string collector_id = 2;
+  string state = 3;
+  string log_type = 4;
+  string event_type = 5;
+  string drop_reason_code = 6;
+  double log_volume = 7;
+  double log_count = 8;
+  double event_count = 9;
+  double latency_count = 10;
+  double buckets = 11;
+  double bucketer_num_finite_buckets = 12;
+  double bucketer_growth_factor = 13;
+  double bucketer_scale_factor = 14;
+  double latency_overflow = 15;
+  double latency_underflow = 16;
+  google.protobuf.Timestamp last_event_time = 17;
+  google.protobuf.Timestamp last_normalization_time = 18;
+  string health_status = 19;
+  string issue = 20;
+}
+
+message OutOfBandProcessorIngestion {
+  string component = 1;
+  string feed_id = 2;
+  string log_type = 3;
+  google.protobuf.Timestamp last_heartbeat_time = 4;
+  double log_volume = 5;
+  double log_count = 6;
+  google.protobuf.Timestamp last_collection_time = 7;
+  string health_status = 8;
+  string issue = 9;
+}
+
+enum HealthStatusEnum {
+  HEALTH_STATUS_UNSPECIFIED = 0;
+  HEALTHY = 1;
+  ANOMALOUS = 2;
+  CRITICAL = 3;
+}
+
+enum NormalizerStateEnum {
+  NORMALIZER_STATE_UNSPECIFIED = 0;
+  PARSED = 1;
+  VALIDATED = 2;
+  FAILED_PARSING = 3;
+  FAILED_VALIDATION = 4;
+  FAILED_INDEXING = 5;
+}

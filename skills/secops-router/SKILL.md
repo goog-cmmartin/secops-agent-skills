@@ -18,3 +18,5 @@ When requested to perform a SecOps task, use the `skill` tool to load the corres
   👉 `skill({ name: "secops-threat-inv" })`
 - **Ingestion Architecture:** For importing raw logs and testing parsers.
   👉 `skill({ name: "secops-ingestion" })`
+- **Natural Language to GoogleSQL & Chronicle Dashboards:** For authoring and validating GoogleSQL and GoogleSQL Pipe Syntax queries for UDM events, context graph, and ingestion telemetry.
+  👉 `skill({ name: "secops-nl2sql" })`

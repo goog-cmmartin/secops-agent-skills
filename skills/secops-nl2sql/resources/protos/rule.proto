@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package chronicle.rule.v1alpha;
+
+import "google/protobuf/timestamp.proto";
+
+// Rule represents a YARA-L Detection Rule schema in Google SecOps.
+// Refer to https://docs.cloud.google.com/chronicle/docs/reference/yaral-functions-native-dashboards#rule_fields
+message Rule {
+  string name = 1; // Unique rule identifier (ruleID)
+  string display_name = 2; // Name of the rule
+  string rule_text = 3; // Rule logic or conditions in text form
+  bool alerting = 4; // Indicates whether rule detections trigger alerts
+  RuleLiveStatusEnum live_status = 5; // Current operational state (ENABLED, DISABLED)
+  string author = 6; // Creator of the rule
+  RuleSeverityEnum severity = 7; // Severity level assigned to the rule
+  RuleMetadata metadata = 8; // Structured rule metadata including MITRE ATT&CK mappings
+  map<string, string> custom_metadata = 9; // Raw key-value metadata map
+  int64 total_detection_count = 10; // Number of times this rule has generated a detection
+  google.protobuf.Timestamp create_time = 11; // Rule creation timestamp
+  google.protobuf.Timestamp update_time = 12; // Latest rule update timestamp
+  google.protobuf.Timestamp latest_detection_time = 13; // Timestamp of the most recent detection
+  google.protobuf.Timestamp earliest_detection_time = 14; // Timestamp of the first detection
+  bool archived = 15; // Indicates whether the rule is archived
+}
+
+// RuleMetadata contains structured metadata fields commonly present in YARA-L rules.
+message RuleMetadata {
+  string description = 1; // Human readable description of the rule
+  string author = 2; // Rule author
+  string severity = 3; // Severity description
+  repeated string mitre_attack_tactic = 4; // MITRE ATT&CK tactic IDs or names
+  repeated string mitre_attack_technique = 5; // MITRE ATT&CK technique IDs or names
+  repeated string mitre_attack_url = 6; // URLs linking to MITRE ATT&CK reference pages
+  string mitre_attack_version = 7; // Version of MITRE ATT&CK framework
+}
+
+enum RuleLiveStatusEnum {
+  RULE_LIVE_STATUS_UNSPECIFIED = 0;
+  ENABLED = 1;
+  DISABLED = 2;
+}
+
+enum RuleSeverityEnum {
+  RULE_SEVERITY_UNSPECIFIED = 0;
+  CRITICAL = 1;
+  HIGH = 2;
+  MEDIUM = 3;
+  LOW = 4;
+  INFO = 5;
+}

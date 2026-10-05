@@ -1,0 +1,98 @@
+syntax = "proto3";
+
+package chronicle.collections.v1alpha;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+import "udm.proto";
+
+enum EnrichmentType {
+  ENRICHMENTTYPE_UNSPECIFIED = 0;
+  APPEND = 3;
+  OVERRIDE = 4;
+}
+
+enum DetectionTimingDetails {
+  DETECTIONTIMINGDETAILS_UNSPECIFIED = 0;
+  DETECTION_TIMING_DETAILS_REPROCESSING = 3;
+  DETECTION_TIMING_DETAILS_RETROHUNT = 4;
+}
+
+enum RunFrequency {
+  RUNFREQUENCY_UNSPECIFIED = 0;
+  RUN_FREQUENCY_REALTIME = 3;
+  RUN_FREQUENCY_HOURLY = 4;
+  RUN_FREQUENCY_DAILY = 5;
+}
+
+message Collection {
+  string id = 2;
+  CollectionType type = 3;
+  Namespace idNamespace = 4;
+  string createdTime = 5;
+  string lastUpdatedTime = 6;
+  Interval timeWindow = 7;
+  repeated Element collectionElements = 8;
+  repeated SecurityResult detection = 9;
+  string detectionTime = 10;
+  Investigation investigation = 11;
+  repeated string tags = 12;
+  ResponsePlatformInfo responsePlatformInfo = 13;
+  string caseName = 14;
+  Feedback feedbackSummary = 15;
+  repeated Feedback feedbackHistory = 16;
+  bool soarAlert = 17;
+  SoarAlertMetadata soarAlertMetadata = 18;
+  string dataAccessScope = 19;
+  repeated DetectionTimingDetails detectionTimingDetails = 20;
+  LatencyMetrics latencyMetrics = 21;
+  RunFrequency ruleRunFrequency = 22;
+}
+
+message Element {
+  SecurityResult association = 2;
+  repeated Reference references = 3;
+  string label = 4;
+  bool referencesSampled = 5;
+  LatencyMetrics latencyMetrics = 6;
+}
+
+message Reference {
+  UDM event = 2;
+  Entity entity = 3;
+  repeated DataTableRowInfo joinedDataTableRows = 4;
+  EntityGraphEnrichment graphEnrichment = 5;
+  Id id = 6;
+  string logBatchToken = 7;
+}
+
+message DataTableRowInfo {
+  string dataTable = 2;
+  string row = 3;
+  string rowId = 4;
+}
+
+message EntityGraphEnrichment {
+  string dataTable = 2;
+  EnrichmentType enrichmentType = 3;
+  Entity overriddenEntity = 4;
+}
+
+message LatencyMetrics {
+  string oldestIngestionTime = 2;
+  string newestIngestionTime = 3;
+  string oldestEventTime = 4;
+  string newestEventTime = 5;
+  string ingestionLatency = 6;
+}
+
+message SoarAlertMetadata {
+  string alertId = 2;
+  string sourceRule = 3;
+  string vendor = 4;
+  string sourceSystem = 5;
+  string product = 6;
+  string sourceSystemTicketId = 7;
+  string sourceSystemUri = 8;
+}
+

@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package chronicle.ruleset.v1alpha;
+
+import "google/protobuf/timestamp.proto";
+import "rule.proto";
+
+// RuleSet represents Google SecOps Curated Rule Set metrics and schema.
+// Refer to https://docs.cloud.google.com/chronicle/docs/reference/yaral-functions-native-dashboards#rule_sets_fields
+message RuleSet {
+  string ruleset = 1; // Display name of the rule set
+  string ruleset_family = 2; // Family name of the rule set
+  string precise_alerting = 3; // Alerting status of precise rules within a specific rule set (e.g. ENABLED, DISABLED)
+  string precise_live = 4; // Status of precise rules (e.g. ENABLED, DISABLED)
+  string broad_alerting = 5; // Alerting status of broad rules within the rule set
+  string broad_live = 6; // Status of live broad rules
+  google.protobuf.Timestamp detection_timestamp = 7; // Specific timestamp when a detection event was triggered
+  google.protobuf.Timestamp start_time = 8; // Time window start timestamp
+  google.protobuf.Timestamp end_time = 9; // Time window end timestamp
+  repeated chronicle.rule.v1alpha.Rule rules = 10; // Associated rules within this rule set
+}

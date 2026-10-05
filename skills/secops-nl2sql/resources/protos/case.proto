@@ -1,0 +1,263 @@
+syntax = "proto3";
+
+package chronicle.soar.v1alpha;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+import "collections.proto";
+
+message ResourceResponsePlatformInfo {
+  string response_platform_type = 1;
+  string response_platform_id = 2;
+}
+
+message CaseMetadata {
+  string case_id = 1;
+  string response_platform_type = 2;
+}
+
+message SOARContextGroupItem {
+  string name = 1;
+  string value = 2;
+}
+
+message SOARContextGroup {
+  string display_name = 1;
+  bool highlighted = 2;
+  bool hidden = 3;
+  repeated SOARContextGroupItem items = 4;
+}
+
+message Case {
+  string name = 1; // Unique identifier (GUID) for a SOAR case.
+  string display_name = 2; // Display name of the SOAR case.
+  string description = 3; // Description of the SOAR case.
+  string stage = 4; // Current stage or phase of the SOAR case workflow. Supports a limited set of values; custom values are also allowed.
+  PriorityEnum priority = 5; // Priority of the SOAR case.
+  StatusEnum status = 6; // Current status of the SOAR case
+  TypeEnum type = 7; // Type of the SOAR case
+  string response_platform_info = 8; // Information about the response platform, including:response_platform_type(SIEMPLIFY) andresponse_platform_id(case ID).
+  string environment = 9; // Environments associated with this SOAR case.
+  google.protobuf.Timestamp create_time = 10; // Timestamp of when the SOAR case was created.
+  google.protobuf.Timestamp update_time = 11; // Timestamp of the most recent SOAR case update.
+  SOARUser assignee = 12; // The username or role to which the SOAR case is assigned.Note, when theassigneeis a SOC role (for example,@Tier 1,@SOC_Manager), personal name attributes in theSOARUserobject (such asgiven_nameandfamily_name) 
+    arenullbecause roles don't have personal name attributes.
+  SOARUser creator_user = 13; // User who created the SOAR case.
+  SOARUser last_modifying_user = 14; // User who last modified the SOAR case.
+  bool important = 15; // Indicates whether the SOAR case is marked as important.
+  bool incident = 16; // Indicates whether the SOAR case is classified as an incident.
+  string source = 17; // Source system of the SOAR case.
+  double score = 18; // Risk score associated with the SOAR case.
+  bool overflow_case = 19; // Indicates whether the SOAR case is an overflow case (exceeded capacity).
+  SOARCaseClosureDetails closure_details = 20; // Details about the SOAR case closure, if applicable.
+  repeated SOARCaseTag tags = 21; // Tags associated with the SOAR case.
+  repeated SOARTask tasks = 22; // Tasks associated with the SOAR case.
+  repeated SOARWallActivity wall_activities = 23; // Wall activities associated with the SOAR case.
+  repeated AlertWithEntities alerts = 24; // Metadata and associated entities of alerts linked to the SOAR case.
+  SOARCustomField custom_fields = 25; // User-defined custom fields associated with the SOAR case.
+}
+
+message SOARCustomField {
+  string string_seq_string_vals = 1; // Value of a string or text-based custom field (including multi-select).
+  google.protobuf.Timestamp time_val_seconds = 2; // Value of a time or calendar-based custom field.
+}
+
+message SOARUser {
+  string name = 1; // Unique identifier (ID) of the SOAR user.
+  string given_name = 2; // 1First name of the SOAR user.
+  string family_name = 3; // 1Last name of the SOAR user.
+  string email = 4; // Email address of the SOAR user.
+  google.protobuf.Timestamp last_login_time = 5; // Timestamp of the SOAR user's most recent login.
+  repeated string environments = 6; // Logical environments the SOAR user belongs to.
+  bool deleted = 7; // Indicates whether the SOAR user account is deleted.
+  repeated string soc_roles = 8; // Roles assigned to the SOAR user within the Security Operations Center (SOC) team.
+}
+
+message SOARCaseClosureDetails {
+  ReasonEnum reason = 1; // Reason for the SOAR case closure.
+  string root_cause = 2; // Root cause identified for the SOAR case closure.
+  CaseClosedActionEnum case_closed_action = 3; // Action taken to close the SOAR case.
+}
+
+message SOARCaseTag {
+  string name = 1; // Name of the tag.
+  google.protobuf.Timestamp create_time = 2; // Timestamp when the tag was created.
+}
+
+message SOARTask {
+  string name = 1; // Unique identifier for the SOAR task.
+  string title = 2; // Title of the task.
+  StatusEnum status = 3; // Current status of the task.
+  SOARUser author = 4; // User who created the task.
+  SOARUser assignee = 5; // User assigned to the task.
+  SOARUser resolver = 6; // User who resolved the task.
+  google.protobuf.Timestamp create_time = 7; // Timestamp when the task was created.
+  google.protobuf.Timestamp update_time = 8; // Timestamp of the last update to the task.
+  google.protobuf.Timestamp due_time = 9; // Time when the task is due.
+  google.protobuf.Timestamp resolution_time = 10; // Time when the task was resolved.
+  string content = 11; // Full text content or description of the task.
+  bool favorite = 12; // Indicates whether the task is marked as a favorite.
+}
+
+message SOARWallActivity {
+  string name = 1; // Unique identifier (GUID) for the SOAR case wall activity.
+  string title = 2; // Title of the wall activity.
+  ActivityTypeEnum activity_type = 3; // Type of the wall activity.
+  string activity_data = 4; // Data associated with the activity.
+  google.protobuf.Timestamp create_time = 5; // Timestamp when the activity was created.
+  SOARUser creator = 6; // User who created the activity.
+}
+
+message AlertWithEntities {
+  chronicle.collections.v1alpha.Collection metadata = 1; // Metadata associated with the alert (detection information).
+  repeated SOARInvolvedEntity entities = 2; // Repeated collection of entities involved in the alert.
+}
+
+message SOARInvolvedEntity {
+  string name = 1; // Unique name for the involved entity.
+  string additional_properties = 2; // Stores additional properties in JSON format.
+  bool artifact = 3; // Describes whether the entity is an artifact.
+  bool attacker = 4; // Indicates whether the entity represents an attacker. Once set to true, it cannot be changed to false.
+  CaseMetadata case_metadata = 5; // Metadata resolution:case_idandresponse_platform_type.
+  string data_access_scope = 6; // The data access scope of the entity. For example, it defines the boundaries of data access for a user or system, specifying which data labels are allowed or denied.
+  bool enriched = 7; // Indicates whether the entity has been enriched with data from external sources.
+  string entity_uri = 8; // Full URL of the entity, constructed usingsource_system_uriand entity data. This field is optional ifsource_system_uriis not defined.
+  string environment = 9; // Environment the entity belongs to, derived from the associated SOAR case and alert.
+  SOARContextGroup fields = 10; // List of context group items calculated from the entity's properties, includingdisplay_name,highlighted,hidden, anditems.name.
+  string identifier = 11; // Identifier of the entity.
+  bool internal = 12; // Indicates whether the entity is internal. You can configure this setting in the application settings and designate any entity type as internal.
+  bool is_critical = 13; // A boolean field indicating whether the entity is critical.
+  bool is_internal_asset = 14; // A boolean field indicating whether the entity is considered an internal asset within the organization's network or infrastructure.
+  bool is_test_case = 15; // A boolean field indicating whether the entity is part of a test case.
+  bool manually_created = 16; // Indicates whether the entity was created manually by a user or automatically during ingestion.
+  string network_name = 17; // Network name associated to the entity.
+  int32 network_priority = 18; // Network priority associated with the entity.
+  string operating_system = 19; // Operating system related to the entity.
+  bool pivot = 20; // Indicates whether the entity is a pivot. Pivot entities are common across multiple SOAR cases and appear connected to other entities by a dotted line in the case graph. Once set to true, it cannot be changed to false.
+  string source_system_uri = 21; // Link to the source system where the entity originated.
+  bool suspicious = 22; // Indicates whether the entity or its associated activity is deemed suspicious. If set to true, the entity's icon is colored red.
+  string threat_source = 23; // Threat source associated with the entity.
+  string type = 24; // Type of the entity, such asHOSTNAME,USB,PROCESS, orADDRESS.
+  bool vulnerable = 25; // Indicates whether the entity is considered vulnerable. Once set to true, it cannot be changed to false.
+}
+
+message CaseHistory {
+  string name = 1; // Unique identifier (GUID) for the SOAR action.
+  ResourceResponsePlatformInfo case_response_platform_info = 2; // Information about the SOAR case response platform, including the SOAR case ID (case_id) and type of the response platform (response_platform_type).
+  CaseActivityEnum case_activity = 3; // Type of activity that occurred, such as a stage change, assignee change, or SOAR case creation.
+  int32 alert_count = 4; // The number of alerts associated with the case.
+  AgentInvestigationStateEnum agent_investigation_state = 5; // The current state of the investigation for the alerts associated with the case.
+  google.protobuf.Timestamp event_time = 6; // Timestamp of when the event occurred.
+  string stage = 7; // New SOAR case stage after the event.
+  SOARUser assignee = 8; // New assignee of the SOAR case after the event.
+  PriorityEnum priority = 9; // Priority level of the SOAR case after the event.
+  StatusEnum status = 10; // Case status after the event.
+  bool important = 11; // Indicates whether the SOAR case is marked as important after the event.
+  bool incident = 12; // Indicates whether the SOAR case is marked as an incident after the event.
+  SlaTypeEnum sla_type = 13; // Type of Service Level Agreement (SLA) that was exceeded, if any.
+}
+
+message PlaybookInstance {
+  string name = 1; // Unique identifier (GUID) of the SOAR playbook instance run.
+  google.protobuf.Timestamp create_time = 2; // Timestamp when the playbook instance was created.
+  google.protobuf.Timestamp start_time = 3; // Timestamp when the playbook execution started.
+  google.protobuf.Timestamp end_time = 4; // Timestamp when the playbook execution ended.
+  StatusEnum status = 5; // Current status of the playbook execution.
+  string display_name = 6; // Display name of the playbook instance.
+  bool debug = 7; // Indicates whether the playbook instance is running in debug mode.
+  bool simulated = 8; // Indicates whether the playbook instance is a simulated run.
+  string block_step_id = 9; // Block step ID associated with this playbook instance.
+  string alert = 10; // Alert associated with this playbook run instance.
+  ResourceResponsePlatformInfo case_response_platform_info = 11; // Information about the SOAR case associated with a specific playbook instance, including the SOAR case ID (case_id) and type of the response platform where the case resides (response_platform_type).
+  SOARPlaybookDefinition metadata = 12; // Playbook definition associated with this playbook instance.
+  SOARAction action = 13; // Actions associated with this playbook instance.
+}
+
+message SOARPlaybookDefinition {
+  string name = 1; // Unique identifier (GUID) of the SOAR playbook definition.
+  string display_name = 2; // Human-readable name for the playbook definition
+  string description = 3; // Description of the playbook's purpose or functionality.
+  bool enabled = 4; // Indicates whether the playbook definition is enabled.
+  bool archived = 5; // Indicates whether the playbook definition is archived and no longer in use.
+  bool automatic = 6; // Indicates whether the playbook is triggered automatically or manually.
+  repeated string environments = 7; // Applicable environments for the playbook definition.
+  double version = 8; // Version number of the playbook definition.
+  int32 priority = 9; // Priority level assigned to the playbook, if applicable.
+  TypeEnum type = 10; // Type of the SOAR playbook. Possible values include:PLAYBOOK_TYPE_UNSPECIFIED (unspecified),REGULAR, andNESTED.
+  bool debug_mode = 11; // Indicates whether the playbook definition is in debug mode.
+  string template_name = 12; // Name of the template the playbook is based on, if applicable.
+  SOARUser author = 13; // User who created the playbook definition.
+  SOARUser last_editor = 14; // User who last edited the playbook definition.
+  SOARUser version_author = 15; // User who created the current version of the playbook definition.
+  string version_comment = 16; // Comment associated with the current version of the playbook.
+}
+
+message SOARAction {
+  string name = 1; // Unique identifier (GUID) for the SOAR action.
+  string integration = 2; // Integration used to execute this action.
+  string action = 3; // Name of the action.
+  StatusEnum status = 4; // Current status of the action.
+  string result_message = 5; // Details about the action's outcome or any errors.
+  string result_value = 6; // Actual result value produced by the action.
+  bool automatic = 7; // Indicates whether the action is executed automatically or manually.
+  google.protobuf.Timestamp create_time = 8; // Timestamp when the action was created.
+  string step_id = 9; // Identifier of the step associated with this action.
+  string step = 10; // Name of the step associated with this action.
+  string entity_id = 11; // Identifier of the entity associated with this action.
+  string instance = 12; // Name of the instance associated with this action.
+  google.protobuf.Duration execution_time_ms = 13; // Time taken to execute the action, in milliseconds.
+}
+
+enum ActivityTypeEnum {
+  ACTIVITYTYPE_UNSPECIFIED = 0;
+  ACTIVITYTYPE_ACTIVE = 1;
+  ACTIVITYTYPE_CLOSED = 2;
+}
+
+enum AgentInvestigationStateEnum {
+  AGENTINVESTIGATIONSTATE_UNSPECIFIED = 0;
+  AGENTINVESTIGATIONSTATE_ACTIVE = 1;
+  AGENTINVESTIGATIONSTATE_CLOSED = 2;
+}
+
+enum CaseActivityEnum {
+  CASEACTIVITY_UNSPECIFIED = 0;
+  CASEACTIVITY_ACTIVE = 1;
+  CASEACTIVITY_CLOSED = 2;
+}
+
+enum CaseClosedActionEnum {
+  CASECLOSEDACTION_UNSPECIFIED = 0;
+  CASECLOSEDACTION_ACTIVE = 1;
+  CASECLOSEDACTION_CLOSED = 2;
+}
+
+enum PriorityEnum {
+  PRIORITY_UNSPECIFIED = 0;
+  PRIORITY_ACTIVE = 1;
+  PRIORITY_CLOSED = 2;
+}
+
+enum ReasonEnum {
+  REASON_UNSPECIFIED = 0;
+  REASON_ACTIVE = 1;
+  REASON_CLOSED = 2;
+}
+
+enum SlaTypeEnum {
+  SLATYPE_UNSPECIFIED = 0;
+  SLATYPE_ACTIVE = 1;
+  SLATYPE_CLOSED = 2;
+}
+
+enum StatusEnum {
+  STATUS_UNSPECIFIED = 0;
+  STATUS_ACTIVE = 1;
+  STATUS_CLOSED = 2;
+}
+
+enum TypeEnum {
+  TYPE_UNSPECIFIED = 0;
+  TYPE_ACTIVE = 1;
+  TYPE_CLOSED = 2;
+}

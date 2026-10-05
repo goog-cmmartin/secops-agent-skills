@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package chronicle.gemini.v1alpha;
+
+import "google/protobuf/timestamp.proto";
+
+// GeminiInvestigation represents the Triage and Investigation Agent metrics and feedback schema.
+// Refer to https://docs.cloud.google.com/chronicle/docs/reference/sample-yaral-for-native-dashboard#triage-investigation-agent-fields
+message GeminiInvestigation {
+  string id = 1; // Unique identifier for the investigation
+  string alert_type = 2; // Type of alert that triggered the investigation
+  double confidence = 3; // Confidence score (high or low) of the investigation verdict
+  google.protobuf.Timestamp start_time = 4; // Time when the investigation was initiated
+  google.protobuf.Timestamp end_time = 5; // Time when the investigation was finalized
+  int64 security_token_count = 6; // Count of security tokens associated with the investigation
+  string status = 7; // Current status of the investigation
+  string step_id = 8; // Identifier for a specific step within an investigation
+  string trigger_type = 9; // Initiation method, such as MANUAL or AUTOMATED
+  string verdict = 10; // Final verdict assigned by the agent
+  repeated GeminiInvestigationFeedback feedback = 11; // User feedback associated with the investigation
+}
+
+// GeminiInvestigationFeedback represents feedback provided on a Gemini investigation.
+message GeminiInvestigationFeedback {
+  string type = 1; // Type of user feedback provided (e.g. thumbs_up, thumbs_down)
+  string target = 2; // Component targeted by the feedback (e.g. verdict, summary)
+}
+
+enum InvestigationTriggerTypeEnum {
+  TRIGGER_TYPE_UNSPECIFIED = 0;
+  MANUAL = 1;
+  AUTOMATED = 2;
+}
+
+enum InvestigationFeedbackTypeEnum {
+  FEEDBACK_TYPE_UNSPECIFIED = 0;
+  THUMBS_UP = 1;
+  THUMBS_DOWN = 2;
+}

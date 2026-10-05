@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package chronicle.soar.v1alpha;
+
+import "google/protobuf/timestamp.proto";
+import "case.proto";
+
+message CaseHistory {
+  string name = 1; // Unique identifier (GUID) for the SOAR action.
+  ResourceResponsePlatformInfo case_response_platform_info = 2; // Information about the SOAR case response platform.
+  CaseActivityEnum case_activity = 3; // Type of activity that occurred.
+  int32 alert_count = 4; // The number of alerts associated with the case.
+  AgentInvestigationStateEnum agent_investigation_state = 5; // State of investigation.
+  google.protobuf.Timestamp event_time = 6; // Timestamp of when the event occurred.
+  string stage = 7; // New SOAR case stage after the event.
+  SOARUser assignee = 8; // New assignee of the SOAR case after the event.
+  PriorityEnum priority = 9; // Priority level after the event.
+  StatusEnum status = 10; // Case status after the event.
+  bool important = 11; // Marked as important after event.
+  bool incident = 12; // Marked as incident after event.
+  SlaTypeEnum sla_type = 13; // Type of SLA exceeded.
+}
+
+enum CaseActivityEnum {
+  CASEACTIVITY_UNSPECIFIED = 0;
+  CASEACTIVITY_STAGE_CHANGE = 1;
+  CASEACTIVITY_ASSIGNEE_CHANGE = 2;
+  CASEACTIVITY_CASE_CREATION = 3;
+}
+
+enum AgentInvestigationStateEnum {
+  AGENTINVESTIGATIONSTATE_UNSPECIFIED = 0;
+  AGENTINVESTIGATIONSTATE_INVESTIGATING = 1;
+  AGENTINVESTIGATIONSTATE_COMPLETED = 2;
+}
+
+enum SlaTypeEnum {
+  SLATYPE_UNSPECIFIED = 0;
+  SLATYPE_RESPONSE = 1;
+  SLATYPE_RESOLUTION = 2;
+}
