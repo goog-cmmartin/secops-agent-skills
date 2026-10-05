@@ -60,7 +60,8 @@ FROM ingestion
 
 | Function / Syntax | Supported in BigQuery Data Lake? | Supported in Chronicle Native Dashboards? | Native Dashboards Replacement |
 | :--- | :--- | :--- | :--- |
-| `SELECT * FROM ingestion` | Yes | ❌ **Forbidden** (`selecting * from ingestion is not supported`) | Project explicit named columns |
+| `SELECT * FROM ingestion` (or `SELECT * FROM <cte>` touching `ingestion`) | Yes | ❌ **Forbidden** (`selecting * from ingestion is not supported` or HTTP 500 `generic::unknown`) | Project explicit named columns in outer `SELECT` |
+| `QUALIFY ROW_NUMBER() OVER (...) <= n` (without `WHERE`/`GROUP BY`/`HAVING`) | Yes | ❌ **Syntax error** unless preceded by `WHERE`, `GROUP BY`, or `HAVING` | Use Pipe Syntax `\|> EXTEND ROW_NUMBER() OVER (...) AS rn \|> WHERE rn <= n` |
 | `APPROX_QUANTILES(col, n)`| Yes | ❌ **Function not found** | `PERCENT_RANK()` or `NTILE` with `MIN(IF(...))` |
 | `PERCENTILE_CONT(col, p)` | Yes | ❌ **Function not found** | `PERCENT_RANK() OVER (...)` |
 | `PERCENT_RANK() OVER ()`  | Yes | ✅ **Supported** | Use for exact continuous percentiles |

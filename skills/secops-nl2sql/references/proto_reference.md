@@ -21,14 +21,14 @@ The local protos stored in `resources/protos/` are the authoritative source defi
 When writing SQL and uncertain if a UDM field is singular (`string`) or repeated (`repeated string[]`):
 
 ```bash
-python .agents/skills/secops-nl2sql/scripts/lookup_udm_field.py "<field_or_message_name>"
+<PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/skills/secops-nl2sql/scripts/lookup_udm_field.py "<field_or_message_name>"
 ```
 
 ### Examples:
 
 1. **Check if a field is an array or string:**
    ```bash
-   python .agents/skills/secops-nl2sql/scripts/lookup_udm_field.py "email_addresses"
+   <PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/skills/secops-nl2sql/scripts/lookup_udm_field.py "email_addresses"
    ```
    *Output:*
    ```text
@@ -39,10 +39,10 @@ python .agents/skills/secops-nl2sql/scripts/lookup_udm_field.py "<field_or_messa
 
 2. **Check Process fields:**
    ```bash
-   python .agents/skills/secops-nl2sql/scripts/lookup_udm_field.py "parent_process"
+   <PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/skills/secops-nl2sql/scripts/lookup_udm_field.py "parent_process"
    ```
 
 3. **Check Ingestion metric fields:**
    ```bash
-   python .agents/skills/secops-nl2sql/scripts/lookup_udm_field.py "log_volume"
+   <PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/skills/secops-nl2sql/scripts/lookup_udm_field.py "log_volume"
    ```

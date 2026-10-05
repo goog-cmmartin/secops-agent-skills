@@ -49,28 +49,39 @@ FROM ingestion
 
 ---
 
-## Pattern 3: Subquery JOINs (`events` $\bowtie$ `ingestion`)
+## Pattern 3: Subquery JOINs (`events` $\bowtie$ `ingestion`) with Top-N per Log Type
 
-Correlate granular UDM event types with ingestion pipeline telemetry using `|> JOIN (...) USING (key)`:
+Correlate granular UDM event types with ingestion pipeline telemetry using `|> JOIN (...) USING (key)` and rank the top `product_event_type`s per `log_type`:
 
 ```sql
 FROM events
-|> WHERE (TIMESTAMP_SECONDS(metadata.event_timestamp.seconds) >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 7 DAY))
+|> WHERE TIMESTAMP_SECONDS(metadata.event_timestamp.seconds) >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 7 DAY)
      AND NULLIF(metadata.log_type, '') IS NOT NULL
 |> AGGREGATE COUNT(1) AS event_count
-   GROUP BY metadata.log_type, metadata.product_event_type
+   GROUP BY
+     metadata.log_type AS log_type,
+     COALESCE(NULLIF(metadata.product_event_type, ''), 'UNSET') AS product_event_type
 |> JOIN (
      FROM ingestion
      |> WHERE component = 'Ingestion API'
           AND NULLIF(log_type, '') IS NOT NULL
           AND TIMESTAMP_SECONDS(start_time) >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 7 DAY)
-     |> AGGREGATE ROUND(SAFE_DIVIDE(SUM(log_volume), NULLIF(SUM(log_count), 0)), 2) AS avg_bytes_per_log
+     |> AGGREGATE
+          SUM(log_volume) AS total_volume_bytes,
+          SUM(log_count) AS total_ingested_logs,
+          ROUND(SAFE_DIVIDE(SUM(log_volume), NULLIF(SUM(log_count), 0)), 2) AS avg_bytes_per_log
         GROUP BY log_type
+     |> ORDER BY total_volume_bytes DESC
+     |> LIMIT 10
    ) USING (log_type)
 |> EXTEND
-     ROUND(event_count * avg_bytes_per_log / 1048576.0, 2) AS est_total_mb,
-     ROUND(event_count * 100.0 / SUM(event_count) OVER (PARTITION BY log_type), 2) AS pct_of_log_type
-|> ORDER BY est_total_mb DESC
+     SUM(event_count) OVER (PARTITION BY log_type) AS total_udm_events_for_log_type,
+     ROUND(event_count * 100.0 / SUM(event_count) OVER (PARTITION BY log_type), 2) AS pct_of_log_type,
+     ROUND(total_volume_bytes / 1073741824.0, 2) AS log_type_ingested_gb,
+     ROUND(event_count * avg_bytes_per_log / 1048576.0, 2) AS est_product_event_mb,
+     ROW_NUMBER() OVER (PARTITION BY log_type ORDER BY event_count DESC) AS rank_in_log_type
+|> WHERE rank_in_log_type <= 5
+|> ORDER BY total_volume_bytes DESC, pct_of_log_type DESC
 |> LIMIT 50;
 ```
 

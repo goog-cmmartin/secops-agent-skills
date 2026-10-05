@@ -2,13 +2,14 @@
 
 A modular, version-controlled CLI tool designed to act as a "Skill Pack" for AI Agents interacting with Google SecOps (Chronicle) via the MCP API.
 
-## Installation for OpenCode
+## Installation
 
-To install this skill pack into your local OpenCode environment, simply run the installation script. This will automatically generate the Python virtual environment, install dependencies, and register the skills with OpenCode.
+To install this skill pack into your local OpenCode or Jetski environment, run the corresponding installation script. This generates the Python virtual environment, installs dependencies, and registers the skills.
 
 ```bash
-cd google-secops-skills
-./install.sh
+cd secops-agent-skills
+./install.sh         # OpenCode (~/.config/opencode/skills)
+./install_jetski.sh  # Jetski (~/.gemini/jetski/skills)
 ```
 
 **Post-Installation:**

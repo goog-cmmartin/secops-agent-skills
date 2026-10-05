@@ -32,8 +32,9 @@ Before drafting SQL, review the quirks in [chronicle_sql_quirks.md](./references
 2. **Safe Array Indexing:** Use `array_field[SAFE_OFFSET(0)]` instead of expensive correlated subqueries `(SELECT x FROM UNNEST(...) LIMIT 1)`.
 3. **Ingestion Metric Sparsity:** Never filter `WHERE log_volume > 0` if calculating `log_count` or `avg_bytes_per_log`—`log_volume` and `log_count` are stored in separate rows.
 4. **Native Dashboard Constraints:**
-   * Never issue `SELECT * FROM ingestion` (unprojected table scans are forbidden).
+   * Never issue `SELECT * FROM ingestion` or `SELECT * FROM <cte_name>` when `<cte_name>` touches `ingestion` (unprojected scans fail on the Dashboard Engine; always project explicit column names).
    * Do not use `APPROX_QUANTILES` in Native Dashboards; use `PERCENT_RANK()` or `NTILE` with `MIN(IF(...))` as detailed in [piped_sql_patterns.md](./references/piped_sql_patterns.md).
+   * For top-N per group filtering, prefer Pipe Syntax `|> EXTEND ROW_NUMBER() OVER (...) AS rn |> WHERE rn <= N` instead of Standard SQL `QUALIFY`, which fails unless preceded by `WHERE`, `GROUP BY`, or `HAVING`.
 
 ---
 
@@ -49,7 +50,7 @@ Before drafting SQL, review the quirks in [chronicle_sql_quirks.md](./references
 
 ---
 
-### Step 4: Self-Validate the Query
+### Step 4: Self-Validate (and Optionally Execute) the Query
 
 Always validate the generated query before returning it to the user by invoking the built-in validation script:
 
@@ -57,6 +58,10 @@ Always validate the generated query before returning it to the user by invoking 
 <PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/skills/secops-nl2sql/scripts/validate_sql.py "<GENERATED_QUERY>"
 ```
 
+* If the user also wants live query results returned from Chronicle, pass `--execute` (and optionally `--days <N>`, default `7`):
+  ```bash
+  <PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/skills/secops-nl2sql/scripts/validate_sql.py --execute --days 7 "<GENERATED_QUERY>"
+  ```
 * If the script returns `STATUS: VALID`, proceed to deliver the query.
 * If the script returns `STATUS: INVALID`, inspect the compiler error and line number, refine the query syntax, and re-validate until it passes.
 
