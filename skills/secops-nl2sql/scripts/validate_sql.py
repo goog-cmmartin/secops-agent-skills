@@ -18,9 +18,11 @@ import urllib.request
 try:
     from dotenv import load_dotenv
     current_dir = os.path.dirname(os.path.abspath(__file__))
+    venv_root = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(sys.executable)), "../.."))
     possible_env_paths = [
         os.path.join(current_dir, "../../../.env"),  # repo root if in skills/secops-nl2sql/scripts
         os.path.join(current_dir, "../../../../.env"),
+        os.path.join(venv_root, ".env"),
         os.path.join(os.getcwd(), ".env"),
     ]
     for env_path in possible_env_paths:

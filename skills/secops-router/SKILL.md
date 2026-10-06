@@ -20,3 +20,5 @@ When requested to perform a SecOps task, use the `skill` tool to load the corres
   👉 `skill({ name: "secops-ingestion" })`
 - **Natural Language to GoogleSQL & Chronicle Dashboards:** For authoring and validating GoogleSQL and GoogleSQL Pipe Syntax queries for UDM events, context graph, and ingestion telemetry.
   👉 `skill({ name: "secops-nl2sql" })`
+- **Log Volume & Ingestion Tuning:** For two-stage ingestion volume analysis, `metadata.event_type` routed dimensional drill-downs, and quantifying GB savings for EDR/collector exclusions vs. single-host outliers.
+  👉 `skill({ name: "secops-log-tuning" })`

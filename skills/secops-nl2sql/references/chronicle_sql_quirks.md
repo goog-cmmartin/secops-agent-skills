@@ -29,6 +29,7 @@ In Google SecOps, event records are backed by Protocol Buffers (proto3):
   ```sql
   COALESCE(NULLIF(principal.hostname, ''), principal.ip[SAFE_OFFSET(0)], 'Unknown Host/IP')
   ```
+* **Protobuf Enums vs. Strings:** Do **not** wrap Protobuf enum fields (`metadata.event_type`, `network.ip_protocol`, `security_result.action`) in `NULLIF(field, '')`—comparing an enum to `""` fails with `Could not cast literal "" to type ...`. Group by or filter enum fields directly (e.g., `network.ip_protocol = 'TCP'` or `GROUP BY network.ip_protocol`).
 
 ---
 
