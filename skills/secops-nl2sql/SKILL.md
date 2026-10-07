@@ -35,6 +35,8 @@ Before drafting SQL, review the quirks in [chronicle_sql_quirks.md](./references
    * Never issue `SELECT * FROM ingestion` or `SELECT * FROM <cte_name>` when `<cte_name>` touches `ingestion` (unprojected scans fail on the Dashboard Engine; always project explicit column names).
    * Do not use `APPROX_QUANTILES` in Native Dashboards; use `PERCENT_RANK()` or `NTILE` with `MIN(IF(...))` as detailed in [piped_sql_patterns.md](./references/piped_sql_patterns.md).
    * For top-N per group filtering, prefer Pipe Syntax `|> EXTEND ROW_NUMBER() OVER (...) AS rn |> WHERE rn <= N` instead of Standard SQL `QUALIFY`, which fails unless preceded by `WHERE`, `GROUP BY`, or `HAVING`.
+   * **Pipe Syntax `|> AGGREGATE` Alias Order:** Always use `<agg_expr> AS <alias>` and `GROUP BY <group_expr> AS <alias>` (for example, `|> AGGREGATE COUNT(*) AS event_count GROUP BY metadata.log_type AS log_type`). Never write `event_count = COUNT(*)`, which fails with `Unrecognized name: event_count`.
+   * **Reserved Keyword `PROTO`:** Never use `proto` as an unquoted column alias (`AS proto` fails with `Syntax error: Unexpected keyword PROTO`). Use `AS ip_protocol` instead.
 
 ---
 

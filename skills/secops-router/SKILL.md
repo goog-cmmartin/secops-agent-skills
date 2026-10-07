@@ -22,3 +22,5 @@ When requested to perform a SecOps task, use the `skill` tool to load the corres
   👉 `skill({ name: "secops-nl2sql" })`
 - **Log Volume & Ingestion Tuning:** For two-stage ingestion volume analysis, `metadata.event_type` routed dimensional drill-downs, and quantifying GB savings for EDR/collector exclusions vs. single-host outliers.
   👉 `skill({ name: "secops-log-tuning" })`
+- **OTTL & Bindplane Collector Pipelines:** For authoring and validating OpenTelemetry Transformation Language (OTTL) filter conditions and transform statements, and inspecting or managing Bindplane processors and configurations via the Bindplane REST API.
+  👉 `skill({ name: "secops-ottl" })`

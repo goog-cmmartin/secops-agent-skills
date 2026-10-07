@@ -216,10 +216,12 @@ def build_stage2_query(
      COUNT(1) AS event_count,
      COUNT(DISTINCT principal.ip[SAFE_OFFSET(0)]) AS distinct_hosts,
      ANY_VALUE(principal.ip[SAFE_OFFSET(0)]) AS sample_host,
-     COUNT(DISTINCT target.url) AS distinct_targets,
-     ANY_VALUE(SUBSTR(target.url, 1, 140)) AS sample_target
+     COUNT(DISTINCT COALESCE(NULLIF(target.url, ''), NULLIF(network.tls.client.server_name, ''))) AS distinct_targets,
+     ANY_VALUE(COALESCE(NULLIF(SUBSTR(target.url, 1, 140), ''), NULLIF(network.tls.client.server_name, ''))) AS sample_target
    GROUP BY
-     COALESCE(NULLIF(target.hostname, ''), NULLIF(target.ip[SAFE_OFFSET(0)], ''), 'UNSET') AS primary_dimension,
+     COALESCE(NULLIF(target.hostname, ''), NULLIF(network.tls.client.server_name, ''), NULLIF(target.ip[SAFE_OFFSET(0)], ''), 'UNSET') AS primary_dimension,
+     COALESCE(NULLIF(principal.ip[SAFE_OFFSET(0)], ''), 'UNSET') AS src_ip,
+     COALESCE(NULLIF(target.ip[SAFE_OFFSET(0)], ''), 'UNSET') AS dst_ip,
      COALESCE(NULLIF(network.http.parsed_user_agent, ''), NULLIF(network.http.user_agent, ''), 'UNSET') AS user_agent"""
     elif event_type.startswith("NETWORK_"):
         agg_group = """|> AGGREGATE
@@ -227,7 +229,7 @@ def build_stage2_query(
      COUNT(DISTINCT principal.ip[SAFE_OFFSET(0)]) AS distinct_hosts,
      ANY_VALUE(principal.ip[SAFE_OFFSET(0)]) AS sample_host,
      COUNT(DISTINCT target.ip[SAFE_OFFSET(0)]) AS distinct_targets,
-     ANY_VALUE(security_result[SAFE_OFFSET(0)].summary) AS sample_target
+     ANY_VALUE(COALESCE(NULLIF(network.tls.client.server_name, ''), NULLIF(security_result[SAFE_OFFSET(0)].summary, ''), NULLIF(metadata.description, ''))) AS sample_target
    GROUP BY
      COALESCE(NULLIF(principal.ip[SAFE_OFFSET(0)], ''), 'UNSET') AS src_ip,
      COALESCE(NULLIF(target.ip[SAFE_OFFSET(0)], ''), 'UNSET') AS dst_ip,
@@ -313,11 +315,20 @@ def main():
             limit=args.stage2_limit,
         )
         s2_rows = execute_dashboard_sql(s2_sql, days=args.days)
+        window_seconds = max(args.days * 86400, 1)
         for item in s2_rows:
-            dh = int(item.get("distinct_hosts") or 0)
-            item["tuning_scope"] = (
-                "SINGLE_HOST_OR_COLLECTOR_OUTLIER" if dh <= 3 else "FLEET_WIDE_POLICY_EXCLUSION"
-            )
+            dh = max(int(item.get("distinct_hosts") or 0), 1)
+            ec = int(item.get("event_count") or 0)
+            eps_per_host = round(ec / (window_seconds * dh), 2)
+            item["events_per_sec_per_host"] = eps_per_host
+            if eps_per_host >= 1.0 and int(item.get("distinct_hosts") or 0) <= 5:
+                item["tuning_scope"] = (
+                    "SOURCE_MISCONFIGURATION_LIKELY_FIX_AT_SOURCE_AND_PIN_TUPLE"
+                )
+            elif int(item.get("distinct_hosts") or 0) <= 3:
+                item["tuning_scope"] = "SINGLE_HOST_OR_COLLECTOR_OUTLIER_PIN_TUPLE"
+            else:
+                item["tuning_scope"] = "FLEET_WIDE_POLICY_EXCLUSION"
         return {
             "log_type": lt,
             "event_type": et,

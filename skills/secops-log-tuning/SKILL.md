@@ -33,10 +33,17 @@ Instead:
   ```
 * If `distinct_targets` is small (e.g., `< 10`), the noise targets a fixed file or command. If `distinct_targets` is huge (e.g., `500,000` lock files created by `ruby.exe`), `sample_target` reveals the naming pattern (`C:\Windows\Temp\puppet*.lock`) without shattering the count.
 
-### 3. Fleet-Wide Policy vs. Single-Host Outlier Diagnosis
-Always compute `COUNT(DISTINCT principal.hostname) AS distinct_hosts` (or `distinct_src_ips` for network logs):
-* **`distinct_hosts <= 3` (Single-Host / Collector Outlier):** Volume is concentrated on 1–3 machines or a single forwarding resolver. Remediate via host-level audit policy tuning or sensor deduplication.
+### 3. Fleet-Wide Policy vs. Single-Host Outlier & Source Misconfiguration Diagnosis
+Always compute `COUNT(DISTINCT principal.hostname) AS distinct_hosts` (or `distinct_src_ips` for network logs) and the per-host event rate (`events_per_sec_per_host = event_count / (days * 86400 * distinct_hosts)`):
+* **`distinct_hosts <= 3` (Single-Host / Collector Outlier):** Volume is concentrated on 1–3 machines or a single forwarding resolver (e.g., a domain controller `SITE-DC$` forwarding DNS queries on behalf of clients, which masks the true client IPs).
+* **`events_per_sec_per_host >= 1.0` (Likely Source Misconfiguration — Fix at Source First):** When a single host emits multiple identical queries or status events per second (e.g., 12 NTP lookups/sec with `.site.lan` search-domain suffixing or 5+ `msftconnecttest.com` probes/sec), diagnose it as a **broken host/service configuration** (broken `timesyncd`/`chrony`, missing local NTP server, bad `ndots`/search domain, or broken disk multipath daemon). Recommend fixing the underlying service first and deploying a **tuple-pinned collector filter** only as a stopgap.
 * **`distinct_hosts > 3` (Fleet-Wide Policy Exclusion):** Volume is systemic across the fleet. Remediate via EDR/collector path or process exclusions, or Chronicle ingestion filters.
+
+### 4. Detection Safety, Tuple Pinning, Correlated Zeek Logs, & Shared Cloud IP / TLS SNI Rules
+* **Never Recommend Dropping Poisoning / Lateral Movement Ports:** Never drop **LLMNR (`5355`)**, **NBT-NS (`137`, `138`, `139`)**, **SMB (`445`)**, **MS-RPC (`135`)**, or **LDAP (`389`, `636`)**. Only **SSDP (`1900`)** and **mDNS (`5353`)** belong in multicast discovery drop lists.
+* **Always Pin the Tuple on Low-Host-Count Noise:** Never recommend dropping a DNS domain (`ntp.ubuntu.com`, `msftconnecttest.com`) across all hosts when only a few hosts are noisy. Pin the filter to the exact `(src_ip, dst_port, lower(query))` tuple and use case-insensitive matching (`ConvertCase(body["query"], "lower")`) to handle DNS 0x20 capitalization.
+* **Account for Correlated Zeek Logs (`dns` + `conn`):** In `BRO_JSON` (Zeek), every `dns` event also writes a `conn` event on port 53 (`id.resp_p == 53`). Note that filtering only `dns` leaves the matching `conn` volume unless a matching pinned `conn` filter is also applied.
+* **Never Recommend Dropping Shared Cloud/CDN IPs (`443`) Without TLS SNI (`network.tls.client.server_name`):** Steady HTTPS polling to Microsoft/Azure/AWS/CDN IPs (e.g., `20.112.250.133:443` at ~5/sec) resembles C2 beaconing. Always inspect `network.tls.client.server_name` (Zeek `ssl.server_name`) and the originating host/process before considering aggregation or filtering.
 
 ---
 

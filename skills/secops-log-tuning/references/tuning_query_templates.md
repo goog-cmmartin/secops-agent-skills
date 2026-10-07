@@ -131,7 +131,7 @@ FROM events
 
 ### 4. Network Connections & Flows (`NETWORK_CONNECTION`, `NETWORK_FLOW`, `NETWORK_*`)
 
-Groups by source IP, destination IP, destination port, and protocol to expose noisy internal polling, resolver loops, or duplicate firewall/IDS rules:
+Groups by source IP, destination IP, destination port, and protocol, and surfaces TLS SNI (`network.tls.client.server_name`) to distinguish benign polling from shared cloud IP C2 beaconing:
 
 ```sql
 FROM events
@@ -144,7 +144,7 @@ FROM events
      COUNT(DISTINCT principal.ip[SAFE_OFFSET(0)]) AS distinct_hosts,
      ANY_VALUE(principal.ip[SAFE_OFFSET(0)]) AS sample_host,
      COUNT(DISTINCT target.ip[SAFE_OFFSET(0)]) AS distinct_targets,
-     ANY_VALUE(security_result[SAFE_OFFSET(0)].summary) AS sample_target
+     ANY_VALUE(COALESCE(NULLIF(network.tls.client.server_name, ''), NULLIF(security_result[SAFE_OFFSET(0)].summary, ''), NULLIF(metadata.description, ''))) AS sample_target
    GROUP BY
      COALESCE(NULLIF(principal.ip[SAFE_OFFSET(0)], ''), 'UNSET') AS src_ip,
      COALESCE(NULLIF(target.ip[SAFE_OFFSET(0)], ''), 'UNSET') AS dst_ip,
@@ -159,9 +159,9 @@ FROM events
 
 ---
 
-### 5. Web / Proxy HTTP Activity (`NETWORK_HTTP`)
+### 5. Web / Proxy HTTP & TLS Activity (`NETWORK_HTTP`)
 
-Groups by destination hostname and user agent:
+Groups by destination hostname or TLS SNI (`network.tls.client.server_name`), source/destination IP, and user agent:
 
 ```sql
 FROM events
@@ -173,10 +173,12 @@ FROM events
      COUNT(1) AS event_count,
      COUNT(DISTINCT principal.ip[SAFE_OFFSET(0)]) AS distinct_hosts,
      ANY_VALUE(principal.ip[SAFE_OFFSET(0)]) AS sample_host,
-     COUNT(DISTINCT target.url) AS distinct_targets,
-     ANY_VALUE(SUBSTR(target.url, 1, 150)) AS sample_target
+     COUNT(DISTINCT COALESCE(NULLIF(target.url, ''), NULLIF(network.tls.client.server_name, ''))) AS distinct_targets,
+     ANY_VALUE(COALESCE(NULLIF(SUBSTR(target.url, 1, 150), ''), NULLIF(network.tls.client.server_name, ''))) AS sample_target
    GROUP BY
-     COALESCE(NULLIF(target.hostname, ''), NULLIF(target.ip[SAFE_OFFSET(0)], ''), 'UNSET') AS actor_dimension,
+     COALESCE(NULLIF(target.hostname, ''), NULLIF(network.tls.client.server_name, ''), NULLIF(target.ip[SAFE_OFFSET(0)], ''), 'UNSET') AS actor_dimension,
+     COALESCE(NULLIF(principal.ip[SAFE_OFFSET(0)], ''), 'UNSET') AS src_ip,
+     COALESCE(NULLIF(target.ip[SAFE_OFFSET(0)], ''), 'UNSET') AS dst_ip,
      COALESCE(NULLIF(network.http.parsed_user_agent, ''), NULLIF(network.http.user_agent, ''), 'UNSET') AS user_agent
 |> EXTEND
      ROUND(event_count * 100.0 / SUM(event_count) OVER (), 2) AS pct_of_category,
