@@ -225,6 +225,7 @@ def _extract_item_names(items: List[Any]) -> List[str]:
         elif isinstance(item, dict):
             name = (
                 item.get("name")
+                or item.get("displayName")
                 or item.get("metadata", {}).get("name")
                 or item.get("spec", {}).get("type")
                 or item.get("type")
@@ -232,6 +233,25 @@ def _extract_item_names(items: List[Any]) -> List[str]:
             if name:
                 names.append(name)
     return names
+
+
+def cmd_list_agents(_args: argparse.Namespace) -> None:
+    resp = bindplane_request("GET", "/agents")
+    agents = resp.get("agents", []) if isinstance(resp, dict) else resp
+    summary = [
+        {
+            "name": a.get("name"),
+            "id": a.get("id"),
+            "connected": a.get("connected"),
+            "os": a.get("operatingSystem"),
+            "version": a.get("version"),
+            "configuration": a.get("configurationStatus", {}).get("current")
+            or a.get("labels", {}).get("configuration"),
+        }
+        for a in agents
+        if isinstance(a, dict)
+    ]
+    print(json.dumps(summary, indent=2))
 
 
 def cmd_list_configs(_args: argparse.Namespace) -> None:
@@ -246,8 +266,10 @@ def cmd_list_configs(_args: argparse.Namespace) -> None:
             if isinstance(s, dict):
                 s_name = (
                     s.get("name")
+                    or s.get("displayName")
                     or s.get("metadata", {}).get("name")
                     or s.get("spec", {}).get("type")
+                    or s.get("type")
                 )
                 s_procs = _extract_item_names(s.get("processors", []))
                 sources_summary.append({"source": s_name, "processors": s_procs})
@@ -259,8 +281,10 @@ def cmd_list_configs(_args: argparse.Namespace) -> None:
             if isinstance(d, dict):
                 d_name = (
                     d.get("name")
+                    or d.get("displayName")
                     or d.get("metadata", {}).get("name")
                     or d.get("spec", {}).get("type")
+                    or d.get("type")
                 )
                 d_procs = _extract_item_names(d.get("processors", []))
                 dest_summary.append({"destination": d_name, "processors": d_procs})
@@ -440,8 +464,15 @@ def cmd_audit_config(args: argparse.Namespace) -> None:
     for src in spec.get("sources", []):
         if not isinstance(src, dict):
             continue
-        src_name = src.get("name") or src.get("metadata", {}).get("name") or "unnamed_source"
+        src_name = (
+            src.get("name")
+            or src.get("displayName")
+            or src.get("metadata", {}).get("name")
+            or src.get("type")
+            or "unnamed_source"
+        )
         body_state = "string"
+        seen_parse_json = False
         seen_standardization = False
         steps = []
         source_issues: List[str] = []
@@ -450,6 +481,8 @@ def cmd_audit_config(args: argparse.Namespace) -> None:
             if not isinstance(p, dict):
                 continue
             disp_name, ptype, params = _resolve_processor_type(p, library_types)
+            if p.get("displayName") and disp_name == ptype:
+                disp_name = f"{p.get('displayName')} ({ptype})"
             param_map = {
                 item.get("name"): item.get("value")
                 for item in params
@@ -465,12 +498,19 @@ def cmd_audit_config(args: argparse.Namespace) -> None:
             }
 
             if ptype.startswith("parse_json"):
+                if seen_standardization:
+                    step_info["warnings"].append(
+                        f"PIPELINE ORDERING: '{disp_name}' runs AFTER 'google_secops_standardization'. "
+                        f"Standardization should run AFTER JSON parsing, OTTL transforms, and re-marshaling so Chronicle standardization labels/formatting are applied last."
+                    )
                 if param_map.get("log_target_field_type", "Body") == "Body" and not param_map.get("log_body_target_field"):
                     body_state = "map"
+                    seen_parse_json = True
                 step_info["body_state_on_exit"] = body_state
             elif ptype.startswith("google_secops_standardization") or ptype.startswith("marshal"):
                 body_state = "string"
-                seen_standardization = True
+                if ptype.startswith("google_secops_standardization"):
+                    seen_standardization = True
                 step_info["body_state_on_exit"] = body_state
             elif ptype.startswith("filter-by-condition"):
                 cond_obj = param_map.get("condition", {})
@@ -485,7 +525,7 @@ def cmd_audit_config(args: argparse.Namespace) -> None:
                 if seen_standardization:
                     step_info["warnings"].append(
                         f"PIPELINE ORDERING: '{disp_name}' runs AFTER 'google_secops_standardization'. "
-                        f"Filter early (immediately after 'parse_json' and before 'google_secops_standardization') so downstream steps process fewer records and parsed 'body[...]' fields remain accessible."
+                        f"Filter early (before 'google_secops_standardization') so downstream steps process fewer records."
                     )
                 if ottl_expr:
                     val = validate_ottl.validate_ottl_expression(
@@ -497,7 +537,7 @@ def cmd_audit_config(args: argparse.Namespace) -> None:
                     step_info["errors"].extend(val["errors"])
                     step_info["warnings"].extend(val["warnings"])
                     # Also check if moving this filter to 'map' state (before standardization) would break it
-                    if body_state == "string":
+                    if seen_standardization and seen_parse_json and body_state == "string":
                         val_if_map = validate_ottl.validate_ottl_expression(
                             ottl_expr,
                             mode="condition",
@@ -568,6 +608,7 @@ def main() -> int:
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
+    subparsers.add_parser("list-agents", help="List all connected Bindplane OTel collectors and their assigned configurations.")
     subparsers.add_parser("list-configs", help="List all Bindplane configurations.")
     p_get_cfg = subparsers.add_parser(
         "get-config", help="Get a specific Bindplane configuration by name."
@@ -674,6 +715,7 @@ def main() -> int:
 
     args = parser.parse_args()
     dispatch = {
+        "list-agents": cmd_list_agents,
         "list-configs": cmd_list_configs,
         "get-config": cmd_get_config,
         "audit-config": cmd_audit_config,
