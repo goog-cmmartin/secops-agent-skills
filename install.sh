@@ -26,6 +26,13 @@ echo ""
 echo "[3/4] Installing SKILL files to ~/.config/opencode/skills..."
 mkdir -p ~/.config/opencode/skills
 
+# Clean up retired/defunct skills from ~/.config/opencode/skills if previously installed
+rm -rf ~/.config/opencode/skills/secops-cases \
+       ~/.config/opencode/skills/secops-detection-eng \
+       ~/.config/opencode/skills/secops-ingestion \
+       ~/.config/opencode/skills/secops-router \
+       ~/.config/opencode/skills/secops-threat-inv
+
 # Copy the skills directories
 cp -r skills/* ~/.config/opencode/skills/
 
@@ -33,9 +40,9 @@ echo ""
 echo "[4/4] Configuring skills with absolute paths..."
 # Replace the placeholder with the actual absolute path to the repository
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    find ~/.config/opencode/skills/secops-* -type f -name "*.md" -exec sed -i '' "s|<PATH_TO_SECOPS_SKILLS>|$REPO_DIR|g" {} +
+    find ~/.config/opencode/skills/secops-* ~/.config/opencode/skills/case-grouping -type f -name "*.md" -exec sed -i '' "s|<PATH_TO_SECOPS_SKILLS>|$REPO_DIR|g" {} +
 else
-    find ~/.config/opencode/skills/secops-* -type f -name "*.md" -exec sed -i "s|<PATH_TO_SECOPS_SKILLS>|$REPO_DIR|g" {} +
+    find ~/.config/opencode/skills/secops-* ~/.config/opencode/skills/case-grouping -type f -name "*.md" -exec sed -i "s|<PATH_TO_SECOPS_SKILLS>|$REPO_DIR|g" {} +
 fi
 
 echo "===================================================="
