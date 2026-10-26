@@ -17,6 +17,7 @@ import argparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import json
 import os
+import re
 import sys
 import urllib.error
 import urllib.request
@@ -123,6 +124,207 @@ def execute_dashboard_sql(query_text: str, days: int = 7) -> list:
     with urllib.request.urlopen(req, timeout=45.0) as resp:
         raw = json.loads(resp.read().decode("utf-8"))
         return _extract_dashboard_rows(raw)
+
+
+def fetch_log_processing_pipelines() -> list:
+    """Fetches all SecOps logProcessingPipelines via Chronicle REST API."""
+    import google.auth
+    from google.auth.transport.requests import Request
+
+    project_id = (
+        os.environ.get("SECOPS_PROJECT_ID")
+        or os.environ.get("GCP_PROJECT_ID")
+        or os.environ.get("GOOGLE_CLOUD_PROJECT")
+    )
+    customer_id = os.environ.get("SECOPS_CUSTOMER_ID")
+    region = os.environ.get("SECOPS_REGION", "us")
+
+    if not customer_id or not project_id:
+        return []
+
+    credentials, _ = google.auth.default(
+        scopes=["https://www.googleapis.com/auth/cloud-platform"]
+    )
+    if not credentials.valid:
+        credentials.refresh(Request())
+
+    url = (
+        f"https://{region}-chronicle.googleapis.com/v1alpha/projects/{project_id}/"
+        f"locations/{region}/instances/{customer_id}/logProcessingPipelines?pageSize=1000"
+    )
+    headers = {
+        "Authorization": f"Bearer {credentials.token}",
+        "Accept": "application/json",
+        "x-goog-user-project": project_id,
+    }
+    req = urllib.request.Request(url, headers=headers)
+    try:
+        with urllib.request.urlopen(req, timeout=30.0) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            return data.get("logProcessingPipelines", [])
+    except Exception as e:
+        print(f"WARNING: Unable to query logProcessingPipelines API: {e}", file=sys.stderr)
+        return []
+
+
+def _rewrite_dot_keys(dot_str: str) -> str:
+    """Converts a dotted key name like 'protoPayload.methodName' to '["protoPayload"]["methodName"]'."""
+    parts = dot_str.split(".")
+    return "".join(f'["{p}"]' for p in parts)
+
+
+def audit_secops_pipelines(
+    pipelines: list, stage1_rows: list, stage2_drilldowns: list
+) -> dict:
+    """Audits active logProcessingPipelines for broken or failing-open filters that correlate with noisy log volume."""
+    audits = []
+    critical_findings = []
+
+    noise_by_log_type = {}
+    for r in stage1_rows:
+        lt = r.get("log_type")
+        if lt not in noise_by_log_type:
+            noise_by_log_type[lt] = []
+        noise_by_log_type[lt].append(r)
+
+    for pipe in pipelines:
+        name = pipe.get("name", "")
+        pipe_id = name.split("/")[-1] if "/" in name else name
+        display_name = pipe.get("displayName", pipe_id)
+        description = pipe.get("description", "")
+        streams = [s.get("logType") for s in pipe.get("streams", []) if s.get("logType")]
+        custom_metadata = {
+            m.get("key"): m.get("value") for m in pipe.get("customMetadata", []) if m.get("key")
+        }
+        bindplane_url = custom_metadata.get("bindplaneURL", "")
+
+        target_lts = set(streams) if streams else {display_name}
+
+        processors = pipe.get("processors", [])
+        has_parse_json = False
+        processor_audits = []
+
+        for p_idx, proc in enumerate(processors):
+            tp = proc.get("transformProcessor")
+            fp = proc.get("filterProcessor")
+
+            if tp:
+                stmts = tp.get("statements", [])
+                for stmt in stmts:
+                    if "ParseJSON(body)" in stmt or "parse_json" in stmt:
+                        has_parse_json = True
+                processor_audits.append({
+                    "processor_index": p_idx,
+                    "type": "transformProcessor",
+                    "statements_count": len(stmts),
+                    "error_mode": tp.get("errorMode", "IGNORE"),
+                })
+            elif fp:
+                conds = fp.get("logConditions", [])
+                error_mode = fp.get("errorMode", "IGNORE")
+                condition_audits = []
+
+                for cond in conds:
+                    issues = []
+                    suggested_condition = cond
+
+                    # Check 1: Dot notation inside body["a.b"]
+                    dot_matches = re.findall(r'body\["([^"]+\.[^"]+)"\]', cond)
+                    if dot_matches:
+                        for dm in dot_matches:
+                            replacement = f"body{_rewrite_dot_keys(dm)}"
+                            suggested_condition = suggested_condition.replace(f'body["{dm}"]', replacement)
+                        issues.append({
+                            "code": "DOT_NOTATION_IN_MAP_KEY",
+                            "severity": "CRITICAL" if error_mode.upper() == "IGNORE" else "WARNING",
+                            "message": (
+                                f"Condition accesses body keys using dot notation {dot_matches}. "
+                                "Because ParseJSON parses into nested maps, indexing with dots looks for literal dotted keys, "
+                                "evaluating to nil. Under errorMode: IGNORE, this silently fails open and drops nothing."
+                            ),
+                            "dotted_keys": dot_matches,
+                        })
+
+                    # Check 2: Attributes vs Body confusion (e.g. attributes["protoPayload..."])
+                    attr_matches = re.findall(r'attributes\["(protoPayload[^"]*)"\]', cond)
+                    if attr_matches:
+                        for am in attr_matches:
+                            replacement = f"body{_rewrite_dot_keys(am)}"
+                            suggested_condition = suggested_condition.replace(f'attributes["{am}"]', replacement)
+                        issues.append({
+                            "code": "ATTRIBUTES_VS_BODY_CONFUSION",
+                            "severity": "CRITICAL" if error_mode.upper() == "IGNORE" else "WARNING",
+                            "message": (
+                                f"Condition accesses attributes for {attr_matches}, but Cloud Audit / GCP fields "
+                                "reside in 'body'. Under errorMode: IGNORE, this fails open."
+                            ),
+                            "attributes_keys": attr_matches,
+                        })
+
+                    # Check 3: Check correlation with high-volume noise
+                    correlated_volume = []
+                    for lt in target_lts:
+                        for noise_row in noise_by_log_type.get(lt, []):
+                            pet = noise_row.get("product_event_type", "")
+                            if pet and pet != "UNSET" and pet.lower() in cond.lower():
+                                correlated_volume.append({
+                                    "log_type": lt,
+                                    "product_event_type": pet,
+                                    "event_count": noise_row.get("event_count"),
+                                    "est_product_event_mb": noise_row.get("est_product_event_mb"),
+                                })
+
+                    is_failing_open = bool(issues and error_mode.upper() == "IGNORE")
+                    cond_audit = {
+                        "raw_condition": cond,
+                        "error_mode": error_mode,
+                        "issues": issues,
+                        "is_failing_open": is_failing_open,
+                        "correlated_noise": correlated_volume,
+                        "suggested_fix": suggested_condition if issues else None,
+                    }
+                    condition_audits.append(cond_audit)
+
+                    if is_failing_open and correlated_volume:
+                        for cv in correlated_volume:
+                            critical_findings.append({
+                                "pipeline_name": display_name,
+                                "pipeline_id": pipe_id,
+                                "log_type": cv["log_type"],
+                                "product_event_type": cv["product_event_type"],
+                                "wasted_mb": cv["est_product_event_mb"],
+                                "event_count": cv["event_count"],
+                                "current_broken_condition": cond,
+                                "suggested_fix": suggested_condition,
+                                "diagnosis": (
+                                    f"Filter was configured in pipeline '{display_name}' to drop '{cv['product_event_type']}', "
+                                    f"but is SILENTLY FAILING OPEN due to OTTL key syntax. "
+                                    f"{cv['event_count']} events (~{cv['est_product_event_mb']} MB) were still ingested over 7 days."
+                                ),
+                            })
+
+                processor_audits.append({
+                    "processor_index": p_idx,
+                    "type": "filterProcessor",
+                    "error_mode": error_mode,
+                    "conditions": condition_audits,
+                })
+
+        audits.append({
+            "pipeline_id": pipe_id,
+            "display_name": display_name,
+            "description": description,
+            "streams": streams,
+            "bindplane_url": bindplane_url,
+            "processor_count": len(processors),
+            "processors": processor_audits,
+        })
+
+    return {
+        "pipelines_inspected": len(pipelines),
+        "pipeline_audits": audits,
+        "critical_failing_open_filters": critical_findings,
+    }
 
 
 def build_stage1_query(
@@ -277,7 +479,37 @@ def main():
     parser.add_argument("--log-type", type=str, default="", help="Optional single log_type filter")
     parser.add_argument("--min-mb", type=float, default=50.0, help="Min estimated MB for Stage 2 drill-down")
     parser.add_argument("--stage2-limit", type=int, default=5, help="Top rows per Stage 2 drill-down")
+    parser.add_argument(
+        "--list-pipelines",
+        action="store_true",
+        help="List all active SecOps logProcessingPipelines and exit",
+    )
+    parser.add_argument(
+        "--no-pipeline-audit",
+        action="store_true",
+        help="Skip querying and auditing SecOps logProcessingPipelines during tuning",
+    )
     args = parser.parse_args()
+
+    if args.list_pipelines:
+        pipelines = fetch_log_processing_pipelines()
+        summary = []
+        for p in pipelines:
+            name = p.get("name", "")
+            pipe_id = name.split("/")[-1] if "/" in name else name
+            summary.append({
+                "pipeline_id": pipe_id,
+                "display_name": p.get("displayName"),
+                "description": p.get("description"),
+                "streams": [s.get("logType") for s in p.get("streams", [])],
+                "create_time": p.get("createTime"),
+                "update_time": p.get("updateTime"),
+                "processor_count": len(p.get("processors", [])),
+                "processors": p.get("processors", []),
+                "custom_metadata": p.get("customMetadata", []),
+            })
+        print(json.dumps({"total_pipelines": len(pipelines), "pipelines": summary}, indent=2))
+        return
 
     stage1_sql = build_stage1_query(
         days=args.days,
@@ -352,11 +584,22 @@ def main():
                 ordered[idx] = {"error": str(exc), "candidate": candidates[idx]}
         drilldowns = [x for x in ordered if x is not None]
 
+    pipeline_audit_report = None
+    if not args.no_pipeline_audit:
+        pipelines = fetch_log_processing_pipelines()
+        if pipelines:
+            pipeline_audit_report = audit_secops_pipelines(
+                pipelines=pipelines,
+                stage1_rows=stage1_rows,
+                stage2_drilldowns=drilldowns,
+            )
+
     output = {
         "lookback_days": args.days,
         "stage1_sql": stage1_sql,
         "stage1_summary": stage1_rows,
         "stage2_drilldowns": drilldowns,
+        "pipeline_audit": pipeline_audit_report,
     }
     print(json.dumps(output, indent=2))
 

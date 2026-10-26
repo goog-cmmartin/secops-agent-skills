@@ -35,9 +35,13 @@ Before writing any OTTL statement or Bindplane processor resource, read:
      - Indexing `body["id.resp_p"]` *after* `google_secops_standardization:5` fails open because `body` is a `STRING`.
      - Passing `IsMatch(body, "...")` *before* `google_secops_standardization:5` (when `body` is a `MAP` after `parse_json:3`) **also fails open** because `IsMatch` expects a string or field (`body["id.resp_h"]`). Never reorder a raw-body filter before `google_secops_standardization:5` without rewriting it to match on parsed map fields!
    - **Filter Early:** Place filters immediately after `parse_json:3` (using parsed map fields) and before `copy_field_v2:3` / `google_secops_standardization:5` so downstream processors process fewer records.
-7. **Detection Safety Denylist (Never Drop Lateral Movement / Poisoning Telemetry):**
+7. **Nested Map Indexing vs. Flat Dotted String Keys (Silent Fail-Open Prevention):**
+   - In OTTL, `ParseJSON(body)` parses JSON objects into nested maps.
+   - **INVALID:** `body["protoPayload.methodName"]` looks for a literal key named `"protoPayload.methodName"` at the top level of the map. It does NOT automatically split on dots. This evaluates to `nil`, and under `error_mode: ignore`, the filter evaluates to `false` and **silently fails open**, causing high log volumes to bypass exclusion filters.
+   - **VALID:** `body["protoPayload"]["methodName"]` and `body["protoPayload"]["authenticationInfo"]["principalEmail"]`.
+8. **Detection Safety Denylist (Never Drop Lateral Movement / Poisoning Telemetry):**
    - Never drop **LLMNR (`UDP/5355`)**, **NBT-NS (`UDP/137`, `138`, `139` — and watch for `131` typos meant for `137`)**, **SMB (`445`)**, **MS-RPC (`135`)**, or **LDAP/LDAPS (`389`, `636`)**. In multicast/broadcast noise filters, only drop **SSDP (`1900`)** and **mDNS (`5353`)**.
-8. **Tuple Pinning, DNS 0x20 Case-Insensitivity, & Correlated Logs:**
+9. **Tuple Pinning, DNS 0x20 Case-Insensitivity, & Correlated Logs:**
    - **Pin the Tuple:** Never drop DNS domains (`ntp.ubuntu.com`, `www.msftconnecttest.com`) across all hosts if the noise originates from a few specific hosts. Pin `body["id.orig_h"]` to the exact noisy source IPs so attackers on other hosts cannot abuse those domains for C2 or DNS tunneling.
    - **DNS 0x20 Lower-Casing & Exact Comparison:** Resolvers using DNS 0x20 bit-randomization send mixed-case queries (`NtP.UbUnTu.CoM`). Always wrap `body["query"]` in `ConvertCase(body["query"], "lower")` and prefer exact `==` comparisons over regex when matching fixed FQDNs.
    - **Zeek Correlated Logs (`dns.log` + `conn.log`):** Every Zeek DNS query also produces a `conn` record on `id.resp_p == 53`. And never drop HTTPS (`443`) traffic to shared cloud/Azure/CDN IPs without inspecting `ssl.server_name` (`network.tls.client.server_name`) and ruling out C2 beaconing.
@@ -105,3 +109,28 @@ Add `--apply` to push the validated processor to the live Bindplane project via 
   --statement 'replace_pattern(body.string, "Bearer\\s+[A-Za-z0-9\\-_\\.]+", "Bearer REDACTED") where body.string != nil' \
   --statement 'set(attributes["secops.redacted"], true) where IsMatch(body.string, "Bearer REDACTED")'
 ```
+
+---
+
+## Workflow 3: Inspecting & Auditing Google SecOps Native Data Pipelines (`logProcessingPipelines`)
+
+When working with Chronicle's native ingestion processing pipelines (`logProcessingPipelines`), use `bindplane_cli.py` to inspect live pipelines and audit their OTTL statements and filter conditions for syntax errors or silent fail-open behaviors.
+
+Credentials are read automatically from `.env` (`SECOPS_PROJECT_ID`, `SECOPS_CUSTOMER_ID`, `SECOPS_REGION`) using standard Google Application Default Credentials (ADC).
+
+### 1. List Native SecOps Pipelines
+```bash
+<PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/skills/secops-ottl/scripts/bindplane_cli.py list-secops-pipelines
+```
+
+### 2. Inspect a Specific SecOps Pipeline by Name, ID, or Stream Log Type
+```bash
+<PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/skills/secops-ottl/scripts/bindplane_cli.py get-secops-pipeline GCP_CLOUDAUDIT
+```
+
+### 3. Audit a SecOps Pipeline for Broken Filters and Silent Fail-Open Bugs
+Scans all processors in the pipeline, validates OTTL expressions, and flags dot notation in parsed JSON maps (`body["protoPayload.methodName"]`), `attributes` vs `body` confusion, never-drop ports, and unpinned filters:
+```bash
+<PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/skills/secops-ottl/scripts/bindplane_cli.py audit-secops-pipeline GCP_CLOUDAUDIT
+```
+

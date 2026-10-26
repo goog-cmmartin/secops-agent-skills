@@ -549,6 +549,16 @@ def check_detection_and_pipeline_safety(
             "With 'error_mode: ignore', this fails open and drops nothing. Match on specific parsed fields such as 'body[\"id.resp_h\"]' instead."
         )
 
+    # Check for dotted keys in body map lookups (e.g. body["protoPayload.methodName"])
+    for lit_idx, (_lit_start, lit_val) in enumerate(literals):
+        if "." in lit_val and re.search(rf'\bbody\s*\[\s*__STR_{lit_idx}__\s*\]', stripped):
+            nested_syntax = "".join(f'["{part}"]' for part in lit_val.split("."))
+            warnings.append(
+                f"POTENTIAL SILENT FAIL-OPEN: 'body[\"{lit_val}\"]' contains dot notation inside a single map key string. "
+                f"In OTTL, parsed JSON objects are nested maps; indexing with a dot searches for a literal string key containing dots rather than traversing child fields. "
+                f"If accessing nested JSON fields, use nested brackets instead: 'body{nested_syntax}'."
+            )
+
     if mode != "condition":
         return errors, warnings
 

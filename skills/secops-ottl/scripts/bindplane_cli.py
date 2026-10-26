@@ -92,6 +92,81 @@ def bindplane_request(
         ) from exc
 
 
+def load_secops_env() -> Dict[str, str]:
+    """Loads SecOps environment configuration."""
+    repo_root = SCRIPT_DIR.parent.parent.parent
+    env_file = repo_root / ".env"
+    if env_file.exists():
+        load_dotenv(env_file)
+    else:
+        load_dotenv()
+
+    project_id = (
+        os.environ.get("SECOPS_PROJECT_ID")
+        or os.environ.get("GCP_PROJECT_ID")
+        or os.environ.get("GOOGLE_CLOUD_PROJECT", "").strip()
+    )
+    customer_id = os.environ.get("SECOPS_CUSTOMER_ID", "").strip()
+    region = os.environ.get("SECOPS_REGION", "us").strip()
+
+    if not customer_id or not project_id:
+        raise RuntimeError(
+            "Missing SECOPS_PROJECT_ID or SECOPS_CUSTOMER_ID in environment or .env file."
+        )
+
+    return {
+        "project_id": project_id,
+        "customer_id": customer_id,
+        "region": region,
+    }
+
+
+def secops_pipeline_request(
+    method: str = "GET",
+    endpoint: str = "logProcessingPipelines",
+    payload: Optional[Dict[str, Any]] = None,
+) -> Any:
+    """Executes an authenticated HTTP request against Google SecOps logProcessingPipelines API."""
+    import google.auth
+    from google.auth.transport.requests import Request
+
+    secops_cfg = load_secops_env()
+    project_id = secops_cfg["project_id"]
+    customer_id = secops_cfg["customer_id"]
+    region = secops_cfg["region"]
+
+    credentials, _ = google.auth.default(
+        scopes=["https://www.googleapis.com/auth/cloud-platform"]
+    )
+    if not credentials.valid:
+        credentials.refresh(Request())
+
+    url = (
+        f"https://{region}-chronicle.googleapis.com/v1alpha/projects/{project_id}/"
+        f"locations/{region}/instances/{customer_id}/{endpoint.lstrip('/')}"
+    )
+    headers = {
+        "Authorization": f"Bearer {credentials.token}",
+        "Accept": "application/json",
+        "x-goog-user-project": project_id,
+    }
+    data_bytes = None
+    if payload is not None:
+        headers["Content-Type"] = "application/json"
+        data_bytes = json.dumps(payload).encode("utf-8")
+
+    req = urllib.request.Request(url, data=data_bytes, headers=headers, method=method)
+    try:
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            raw = resp.read().decode("utf-8")
+            return json.loads(raw) if raw else {}
+    except urllib.error.HTTPError as exc:
+        err_body = exc.read().decode("utf-8", errors="replace")
+        raise RuntimeError(
+            f"SecOps Pipeline API {method} {url} failed with HTTP {exc.code}: {err_body}"
+        ) from exc
+
+
 def build_filter_resource(
     name: str,
     condition: str,
@@ -602,6 +677,107 @@ def cmd_audit_config(args: argparse.Namespace) -> None:
     )
 
 
+def cmd_list_secops_pipelines(args: argparse.Namespace) -> None:
+    data = secops_pipeline_request("GET", "logProcessingPipelines?pageSize=1000")
+    pipelines = data.get("logProcessingPipelines", [])
+    if args.json:
+        print(json.dumps(pipelines, indent=2))
+        return
+
+    print(f"SecOps Data Pipelines ({len(pipelines)} total):")
+    for p in pipelines:
+        name = p.get("name", "").split("/")[-1]
+        disp = p.get("displayName") or name
+        streams = ", ".join(s.get("logType", "") for s in p.get("streams", [])) or "(none)"
+        procs = len(p.get("processors", []))
+        print(f"  • {disp:25} | ID: {name} | Streams: {streams} | Processors: {procs}")
+
+
+def cmd_get_secops_pipeline(args: argparse.Namespace) -> None:
+    data = secops_pipeline_request("GET", "logProcessingPipelines?pageSize=1000")
+    pipelines = data.get("logProcessingPipelines", [])
+    query = args.pipeline.strip().lower()
+
+    matched = None
+    for p in pipelines:
+        name = p.get("name", "").split("/")[-1]
+        disp = (p.get("displayName") or "").strip().lower()
+        if query == name.lower() or query == disp:
+            matched = p
+            break
+        for s in p.get("streams", []):
+            if query == (s.get("logType") or "").lower():
+                matched = p
+                break
+        if matched:
+            break
+
+    if not matched:
+        raise ValueError(f"No SecOps pipeline found matching '{args.pipeline}'.")
+
+    print(json.dumps(matched, indent=2))
+
+
+def cmd_audit_secops_pipeline(args: argparse.Namespace) -> None:
+    data = secops_pipeline_request("GET", "logProcessingPipelines?pageSize=1000")
+    pipelines = data.get("logProcessingPipelines", [])
+    query = args.pipeline.strip().lower()
+
+    matched = None
+    for p in pipelines:
+        name = p.get("name", "").split("/")[-1]
+        disp = (p.get("displayName") or "").strip().lower()
+        if query == name.lower() or query == disp:
+            matched = p
+            break
+        for s in p.get("streams", []):
+            if query == (s.get("logType") or "").lower():
+                matched = p
+                break
+        if matched:
+            break
+
+    if not matched:
+        raise ValueError(f"No SecOps pipeline found matching '{args.pipeline}'.")
+
+    disp_name = matched.get("displayName") or matched.get("name", "")
+    print(f"Auditing SecOps Pipeline: {disp_name}")
+    processors = matched.get("processors", [])
+    has_parse_json = False
+
+    for idx, proc in enumerate(processors):
+        tp = proc.get("transformProcessor")
+        fp = proc.get("filterProcessor")
+        if tp:
+            stmts = tp.get("statements", [])
+            print(f"\n[Processor {idx}] TransformProcessor ({len(stmts)} statements, errorMode={tp.get('errorMode')}):")
+            for stmt in stmts:
+                if "ParseJSON(body)" in stmt or "parse_json" in stmt:
+                    has_parse_json = True
+                res = validate_ottl.validate_ottl_expression(
+                    stmt, mode="statement", context="log", body_state="map" if has_parse_json else "any"
+                )
+                status = "VALID" if res["valid"] else "INVALID"
+                print(f"  [{status}] {stmt.strip()}")
+                for e in res["errors"]:
+                    print(f"    ERROR: {e}")
+                for w in res["warnings"]:
+                    print(f"    WARNING: {w}")
+        elif fp:
+            conds = fp.get("logConditions", [])
+            print(f"\n[Processor {idx}] FilterProcessor ({len(conds)} conditions, errorMode={fp.get('errorMode')}):")
+            for cond in conds:
+                res = validate_ottl.validate_ottl_expression(
+                    cond, mode="condition", context="log", body_state="map" if has_parse_json else "any"
+                )
+                status = "VALID" if res["valid"] else "INVALID"
+                print(f"  [{status}] {cond.strip()}")
+                for e in res["errors"]:
+                    print(f"    ERROR: {e}")
+                for w in res["warnings"]:
+                    print(f"    WARNING: {w}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Inspect Bindplane configurations/processors and build/apply validated OTTL processors."
@@ -713,6 +889,24 @@ def main() -> int:
         help="Apply the processor to the live Bindplane project via POST /v1/apply.",
     )
 
+    p_secops_list = subparsers.add_parser(
+        "list-secops-pipelines",
+        help="List all native Google SecOps logProcessingPipelines via Chronicle API.",
+    )
+    p_secops_list.add_argument("--json", action="store_true", help="Output full JSON response.")
+
+    p_secops_get = subparsers.add_parser(
+        "get-secops-pipeline",
+        help="Get a specific SecOps logProcessingPipeline by name, ID, or stream log type.",
+    )
+    p_secops_get.add_argument("pipeline", help="Pipeline name, ID, or log type (e.g. GCP_CLOUDAUDIT).")
+
+    p_secops_audit = subparsers.add_parser(
+        "audit-secops-pipeline",
+        help="Audit a SecOps logProcessingPipeline for broken filters, dot notation in map keys, and fail-open errors.",
+    )
+    p_secops_audit.add_argument("pipeline", help="Pipeline name, ID, or log type (e.g. GCP_CLOUDAUDIT).")
+
     args = parser.parse_args()
     dispatch = {
         "list-agents": cmd_list_agents,
@@ -727,6 +921,9 @@ def main() -> int:
         "get-processor-type": cmd_get_processor_type,
         "build-filter": cmd_build_filter,
         "build-transform": cmd_build_transform,
+        "list-secops-pipelines": cmd_list_secops_pipelines,
+        "get-secops-pipeline": cmd_get_secops_pipeline,
+        "audit-secops-pipeline": cmd_audit_secops_pipeline,
     }
     try:
         dispatch[args.command](args)

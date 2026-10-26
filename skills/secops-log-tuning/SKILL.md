@@ -49,9 +49,9 @@ Always compute `COUNT(DISTINCT principal.hostname) AS distinct_hosts` (or `disti
 
 ## Workflow Steps
 
-### Step 1: Run Automated 2-Stage Tuning Analysis (Recommended)
+### Step 1: Run Automated 2-Stage Tuning Analysis & Pipeline Audit (Recommended)
 
-Run the built-in two-stage tuning analyzer, which executes Stage 1 (`events` $\bowtie$ `ingestion`) and parallel Stage 2 dimensional drill-downs via the Chronicle Dashboard Engine:
+Run the built-in two-stage tuning analyzer, which executes Stage 1 (`events` $\bowtie$ `ingestion`), parallel Stage 2 dimensional drill-downs, and automatically cross-checks active Chronicle ingestion pipelines (`logProcessingPipelines`) for broken/failing-open filters:
 
 ```bash
 <PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/skills/secops-log-tuning/scripts/run_log_tuning.py --days 7 --top-log-types 5 --top-categories 3
@@ -61,12 +61,19 @@ Run the built-in two-stage tuning analyzer, which executes Stage 1 (`events` $\b
 * `--days <N>`: Lookback window in days (default: `7`).
 * `--top-log-types <N>`: Number of top `log_type` sources by byte volume to analyze (default: `5`).
 * `--top-categories <K>`: Number of top `(event_type, product_event_type)` categories per `log_type` to drill into (default: `3`).
-* `--log-type <LOG_TYPE>`: Optional filter to analyze a single specific `log_type` (e.g., `--log-type SENTINELONE_CF`).
+* `--log-type <LOG_TYPE>`: Optional filter to analyze a single specific `log_type` (e.g., `--log-type GCP_CLOUDAUDIT`).
 * `--min-mb <FLOAT>`: Minimum estimated volume in MB to trigger a Stage 2 drill-down (default: `50.0`).
+* `--list-pipelines`: List all active SecOps `logProcessingPipelines` and exit.
+* `--no-pipeline-audit`: Skip querying and auditing SecOps `logProcessingPipelines` during analysis.
+
+### Step 2: Native Pipeline Cross-Check & Silent Fail-Open Detection
+`run_log_tuning.py` automatically inspects Chronicle's live `logProcessingPipelines` via the Chronicle REST API:
+* **Silent Fail-Open Detection:** Flags exclusion filters that were intended to drop high-volume events but fail open due to OTTL map key syntax errors (e.g. `body["protoPayload.methodName"]` instead of nested `body["protoPayload"]["methodName"]`). Under `errorMode: IGNORE`, invalid map lookups return `nil`, evaluating to `false` and letting millions of noisy events pass through.
+* **Correlated Volume Impact:** Quantifies exact wasted volume (events and MB/GB) for each failing filter and outputs the drop-in corrected OTTL filter condition.
 
 ---
 
-### Step 2: Run Custom Stage 2 Drill-Downs (When Investigating Specific Patterns)
+### Step 3: Run Custom Stage 2 Drill-Downs (When Investigating Specific Patterns)
 
 Consult [tuning_query_templates.md](./references/tuning_query_templates.md) for the canonical GoogleSQL Pipe Syntax (`|>`) templates for each `metadata.event_type` family (`FILE_*`, `PROCESS_*`, `NETWORK_DNS`, `NETWORK_CONNECTION`, `NETWORK_HTTP`, `REGISTRY_*`, `USER_*` / `RESOURCE_*`), and execute them via `validate_sql.py --execute`:
 
@@ -76,12 +83,13 @@ Consult [tuning_query_templates.md](./references/tuning_query_templates.md) for 
 
 ---
 
-### Step 3: Deliver the Tuning Report
+### Step 4: Deliver the Tuning Report
 
 Structure your findings for the user with:
 1. **Macro Volume Summary Table:** Top `log_type`s, 7-day ingested GB, `avg_bytes_per_log`, and top `(event_type, product_event_type)` shares.
-2. **Stage 2 Dimensional Breakdowns:** For each major volume driver, show:
+2. **Critical Failing-Open Pipeline Filters:** Highlight any filters configured in live `logProcessingPipelines` that are failing open, the wasted GBs, and the corrected OTTL syntax.
+3. **Stage 2 Dimensional Breakdowns:** For each major volume driver, show:
    * Top actor/process/flow dimensions
    * Event count, `% of category`, and **estimated MB/GB savings** (`event_count * avg_bytes_per_log`)
    * `distinct_hosts` / `distinct_src_ips` and `distinct_targets` + `sample_target`
-3. **Prioritized Tuning Recommendations:** Explicitly label each recommendation as **Fleet-Wide Exclusion** or **Single-Host / Sensor Fix**, state the exact filter criteria (process path, temp file pattern, DNS domain, resolver hop, or Windows Event ID + host), and include the validated Piped SQL queries so the user can save them to a Chronicle Native Dashboard.
+4. **Prioritized Tuning Recommendations:** Explicitly label each recommendation as **Fleet-Wide Exclusion** or **Single-Host / Sensor Fix**, state the exact filter criteria (process path, temp file pattern, DNS domain, resolver hop, or Windows Event ID + host), and include the validated Piped SQL queries so the user can save them to a Chronicle Native Dashboard.
