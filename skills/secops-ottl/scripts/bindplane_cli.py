@@ -778,6 +778,87 @@ def cmd_audit_secops_pipeline(args: argparse.Namespace) -> None:
                     print(f"    WARNING: {w}")
 
 
+def cmd_fix_secops_pipeline(args: argparse.Namespace) -> None:
+    """Automatically fixes silent fail-open filters in a SecOps pipeline (e.g. converting dotted keys to nested map lookups)."""
+    data = secops_pipeline_request("GET", "logProcessingPipelines?pageSize=1000")
+    pipelines = data.get("logProcessingPipelines", [])
+    query = args.pipeline.strip().lower()
+
+    matched = None
+    for p in pipelines:
+        name = p.get("name", "").split("/")[-1]
+        disp = (p.get("displayName") or "").strip().lower()
+        if query == name.lower() or query == disp:
+            matched = p
+            break
+        for s in p.get("streams", []):
+            if query == (s.get("logType") or "").lower():
+                matched = p
+                break
+        if matched:
+            break
+
+    if not matched:
+        raise ValueError(f"No SecOps pipeline found matching '{args.pipeline}'.")
+
+    pipe_id = matched.get("name", "").split("/")[-1]
+    disp_name = matched.get("displayName") or pipe_id
+    processors = matched.get("processors", [])
+
+    import re
+
+    def _fix_condition(cond: str) -> str:
+        fixed = cond
+
+        def _dot_repl(m):
+            key = m.group(1)
+            if "." in key:
+                parts = key.split(".")
+                return "".join(f'["{p}"]' for p in parts)
+            return f'["{key}"]'
+
+        fixed = re.sub(r'body\["([^"]+)"\]', lambda m: "body" + _dot_repl(m), fixed)
+        fixed = re.sub(
+            r'attributes\["([^"]+)"\]',
+            lambda m: "body" + _dot_repl(m) if "protoPayload" in m.group(1) else m.group(0),
+            fixed,
+        )
+        return fixed
+
+    changes = []
+    for idx, proc in enumerate(processors):
+        fp = proc.get("filterProcessor")
+        if fp:
+            new_conds = []
+            for cond in fp.get("logConditions", []):
+                fixed = _fix_condition(cond)
+                if fixed != cond:
+                    changes.append({"processor_index": idx, "before": cond, "after": fixed})
+                    new_conds.append(fixed)
+                else:
+                    new_conds.append(cond)
+            fp["logConditions"] = new_conds
+
+    if not changes:
+        print(f"No fail-open filter conditions detected in pipeline '{disp_name}'.")
+        return
+
+    print(f"Identified {len(changes)} filter condition(s) to fix in pipeline '{disp_name}' (ID: {pipe_id}):")
+    for ch in changes:
+        print(f"\n[Processor {ch['processor_index']}]")
+        print(f"  BEFORE: {ch['before']}")
+        print(f"  AFTER : {ch['after']}")
+
+    if args.dry_run:
+        print("\n[DRY RUN] No changes applied to live pipeline.")
+        return
+
+    endpoint = f"logProcessingPipelines/{pipe_id}?updateMask=processors"
+    resp = secops_pipeline_request("PATCH", endpoint, payload=matched)
+    print(f"\nSUCCESS: Pipeline '{disp_name}' updated successfully! updateTime: {resp.get('updateTime')}")
+
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Inspect Bindplane configurations/processors and build/apply validated OTTL processors."
@@ -907,6 +988,13 @@ def main() -> int:
     )
     p_secops_audit.add_argument("pipeline", help="Pipeline name, ID, or log type (e.g. GCP_CLOUDAUDIT).")
 
+    p_secops_fix = subparsers.add_parser(
+        "fix-secops-pipeline",
+        help="Automatically fix silent fail-open filters in a SecOps logProcessingPipeline.",
+    )
+    p_secops_fix.add_argument("pipeline", help="Pipeline name, ID, or log type (e.g. GCP_CLOUDAUDIT).")
+    p_secops_fix.add_argument("--dry-run", action="store_true", help="Preview fixes without applying via PATCH.")
+
     args = parser.parse_args()
     dispatch = {
         "list-agents": cmd_list_agents,
@@ -924,6 +1012,7 @@ def main() -> int:
         "list-secops-pipelines": cmd_list_secops_pipelines,
         "get-secops-pipeline": cmd_get_secops_pipeline,
         "audit-secops-pipeline": cmd_audit_secops_pipeline,
+        "fix-secops-pipeline": cmd_fix_secops_pipeline,
     }
     try:
         dispatch[args.command](args)

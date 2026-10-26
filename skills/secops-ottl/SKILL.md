@@ -134,3 +134,14 @@ Scans all processors in the pipeline, validates OTTL expressions, and flags dot 
 <PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/skills/secops-ottl/scripts/bindplane_cli.py audit-secops-pipeline GCP_CLOUDAUDIT
 ```
 
+### 4. Auto-Fix Silent Fail-Open Filters in a SecOps Pipeline
+Automatically rewrites dotted map keys to proper nested indexing (`body["a.b"]` -> `body["a"]["b"]`) and corrects `attributes` vs `body` references for parsed payloads, then applies the update to Chronicle via `PATCH`:
+```bash
+# Preview fixes without modifying live pipeline
+<PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/skills/secops-ottl/scripts/bindplane_cli.py fix-secops-pipeline GCP_CLOUDAUDIT --dry-run
+
+# Apply live fix directly via Chronicle API
+<PATH_TO_SECOPS_SKILLS>/venv/bin/python <PATH_TO_SECOPS_SKILLS>/skills/secops-ottl/scripts/bindplane_cli.py fix-secops-pipeline GCP_CLOUDAUDIT
+```
+
+
