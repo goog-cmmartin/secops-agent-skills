@@ -10,6 +10,8 @@ A modular skill pack for AI Agents (such as Google Antigravity and OpenCode) int
 - **`secops-log-tuning`**: Two-stage data-driven log volume and ingestion tuning analyzer. Joins `ingestion` metrics with `events`, routes by `metadata.event_type` to actor-grouped dimensional drill-downs, and quantifies byte/GB savings for fleet-wide policy exclusions vs. single-host outliers.
 - **`secops-nl2sql`**: Converts natural language, YARA-L 2.0 queries, Sysmon/EDR XML configs, or BigQuery SQL into valid, optimized GoogleSQL and GoogleSQL Pipe Syntax (`|>`) queries for Chronicle Native Dashboards, UDM Search, and Data Lake analytics. Includes local protobuf schema references and self-validation against the Chronicle Dashboard Engine.
 - **`secops-ottl`**: Authors, validates, and manages OpenTelemetry Transformation Language (OTTL) transform statements and filter conditions for Google SecOps and Bindplane collector pipelines. Includes offline OTTL syntax/state-transition validation and a live Bindplane CLI for auditing pipeline order and deploying processors.
+- **`secops-soar-dev`**: End-to-end development, testing, packaging, and deployment workflow for Google SecOps (Chronicle) SOAR custom integrations using the Content Hub specification, `mp` CLI utility, Workload Identity Federation, and native Vertex AI / Gemini tool grounding.
+
 
 ## Installation
 
@@ -53,3 +55,4 @@ Once installed, your agent will automatically discover these skills:
 - **Log Tuning**: *"Analyze our top noisy log types in Chronicle over the last 7 days and recommend exclusions."*
 - **GoogleSQL / PipedSQL**: *"Write a GoogleSQL Pipe query to aggregate process creation events by parent binary and count distinct users."*
 - **OTTL & Bindplane**: *"Audit our ZEEK Bindplane pipeline and generate a tuple-pinned OTTL filter for noisy internal DNS queries."*
+- **SOAR Custom Integrations**: *"Use the secops-soar-dev skill to build, test, and deploy our GoogleADK integration with the mp CLI."*
