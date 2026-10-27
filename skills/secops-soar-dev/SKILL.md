@@ -40,11 +40,27 @@ env -u http_proxy -u https_proxy -u HTTP_PROXY -u HTTPS_PROXY <COMMAND>
 ```
 *Note: Run network commands with sandbox bypass enabled when making live external calls.*
 
-### 3. Tenant Global Parameters
-When targeting the user's Chronicle SOAR tenant, consistently use these parameters:
-- **Customer ID**: `a556547c-1cff-43ef-a2e4-cf5b12a865df`
-- **Region**: `us`
-- **Project ID**: `sdl-preview-americas`
+### 3. Tenant Configuration (Environment Variables or .env)
+When targeting a Chronicle SOAR tenant, configure the tenant connection parameters using environment variables or a `.env` file in the project root:
+
+| Parameter | Environment Variable | Description | Example |
+| :--- | :--- | :--- | :--- |
+| **Customer ID** | `SECOPS_CUSTOMER_ID` | Chronicle customer UUID | `00000000-0000-0000-0000-000000000000` |
+| **Project ID** | `SECOPS_PROJECT_ID` | GCP Project ID hosting Chronicle instance | `my-chronicle-project` |
+| **Region** | `SECOPS_REGION` | Chronicle instance region (`us`, `europe-west3`, etc.) | `us` |
+
+These can be set in your shell environment:
+```bash
+export SECOPS_CUSTOMER_ID="<your-customer-uuid>"
+export SECOPS_PROJECT_ID="<your-project-id>"
+export SECOPS_REGION="us"
+```
+Or added to a local `.env` file:
+```ini
+SECOPS_CUSTOMER_ID=your-customer-uuid
+SECOPS_PROJECT_ID=your-project-id
+SECOPS_REGION=us
+```
 
 ---
 
@@ -139,20 +155,21 @@ The CLI configuration is stored at `~/.config/mp/config.yaml` (or via `$XDG_CONF
 ```yaml
 tenants:
   default:
-    customer_id: a556547c-1cff-43ef-a2e4-cf5b12a865df
-    project_id: sdl-preview-americas
-    region: us
+    customer_id: "<your-customer-uuid>"
+    project_id: "<your-gcp-project-id>"
+    region: "us"
     env: prod
 current_tenant: default
 ```
 
-To configure via CLI:
+To configure via the `mp` CLI using your environment variables or explicit parameters:
 ```bash
 mp config set \
-  --customer-id a556547c-1cff-43ef-a2e4-cf5b12a865df \
-  --project-id sdl-preview-americas \
-  --region us
+  --customer-id "${SECOPS_CUSTOMER_ID:-<your-customer-uuid>}" \
+  --project-id "${SECOPS_PROJECT_ID:-<your-gcp-project-id>}" \
+  --region "${SECOPS_REGION:-us}"
 ```
+
 
 ### 2. Building an Integration
 To validate dependencies, restructure code, vendor wheels, and generate a deployable `.zip` archive:
