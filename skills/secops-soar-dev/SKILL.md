@@ -1,24 +1,26 @@
 ---
 name: secops-soar-dev
 description: >-
-  Develop, build, test, and deploy Google SecOps (Chronicle) SOAR custom integrations
+  Develop, build, test, and deploy Google SecOps (Chronicle) SOAR custom integrations,
+  actions, scheduled jobs, HTML widgets, and playbooks (including Reaction Triggers)
   using the Content Hub specification, mp CLI utility, Workload Identity Federation,
   and native Vertex AI / Gemini tool grounding.
 ---
 
-# Google SecOps SOAR Integration Development Skill (`secops-soar-dev`)
+# Google SecOps SOAR Integration & Playbook Development Skill (`secops-soar-dev`)
 
-This skill provides an end-to-end operational guide, troubleshooting procedures, and development workflows for authoring, testing, packaging, and deploying Google SecOps (Chronicle) SOAR custom integrations using the modern Chronicle Content Hub architecture and the `mp` CLI utility.
+This skill provides an end-to-end operational guide, troubleshooting procedures, and development workflows for authoring, testing, packaging, and deploying Google SecOps (Chronicle) SOAR custom integrations, actions, scheduled jobs, HTML widgets, and playbooks using the modern Chronicle Content Hub architecture and the `mp` CLI utility.
 
 ---
 
 ## 🎯 When to Activate This Skill
 
 Activate this skill when:
-- Creating, modifying, or debugging Google SecOps SOAR custom integrations or actions.
-- Building, packaging, or uploading integrations using the `mp` CLI utility (`content-hub/packages/mp`).
+- Creating, modifying, or debugging Google SecOps SOAR custom integrations, actions, scheduled jobs (`jobs/`), or custom HTML widgets (`widgets/`).
+- Authoring, inspecting, or updating SOAR Playbooks (`CASE` vs. `ALERT` scope, Reaction Triggers such as `CASE_TAG_ADDED`, and in-place Case Overview widget re-runs).
+- Building, validating, packaging, or uploading integrations using the `mp` CLI utility (`content-hub/packages/mp`).
 - Configuring or troubleshooting authentication (Workload Identity Federation, GCP Service Account impersonation, or Gemini API keys).
-- Implementing native Gemini / Vertex AI agent features (Google Search Grounding, Code Execution sandbox, Memory Banks, or MCP servers).
+- Implementing native Gemini / Vertex AI agent features (Google Search Grounding, Code Execution sandbox, Memory Banks, or MCP servers) or Chronicle SIEM <-> SOAR entity/detection correlation workflows.
 - Packaging integrations for distribution via the Chronicle Web UI (`dist/<Name>.zip`) or syncing with GitHub repositories.
 
 ---
@@ -78,12 +80,16 @@ integrations/<integration_name>/
 ├── actions/               # Action Python entrypoints and corresponding YAML specs
 │   ├── <action_name>.py   # Python execution script
 │   └── <action_name>.yaml # Action parameters, output schema, and UI display settings
-├── core/                  # Core managers, client abstractions, and business logic
+├── jobs/                  # Optional scheduled SOAR jobs (compiled to Jobs/ by mp build)
+│   ├── <job_name>.py      # SiemplifyJob Python script
+│   └── <job_name>.yaml    # Job schedule parameters and defaults
+├── core/                  # Core managers, client abstractions, and bundled data files
 │   ├── __init__.py
-│   └── <ManagerName>.py
+│   ├── <ManagerName>.py
+│   └── <catalog>.json     # Optional static catalogs/prompts (packaged into Managers/)
 ├── widgets/               # Optional custom HTML/JS Result View widgets
-│   ├── <widget_name>.html # HTML/CSS/JS template for the SOAR Case Wall
-│   └── <widget_name>.yaml # Widget definition and parameter mapping
+│   ├── <widget_name>.html # HTML/CSS/JS template for the SOAR Case Wall / Overview
+│   └── <widget_name>.yaml # Widget definition, scope (alert/case), and sizing
 ├── resources/             # Official branding assets
 │   ├── logo.svg           # High-resolution vector logo
 │   └── image.png          # PNG fallback icon (e.g. 128x128)
@@ -318,6 +324,197 @@ client = genai.Client(
     credentials=creds,
 )
 ```
+
+### 4. Bundling Static Assets & Runtime Path Resolution in `mp build`
+When `mp build integration <name> --custom` packages an integration into a `.zip` archive, it restructures the source directory layout:
+- `core/` is flattened and renamed to `Managers/` at the root of the built archive.
+- `actions/` is compiled into `ActionsScripts/` and `ActionsDefinitions/`.
+- `jobs/` is compiled into `Jobs/` and `JobsDefinitions/`.
+
+To bundle static data files (e.g., `.json` scenario catalogs, `.txt` schema guides, or prompt templates) without external cloud storage or runtime network calls:
+1. Place the static files directly inside `core/` alongside your Manager class (e.g., `core/logjammer_catalog.json` or `core/secops_udm_guide.txt`). `mp build` automatically copies all files in `core/` into `Managers/`.
+2. Resolve the file path dynamically using `Path(__file__).resolve().parent` with fallback checks so it works identically in both local `pytest` (`core/`) and the deployed SOAR container (`Managers/`):
+   ```python
+   from pathlib import Path
+
+   def _resolve_asset_path(filename: str) -> Path:
+       base_dir = Path(__file__).resolve().parent
+       candidates = [
+           base_dir / filename,
+           base_dir.parent / "core" / filename,
+           base_dir.parent / "Managers" / filename,
+       ]
+       for candidate in candidates:
+           if candidate.exists():
+               return candidate
+       raise FileNotFoundError(f"Bundled asset '{filename}' not found in {candidates}")
+   ```
+
+### 5. ASCII Sanitization of Output Messages (`siemplify.end`)
+Legacy SOAR runner serialization (`siemplify.end(output_message, result_value, execution_state)`) can raise `UnicodeEncodeError` if an unhandled exception string or API response contains non-ASCII characters (such as `—`, smart quotes, or emoji). Always sanitize exception and status strings before passing them to `siemplify.end`:
+```python
+import unicodedata
+
+def _safe_ascii(text: str) -> str:
+    return unicodedata.normalize("NFKD", str(text)).encode("ascii", "ignore").decode("ascii")
+```
+
+---
+
+## ⏱️ Scheduled SOAR Jobs (`jobs/*.py` & `jobs/*.yaml`)
+
+Scheduled Jobs run periodically on the SOAR background scheduler (e.g., to inject continuous synthetic telemetry, poll external feeds, or perform recurring health/housekeeping tasks).
+
+### 1. Job YAML Definition (`jobs/<job_name>.yaml`)
+Note that `jobs/*.yaml` uses string parameter types (`string`, `boolean`, `int`) rather than numeric enum IDs:
+```yaml
+creator: Admin
+description: Continuously injects realistic synthetic baseline noise into Google SecOps SIEM.
+integration: LogJammer
+name: LogJammer Continuous Noise Generator
+parameters:
+  - default_value: "https://us-chronicle.googleapis.com"
+    description: "Chronicle Ingestion API endpoint."
+    is_mandatory: true
+    name: API Root
+    type: string
+  - default_value: "300"
+    description: "Total events to emit per scheduled job run."
+    is_mandatory: true
+    name: Events Per Run
+    type: string
+  - default_value: true
+    description: "Verify SSL certificates."
+    is_mandatory: false
+    name: Verify SSL
+    type: boolean
+```
+
+### 2. Job Python Implementation (`jobs/<job_name>.py`)
+- Use `from SiemplifyJob import SiemplifyJob`.
+- In Python 3.11 runner containers, always fall back to `siemplify.parameters` dict if `siemplify.extract_job_param()` returns `None`.
+- Persist job state across runs using `siemplify.fetch_timestamp()` / `siemplify.save_timestamp()` or `siemplify.get_scoped_job_context_property()` / `siemplify.set_scoped_job_context_property()`.
+
+```python
+from SiemplifyJob import SiemplifyJob
+
+SCRIPT_NAME = "LogJammer Continuous Noise Generator"
+
+def _get_param(siemplify: SiemplifyJob, name: str, default=None, is_mandatory: bool = False):
+    try:
+        val = siemplify.extract_job_param(param_name=name, default_value=default, is_mandatory=is_mandatory)
+        if val is not None:
+            return val
+    except Exception:
+        pass
+    raw_params = getattr(siemplify, "parameters", {}) or {}
+    return raw_params.get(name, default)
+
+def main():
+    siemplify = SiemplifyJob()
+    siemplify.script_name = SCRIPT_NAME
+    try:
+        api_root = _get_param(siemplify, "API Root", "https://us-chronicle.googleapis.com", True)
+        # Execute scheduled job logic...
+        siemplify.LOGGER.info("Successfully completed job iteration.")
+    except Exception as e:
+        siemplify.LOGGER.error(f"Job failed: {e}")
+        raise
+    finally:
+        siemplify.end_script()
+
+if __name__ == "__main__":
+    main()
+```
+
+---
+
+## 🎨 Custom HTML Widgets (`widgets/*.html` & `widgets/*.yaml`)
+
+Custom HTML widgets render rich interactive visualizations on the **Case Overview** tab (`scope: case` or `widget_definition_scope: both`) and the **Playbook Step Result View**.
+
+### 1. Widget YAML Schema (`widgets/<widget_name>.yaml`)
+```yaml
+action_identifier: Correlate Case Entities
+condition_group:
+  conditions: []
+  logical_operator: and
+data_definition:
+  html_height: 680
+  safe_rendering: false
+  type: html
+  widget_definition_scope: both
+default_size: full_width
+description: Renders an interactive Case Entity Correlation Summary & UDM Breakdown.
+integration: SecOpsSDKEngine
+scope: case
+title: Case Entity Correlation
+type: html
+```
+
+### 2. Dynamic Dark/Light Theme Synchronization in SOAR Iframes
+SOAR renders custom HTML widgets inside sandboxed `<iframe>` elements. Hardcoding dark-only or light-only backgrounds causes jarring visual contrast when analysts toggle between Dark and Light mode in the Chronicle UI.
+- Define all surface, text, border, and badge colors using `--soar-*` CSS custom properties (`:root[data-theme="dark"]` and `:root[data-theme="light"]`).
+- Implement a 3-tier theme detection script on load (and via `MutationObserver` on `window.parent.document.documentElement` when accessible):
+  1. **Parent DOM / Computed Luminance**: Inspect `window.parent.document.body` (or `window.top.document.body`) computed `backgroundColor` RGB luminance ($L = 0.299R + 0.587G + 0.114B$; if $L > 140$, apply `light`, else `dark`).
+  2. **OS / Browser Media Query**: Check `window.matchMedia('(prefers-color-scheme: light)').matches`.
+  3. **Manual Toggle Fallback**: Include a subtle theme toggle button in the widget header so the analyst can always override the theme.
+
+---
+
+## 🔄 Playbook Engineering, Scope (`CASE` vs. `ALERT`), & Reaction Triggers
+
+### 1. Chronicle Legacy Playbooks REST API Endpoints
+Playbooks and live execution instances can be inspected and modified programmatically via the Chronicle REST API (`https://<region>-chronicle.googleapis.com/v1alpha/projects/<project_id>/locations/<region>/instances/<customer_id>/legacyPlaybooks:...`):
+- **List Playbook Cards**: `POST .../legacyPlaybooks:legacyGetWorkflowMenuCardsWithEnvFilter`
+- **Fetch Full Playbook Definition**: `POST .../legacyPlaybooks:legacyGetWorkflowFullInfoWithEnvFilterByIdentifier` (`{"identifier": "<WORKFLOW_UUID>"}`)
+- **Save Playbook Definition**: `POST .../legacyPlaybooks:legacySaveWorkflowDefinitions` (`{"workflows": [<FULL_WORKFLOW_OBJECT>]}`)
+- **List Playbook Runs on a Case**: `POST .../legacyPlaybooks:legacyGetWorkflowInstancesCards` (`{"caseId": <CASE_ID>}`)
+- **Fetch Step-by-Step Execution Logs**: `POST .../legacyPlaybooks:legacyGetWorkflowInstance` (`{"id": <INSTANCE_ID>, "caseId": <CASE_ID>, "indicatorIdentifier": "<ALERT_IDENTIFIER>", "shouldFetchSteps": true}`)
+
+### 2. Critical Rules for `legacySaveWorkflowDefinitions`
+1. **`creator` Must Be a Valid SOAR User UUID**: Never pass an email address or `"System"` in the `creator` field when saving a playbook via the API — the SOAR backend validates `creator` against the internal user table and will fail or corrupt the card if it is not a valid UUID (query `/legacySoarUsers` first to obtain a valid UUID).
+2. **Preserve Folder Placement (`categoryName` & `categoryId`)**: Always include both `"categoryName"` (e.g., `"GSA"`) and `"categoryId"` (e.g., `9`) on the workflow payload so the playbook remains in its designated folder.
+3. **Never Save While a Run Is `IN_PROGRESS`**: Saving a playbook via `legacySaveWorkflowDefinitions` mints a **new `identifier` UUID snapshot** while keeping `originalPlaybookIdentifier` constant. Saving while an instance is actively executing (`status: "IN_PROGRESS"`) can orphan pending steps on the old revision UUID.
+
+### 3. `CASE` vs. `ALERT` Scope & In-Place Case Playbook Re-runs (Pattern A)
+- **Why Scope Matters**: Widgets placed on the **Case Overview** tab require actions executed inside a **`CASE`-scoped** playbook (`scope: "CASE"`). However, standard `CASE_DATA` triggers only fire **once** when the case is initially created.
+- **The Post-Ingestion Replay Challenge**: When an `ALERT`-scoped playbook (such as `LogJammer`) replays synthetic logs into Chronicle after case creation, new detections arrive ~2–3 minutes later. A standard `CASE_DATA` playbook has already finished and will not include those post-replay detections.
+- **Solution — Reaction Trigger Pattern A (`CASE_TAG_ADDED` + Tag Cycle)**:
+  Use a **`CASE_TAG_ADDED`** reaction trigger so the `CASE`-scoped playbook re-executes **in-place** (`#1` -> `#2`, `runCount: "2"`) and refreshes the Case Overview HTML widgets directly:
+  1. **Initial Case Playbook (`Case Ingestion`, `scope: "CASE"`, `trigger.type: "CASE_DATA"`)**:
+     Runs initial case setup and executes `Siemplify_Case Tag` (`Tag: "Run_Case_Correlation"`).
+  2. **Correlation Case Playbook (`Case Correlate Case Entities`, `scope: "CASE"`, `trigger.type: "CASE_TAG_ADDED"`)**:
+     - Configured with trigger value `"Run_Case_Correlation"`, `executionMode: "QUEUED"`, and `maxReactionDepth: 5`.
+     - **Important**: Ensure `trigger.conditions` and `trigger.reactionConditions` are empty (`[]`). Do **not** leave stale `CASE_DATA` conditions (like `[Event.alert_type]` or `[trigger.to_state]`) inside a `CASE_TAG_ADDED` trigger, or the reaction trigger will silently evaluate to `false`!
+     - Runs `Correlate Case Entities`, `Correlate Silent Detections`, and `GoogleADK_Run ADK Agent`.
+     - **Final Step (`Siemplify_Remove Tag`)**: Removes the `"Run_Case_Correlation"` tag from the case so the tag can be re-applied later.
+  3. **Alert-Level Replay Playbook (`LogJammer`, `scope: "ALERT"`)**:
+     - Replays scenario telemetry into Chronicle (`LogJammer_Execute Attack Scenario`).
+     - Waits for Chronicle's streaming YARA-L detection engine (`Tools_Delay Playbook V2`, e.g., 3 minutes).
+     - Calls `Siemplify_Case Tag` (`Tag: "Run_Case_Correlation"`), which re-triggers `Case Correlate Case Entities` in-place (`#2`) to capture the newly generated detections and update the Case Overview HTML widgets.
+
+---
+
+## 🔍 Chronicle SIEM ↔ SOAR Entity & Detection Correlation Patterns
+
+### 1. Inferring True Entity Types from SOAR `GENERICENTITY`
+Chronicle SOAR Case and Alert cards frequently classify extracted entities (including IP addresses, AWS IAM ARNs, and hostnames) under the catch-all `GENERICENTITY` type (`entity_type == "GENERICENTITY"`). If an integration relies strictly on SOAR's `entity_type` to select a UDM search template, valid entities will be skipped or searched against the wrong UDM fields.
+**Always run value-based regex/heuristic inference before falling back to SOAR's raw `entity_type`:**
+- **IPv4 / IPv6 regex** -> `ADDRESS` (`ip = "{val}" OR principal.ip = "{val}" OR target.ip = "{val}" OR src.ip = "{val}"`)
+- **AWS ARN (`^arn:aws[-a-z0-9]*:`) or Email (`@`)** -> `USER` (`principal.user.userid`, `target.user.userid`, `principal.user.email_addresses`, `target.user.email_addresses`, `principal.user.product_object_id`)
+- **MD5 (32 hex) / SHA1 (40 hex) / SHA256 (64 hex)** -> `FILEHASH` (`target.file.sha256`, `target.file.md5`, `principal.process.file.sha256`)
+- **FQDN / Hostname pattern** -> `HOSTNAME` (also strip domain suffix to query both `{fqdn}` and `{short_hostname}` across `principal.hostname`, `target.hostname`, and `principal.asset.hostname`)
+
+### 2. Distinguishing YARA-L Detections (`ALERTING` vs. `NOT_ALERTING`) from Raw UDM Events
+When querying Chronicle via `udm_search` (`legacySearchCustomerEvents`) or `list_detections`:
+- **Alerting YARA-L Detections (`alertState: "ALERTING"`)**: Custom or curated YARA-L rules configured to generate alerts in Chronicle Cases.
+- **Silent YARA-L Detections (`alertState: "NOT_ALERTING"`)**: YARA-L rules that matched UDM events in the background without generating a standalone SOAR alert. Note that in `legacySearchCustomerEvents`, detection metadata can appear in either per-event `ev["detections"]` or the top-level stream `detections` array (where `ruleId` begins with `ru_` or `ur_`).
+- **Parser `securityResult` Annotations vs. YARA-L Detections**: Windows EventLog / Sysmon parsers populate `udm.securityResult` with EventID descriptions (e.g., `"A user was added to a security-enabled global group"`). These are **parser annotations, not YARA-L rule detections** — filter by `ruleId` prefix (`ru_` / `ur_`) or explicit `alertState` when correlating silent YARA-L rules.
+- **Unalerted Precursor UDM Events (`detections: None`)**: Critical attacker actions (such as a `certutil.exe -decode` webshell drop or `whoami /all` reconnaissance) may not trigger *any* YARA-L rule (neither `ALERTING` nor `NOT_ALERTING`). Always pair `correlate_silent_detections` with a chronological `search_udm_events` pivot on the host/user around the alert timestamp so the AI analyst or playbook uncovers unalerted precursor activity.
+
+### 3. Dynamic Lookahead Window for Replayed Detections
+When correlating detections around a case's reference timestamp (`ref_time`), always extend the upper bound of the search window to `max(ref_time + 2h, datetime.now(timezone.utc) + 15m)`. Because replayed logs (e.g., from `LogJammer`) are ingested at current wall-clock time *after* the initial alert timestamp, capping `end_time` strictly at `ref_time + 2h` can miss newly replayed detections if the original alert had an older timestamp.
 
 ---
 
